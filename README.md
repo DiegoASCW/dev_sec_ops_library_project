@@ -21,5 +21,5 @@
    4.3 No painel superior, selecione "Import";
    4.4 Selecione o arquivo no caminho: "sql file/library.sql".
 
-6. Pronto! Agora pode acessar o projeto web.
-   
+6. Pronto! Agora pode acessar o projeto web. Mas ATENÇÃO, no banco de dados, foi alterado a database de "library" -> "openshelf", por isso algumas alterações podem ser necessárias por enquanto. 
+ 
