@@ -8,55 +8,9 @@ docker volume create mysql-data
 
 # Passo 3: Rodar o container do MySQL
 Write-Host "Rodando o container MySQL..."
-docker run -d --name mysql-stable -v mysql_data:/var/lib/mysql -p 3306:3306 --network openshelf_mysql_network-R4 --ip 10.0.4.11 -e MYSQL_ROOT_PASSWORD=passwd -e MYSQL_DATABASE=openshelf_schema -e MYSQL_USER=Admin -e MYSQL_PASSWORD=passwd mysql
+docker pull diegolautenscs/personal_stables:mysql-openshelf-stable
 
-# Aguardar o container MySQL iniciar
-Write-Host "Aguardando o MySQL iniciar..."
-Start-Sleep -Seconds 15
-
-# Passo 4: Criar a database openshelf
-Write-Host "Criando a database 'openshelf'..."
-docker exec -i mysql-stable mysql -u root -ppasswd -e "CREATE DATABASE IF NOT EXISTS openshelf;"
-
-# Passo 5: Criar as tabelas
-Write-Host "Criando as tabelas..."
-$sqlTables = @"
-  CREATE TABLE IF NOT EXISTS Endereco (
-      id_endereco INT PRIMARY KEY AUTO_INCREMENT,
-      endereco_residencial VARCHAR(255) NOT NULL,
-      cidade VARCHAR(100) NOT NULL,
-      estado VARCHAR(50) NOT NULL,
-      cep VARCHAR(20) NOT NULL,
-      pais VARCHAR(100) NOT NULL
-  );
-  
-  CREATE TABLE IF NOT EXISTS Cliente (
-      id_cliente INT PRIMARY KEY AUTO_INCREMENT,
-      id_endereco INT NOT NULL,
-      email VARCHAR(255) UNIQUE NOT NULL,
-      senha VARCHAR(255) NOT NULL,
-      nome_usuario VARCHAR(100) UNIQUE NOT NULL,
-      quando_entrou DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
-      nome_completo VARCHAR(255) NOT NULL,
-      FOREIGN KEY (id_endereco) REFERENCES Endereco(id_endereco) ON DELETE CASCADE
-  );
-"@
-$sqlTables | docker exec -i mysql-stable mysql -u root -ppasswd openshelf
-
-# Passo 6: Inserir dados nas tabelas
-Write-Host "Inserindo dados nas tabelas..."
-$sqlInserts = @"
-  INSERT INTO Endereco (endereco_residencial, cidade, estado, cep, pais) VALUES
-  ('Rua das Flores, 123', 'São Paulo', 'SP', '01000-000', 'Brasil'),
-  ('Avenida Brasil, 456', 'Rio de Janeiro', 'RJ', '20000-000', 'Brasil'),
-  ('Rua Principal, 789', 'Belo Horizonte', 'MG', '30000-000', 'Brasil');
-  
-  INSERT INTO Cliente (id_endereco, email, senha, nome_usuario, nome_completo) VALUES
-  (1, 'joao.silva@email.com', 'senha123', 'joao.silva', 'João Silva'),
-  (2, 'ana.pereira@email.com', 'senha456', 'ana.pereira', 'Ana Pereira'),
-  (3, 'luiz.santos@email.com', 'senha789', 'luiz.santos', 'Luiz Santos');
-"@
-$sqlInserts | docker exec -i mysql-stable mysql -u root -ppasswd openshelf
+docker run -d --name mysql-stable -v mysql_data:/var/lib/mysql -p 3306:3306 --network openshelf_mysql_network-R4 --ip 10.0.4.11 -e MYSQL_ROOT_PASSWORD=passwd -e MYSQL_DATABASE=openshelf_schema -e MYSQL_USER=Admin -e MYSQL_PASSWORD=passwd diegolautenscs/personal_stables:mysql-openshelf-stable
 
 Write-Host "Ambiente Docker MySQL e Banco de Dados criados e populados com sucesso!"
 
