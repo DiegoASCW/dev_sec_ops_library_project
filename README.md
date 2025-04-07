@@ -1,6 +1,9 @@
 # dev_sec_ops_library_project
 
-## Instalation
+## MySQL setup
+1. Execute o script em "Containers > MySQL-gen"
+
+## Web Application Instalation
 1. Baixe e descompacte o arquivo "Online-Library-Management-System-PHP-master.zip";
 
 2. Inicie o XAMPP:
