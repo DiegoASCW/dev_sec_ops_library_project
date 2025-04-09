@@ -37,7 +37,6 @@ echo "docker exec -it ubuntu_apache bash"
 
 echo -e "\n\n\n\n Para testar o PHP:"
 echo "Acesse no navegador: http://localhost/info.php"
-echo "Ou via porta alternativa: http://localhost:8080/info.php"
 
 echo -e "\n\n\n\n Detalhes de rede:"
 echo "Nome: apache_network-R5"
