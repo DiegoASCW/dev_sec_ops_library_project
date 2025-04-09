@@ -8,9 +8,9 @@ docker volume create mysql-data
 
 # Passo 3: Rodar o container do MySQL
 Write-Host "Rodando o container MySQL..."
-docker pull diegolautenscs/personal_stables:mysql-openshelf-stable
+docker pull diegolautenscs/personal_stables:mysql-openshelf-v3
 
-docker run -d --name mysql-stable -v mysql_data:/var/lib/mysql -p 3306:3306 --network openshelf_mysql_network-R4 --ip 10.0.4.11 -e MYSQL_ROOT_PASSWORD=passwd -e MYSQL_DATABASE=openshelf_schema -e MYSQL_USER=Admin -e MYSQL_PASSWORD=passwd diegolautenscs/personal_stables:mysql-openshelf-stable
+docker run -d --name mysql-stable -v mysql_data:/var/lib/mysql -p 3306:3306 --network openshelf_mysql_network-R4 --ip 10.0.4.11 -e MYSQL_ROOT_PASSWORD=passwd -e MYSQL_DATABASE=openshelf_schema -e MYSQL_USER=Admin -e MYSQL_PASSWORD=passwd diegolautenscs/personal_stables:mysql-openshelf-v3
 
 Write-Host "Ambiente Docker MySQL e Banco de Dados criados e populados com sucesso!"
 

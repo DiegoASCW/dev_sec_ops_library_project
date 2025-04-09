@@ -11,7 +11,7 @@ docker volume create mysql-data
 # Passo 3: Rodar o container do MySQL
 echo "Rodando o container MySQL..."
 
-docker pull diegolautenscs/personal_stables:mysql-openshelf-stable
+docker pull diegolautenscs/personal_stables:mysql-openshelf-v3
 
 docker run -d \
   --name mysql-stable \
@@ -23,7 +23,7 @@ docker run -d \
   -e MYSQL_DATABASE=openshelf_schema \
   -e MYSQL_USER=Admin \
   -e MYSQL_PASSWORD=passwd \
-  diegolautenscs/personal_stables:mysql-openshelf-stable
+  diegolautenscs/personal_stables:mysql-openshelf-v3
 
 echo "Ambiente Docker MySQL criado com sucesso!"
 
