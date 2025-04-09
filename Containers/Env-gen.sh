@@ -30,7 +30,7 @@ docker run -d \
   --network apache_network-R5  \
   --ip 10.0.5.10 \
   -v $(pwd)/php.ini:/usr/local/etc/php/conf.d/custom.ini \
-  -v $(pwd)/../Projeto_Web/Online-Library-Management-System-PHP-master:/var/www/html\
+  -v $(pwd)/../Projeto_Web/site:/var/www/html\
   php:8.2-apache \
   bash -c "docker-php-ext-install pdo_mysql && a2enmod rewrite && apache2-foreground"
 
