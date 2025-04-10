@@ -6,15 +6,15 @@
    
       First let's ensure your computer is allowing the executing of scripts;
    
-      '''Set-ExecutionPolicy RemoteSigned'''
+      **`Set-ExecutionPolicy RemoteSigned`**
    
       During the enabling press A
    
-      In the folder with the instalation script, with docker already installed, run as Admin your Powershell instance, as '''./Env-gen.ps1'''
+      In the folder with the instalation script, with docker already installed, run as Admin your Powershell instance, as **`./Env-gen.ps1`**
    
    1.2 Linux
    
-      Navigate to the folder with the file in it, with docker already installed, and run the command '''sudo ./Env-gen.sh'''
+      Navigate to the folder with the file in it, with docker already installed, and run the command **`sudo ./Env-gen.sh`**
       
 
 ## MySQL setup
