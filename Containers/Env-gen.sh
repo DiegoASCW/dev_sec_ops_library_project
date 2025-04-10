@@ -2,9 +2,9 @@
 
 # Reset do ambiente
 docker stop ubuntu_apache mysql_stable > /dev/null
-docker rm ubuntu_apache mysql_stable > /dev/null
-#docker rmi diegolautenscs/personal_stables:mysql-openshelf-v3 php:8.2-apache > /dev/null
-docker network rm apache_network-R5 mysql_network-R4 apache_mysql_network-R4-5 > /dev/null
+docker rm ubuntu_apache mysql_stable mysql-stable > /dev/null
+docker rmi diegolautenscs/personal_stables:mysql-openshelf-v3 php:8.2-apache > /dev/null
+docker network rm apache_network-R5 mysql_network-R4 apache_mysql_network-R4-5 openshelf_mysql_network-R4 > /dev/null
 docker volume rm mysql-data  > /dev/null
 
 # Passo 1: Criar as redes Docker
