@@ -2,9 +2,9 @@
 
 # Reset do ambiente
 docker stop ubuntu_apache mysql_stable > /dev/null
-docker rm ubuntu_apache mysql_stable > /dev/null
-#docker rmi diegolautenscs/personal_stables:mysql-openshelf-v3 php:8.2-apache > /dev/null
-docker network rm apache_network-R5 mysql_network-R4 apache_mysql_network-R4-5 > /dev/null
+docker rm ubuntu_apache mysql_stable mysql-stable > /dev/null
+docker rmi diegolautenscs/personal_stables:mysql-openshelf-v3 php:8.2-apache > /dev/null
+docker network rm apache_network-R5 mysql_network-R4 apache_mysql_network-R4-5 openshelf_mysql_network-R4 > /dev/null
 docker volume rm mysql-data  > /dev/null
 
 # Passo 1: Criar as redes Docker
@@ -30,7 +30,7 @@ docker run -d \
   --network apache_network-R5  \
   --ip 10.0.5.10 \
   -v $(pwd)/php.ini:/usr/local/etc/php/conf.d/custom.ini \
-  -v $(pwd)/../Projeto_Web/Online-Library-Management-System-PHP-master:/var/www/html\
+  -v $(pwd)/../Projeto_Web/site:/var/www/html\
   php:8.2-apache \
   bash -c "docker-php-ext-install pdo_mysql && a2enmod rewrite && apache2-foreground"
 
