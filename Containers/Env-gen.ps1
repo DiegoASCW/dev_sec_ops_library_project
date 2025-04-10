@@ -1,12 +1,3 @@
-# Check and set the Execution Policy to RemoteSigned if needed
-$currentExecutionPolicy = Get-ExecutionPolicy
-if ($currentExecutionPolicy -ne "RemoteSigned") {
-    Write-Host "Current Execution Policy is '$currentExecutionPolicy'. Changing it to 'RemoteSigned'..."
-    Set-ExecutionPolicy RemoteSigned -Force
-} else {
-    Write-Host "Execution Policy is already set to 'RemoteSigned'."
-}
-
 # Reset the environment
 docker stop ubuntu_apache mysql_stable | Out-Null
 docker rm ubuntu_apache mysql_stable | Out-Null
