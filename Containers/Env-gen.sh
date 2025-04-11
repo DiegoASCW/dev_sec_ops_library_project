@@ -1,53 +1,60 @@
 #!/bin/bash
 
-# Reset the environment (yo, this will wipe out your current Docker setup—double-check, fam!)
+# Reset do ambiente
 docker stop ubuntu_apache mysql_stable > /dev/null
 docker rm ubuntu_apache mysql_stable mysql-stable > /dev/null
-docker rmi diegolautenscs/personal_stables:mysql-openshelf-v3 php:8.2-apache > /dev/null
+docker rmi diegolautenscs/web_sec_stables:mysql-openshelf-v12 diegolautenscs/web_sec_stables:mysql-openshelf-v12 mysql-openshelf-v12 php:8.2-apache > /dev/null
 docker network rm apache_network-R5 mysql_network-R4 apache_mysql_network-R4-5 openshelf_mysql_network-R4 > /dev/null
-docker volume rm mysql-data > /dev/null
+docker volume rm mysql-data  > /dev/null
 
-# Step 1: Create Docker networks
-echo -e "\nCreating Docker networks..."
+# Passo 1: Criar as redes Docker
+echo -e "\nCriando a rede Docker..."
 docker network create --driver bridge --subnet=10.0.5.0/24 --ip-range=10.0.5.0/24 --gateway=10.0.5.254 apache_network-R5
 docker network create --driver bridge --subnet=10.0.4.0/24 --ip-range=10.0.4.0/24 --gateway=10.0.4.254 mysql_network-R4
 docker network create --driver bridge --subnet=10.0.45.0/24 --ip-range=10.0.45.0/24 --gateway=10.0.45.254 apache_mysql_network-R4-5
 
+
+
 # "===============[APACHE]==============="
-# Step 2: Create directories for volumes
-echo -e "\nCreating directories for volumes..."
+# Passo 2: Criar diretórios para volumes
+echo -e "\nCriando diretórios para volumes..."
 mkdir -p html
 touch php.ini
 
-# Step 3: Run the Apache/PHP container
-echo -e "\nLaunching the Apache/PHP container..."
+# Passo 3: Rodar o container do Apache com PHP
+echo -e "\nRodando o container Apache/PHP..."
 
 docker run -d \
   --name ubuntu_apache \
   -p 80:80 \
-  --network apache_network-R5 \
+  --network apache_network-R5  \
   --ip 10.0.5.10 \
   -v $(pwd)/php.ini:/usr/local/etc/php/conf.d/custom.ini \
-  -v $(pwd)/../Projeto_Web/site:/var/www/html \
+  -v $(pwd)/../Projeto_Web/site:/var/www/html\
   php:8.2-apache \
   bash -c "docker-php-ext-install pdo_mysql && a2enmod rewrite && apache2-foreground"
 
 docker network connect --ip 10.0.45.20 apache_mysql_network-R4-5 ubuntu_apache
 
-echo -e "\nDocker environment for Apache/PHP is lit and ready!"
 
-# Create a PHP test file
+echo -e "\nAmbiente Docker Apache/PHP criado com sucesso!"
+
+# Criar arquivo de teste PHP
 echo -e "<?php phpinfo(); ?>" > html/info.php
 
+
+
+
 # "===============[MySQL]==============="
-# Step 2: Create a Docker volume to persist MySQL data
-echo -e "\nCreating Docker volume..."
+
+# Passo 2: Criar o volume Docker para persistir os dados do MySQL
+echo -e "\nCriando o volume Docker..."
 docker volume create mysql-data
 
-# Step 3: Run the MySQL container
-echo -e "\nLaunching the MySQL container..."
+# Passo 3: Rodar o container do MySQL
+echo -e "\nRodando o container MySQL..."
 
-docker pull diegolautenscs/personal_stables:mysql-openshelf-v3
+docker pull diegolautenscs/web_sec_stables:mysql-openshelf-v12
 
 docker run -d \
   --name mysql_stable \
@@ -59,45 +66,43 @@ docker run -d \
   -e MYSQL_DATABASE=openshelf_schema \
   -e MYSQL_USER=Admin \
   -e MYSQL_PASSWORD=passwd \
-  diegolautenscs/personal_stables:mysql-openshelf-v3
+  diegolautenscs/web_sec_stables:mysql-openshelf-v12
 
 docker network connect --ip 10.0.45.10 apache_mysql_network-R4-5 mysql_stable
 
-echo -e "\nDocker environment for MySQL is up and running!\n"
+echo -e "\nAmbiente Docker MySQL criado com sucesso!\n"
+
+
 
 echo -e "\n\n\n===============[APACHE]==============="
 
-echo -e "\n\n CONTAINER INFO:"
-echo -e "Apache server with PHP 8.2 installed"
-echo -e "Included extension: pdo_mysql"
-echo -e "Enabled Apache module: rewrite"
+echo -e "\n\n INFORMAÇÕES DO CONTAINER:"
+echo -e "Servidor Apache com PHP 8.2 instalado"
+echo -e "Extensões incluídas: pdo_mysql"
+echo -e "Módulo Apache habilitado: rewrite"
 
-echo -e "\n\n To access the container:"
+echo -e "\n\n Para acessar o container:"
 echo "docker exec -it ubuntu_apache bash"
 
-echo -e "\n\n To test PHP:"
-echo "Open in your browser: http://localhost/info.php"
+echo -e "\n\n Para testar o PHP:"
+echo "Acesse no navegador: http://localhost/info.php"
 
-echo -e "\n\n Network details:"
-echo "Name: apache_network-R5"
+echo -e "\n\n Detalhes de rede:"
+echo "Nome: apache_network-R5"
 echo "Gateway: 10.0.5.254"
 echo "IP-range: 10.0.5.0/24"
 echo "Container IP: 10.0.5.10"
 
-echo -e "\n\n Mapped volumes:"
-echo "Web Project: $(pwd)/../Projeto_Web/Online-Library-Management-System-PHP-master/library → /var/www/html"
+echo -e "\n\n Volumes mapeados:"
+echo "Projeto Web: $(pwd)../Projeto_Web/Online-Library-Management-System-PHP-master/library → /var/www/html"
 echo "PHP.ini: $(pwd)/php.ini → /usr/local/etc/php/conf.d/custom.ini"
+
+
 
 echo -e "\n\n\n===============[MySQL]==============="
 
-echo -e "\n\n DOCKER CREDENTIALS:\nUser: root\nPassword: passwd"
+echo -e "\n\n CREDENCIAIS DO DOCKER:\nuser: root\nPassword: passwd"
 
-echo -e "\n\n To access the MySQL container:"
-echo "docker start mysql_stable"
-echo "docker exec -it mysql_stable mysql -u root -p"
+echo -e "\n\n Para acessar o docker:\ndocker start mysql_stable\ndocker exec -it mysql_stable mysql -u root -p"
 
-echo -e "\n\n Network details:"
-echo "Name: mysql_network-R4"
-echo "Gateway: 10.0.4.254"
-echo "IP-range: 10.0.4.0/24"
-echo "Container IP: 10.0.4.11"
+echo -e "\n\n Detalhes de rede:\nNome: mysql_network-R4\nGateway:10.0.4.254\nip-range: 10.0.4.0/24\nContainer IP: 10.0.4.11"
