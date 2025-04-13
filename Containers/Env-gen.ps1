@@ -51,11 +51,6 @@ docker network create --driver bridge --subnet=10.0.4.0/24 --ip-range=10.0.4.0/2
 docker network create --driver bridge --subnet=10.0.45.0/24 --ip-range=10.0.45.0/24 --gateway=10.0.45.254 apache_mysql_network-R4-5
 
 # ===============[APACHE]===============
-# Step 2: Create directories for volumes
-Write-Host "`nCreating directories for volumes..."
-New-Item -Path html -ItemType Directory -Force | Out-Null
-New-Item -Path php.ini -ItemType File -Force | Out-Null
-
 # Step 3: Run the Apache/PHP container
 Write-Host "`nRunning Apache/PHP container..."
 
@@ -67,7 +62,6 @@ docker run -d `
   -p 80:80 `
   --network apache_network-R5 `
   --ip 10.0.5.10 `
-  -v "$pwdUnix/php.ini:/usr/local/etc/php/conf.d/custom.ini" `
   -v "$pwdUnix/../Projeto_Web/site:/var/www/html" `
   php:8.2-apache `
   bash -c "docker-php-ext-install pdo_mysql && a2enmod rewrite && apache2-foreground"
@@ -76,9 +70,6 @@ docker network connect --ip 10.0.45.20 apache_mysql_network-R4-5 ubuntu_apache
 
 Write-Host "`nDocker Apache/PHP environment created successfully!"
 
-# Create a PHP test file
-Write-Host "`nCreating PHP test file..."
-Set-Content -Path "html/info.php" -Value "<?php phpinfo(); ?>"
 
 # ===============[MYSQL]===============
 # Step 2: Create the Docker volume for MySQL data persistence
@@ -207,6 +198,10 @@ CREATE TABLE tblworkers (
 
 Write-Host "`nDocker MySQL environment created successfully!`n"
 
+docker exec -i mysql_stable mysql -u root -ppasswd -e "USE openshelf;INSERT INTO tblstudents (StudentId, FullName, EmailId, MobileNumber, Password, Status) VALUES ('STD007', 'teste', 'teste@gmail.com', '123', '698dc19d489c4e4db73e28a713eab07b', 1);"
+Write-Host "`nusuario teste estudantes criado com sucesso!`n"
+docker exec -it mysql_stable mysql -u root -ppasswd -e "USE openshelf;INSERT INTO admin (FullName, AdminEmail, UserName, Password) VALUES ('teste', 'teste@gmail.com', 'teste', '698dc19d489c4e4db73e28a713eab07b');"
+Write-Host "`nUsuario teste admin crieado com sucesso`n"
 # Information Output for Apache Container
 Write-Host "`n`n`n==============[APACHE]=============="
 Write-Host "`n`nCONTAINER INFORMATION:"
