@@ -196,6 +196,10 @@ CREATE TABLE tblworkers (
 );
 "
 
+docker exec -i mysql_stable mysql -u root -ppasswd -e "USE openshelf;INSERT INTO tblstudents (StudentId, FullName, EmailId, MobileNumber, Password, Status) VALUES ('STD007', 'teste', 'teste@gmail.com', '123', '698dc19d489c4e4db73e28a713eab07b', 1);"
+
+docker exec -it mysql_stable mysql -u root -ppasswd -e "USE openshelf;IINSERT INTO admin (FullName, AdminEmail, UserName, Password) VALUES ('teste', 'teste@gmail.com', 'teste', '698dc19d489c4e4db73e28a713eab07b');"
+
 echo -e "\nAmbiente Docker MySQL criado com sucesso!\n"
 
 
