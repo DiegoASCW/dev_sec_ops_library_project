@@ -5,6 +5,6 @@
 <br>    2.1 Usuário de teste para admin:
 <br>        user: teste
 <br>        senha: teste
-<br>    2.2 Usuário de teste para usuário normal:
+<br><br>    2.2 Usuário de teste para usuário normal:
 <br>        user: teste
 <br>        senha: teste
