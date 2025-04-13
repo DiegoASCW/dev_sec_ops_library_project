@@ -14,14 +14,6 @@ else
     exit 1
 fi
 
-# Verificar se a porta 3306 está sendo usada e avisa o usuário
-PORT=3306
-
-if lsof -i TCP:$PORT -sTCP:LISTEN >/dev/null 2>&1; then
-    echo -e "A porta $PORT já está sendo usada. Verifique se o MySQL ou outro serviço está rodando. Excute:\nlsof -i -P -n | grep 3306"
-    exit 1
-fi
-
 # Reset do ambiente
 read -p "Deseja realizar a limpeza total do ambiente (y/N)?" escolha
 
@@ -32,6 +24,19 @@ if [ "$escolha" == "y" ]; then
   docker network rm apache_network-R5 mysql_network-R4 apache_mysql_network-R4-5 openshelf_mysql_network-R4 > /dev/null
   docker volume rm mysql-data  > /dev/null
 fi
+
+# Verificar se a porta 3306 está sendo usada e avisa o usuário
+if lsof -i TCP:3306 -sTCP:LISTEN >/dev/null 2>&1; then
+    echo -e "A porta 3306 já está sendo usada. Verifique se o MySQL ou outro serviço está rodando. Excute:\nlsof -i -P -n | grep 3306"
+    exit 1
+fi
+
+if lsof -i TCP:80 -sTCP:LISTEN >/dev/null 2>&1; then
+    echo -e "A porta 80 já está sendo usada. Verifique se o MySQL ou outro serviço está rodando. Excute:\nlsof -i -P -n | grep 3306"
+    exit 1
+fi
+
+
 
 # Passo 1: Criar as redes Docker
 echo -e "\nCriando a rede Docker..."
