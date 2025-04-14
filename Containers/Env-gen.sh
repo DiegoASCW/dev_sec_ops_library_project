@@ -67,6 +67,14 @@ docker run -d \
 
 docker network connect --ip 10.0.45.20 apache_mysql_network-R4-5 ubuntu_apache
 
+docker cp ./captcha_dependencies.sh ubuntu_apache:/tmp
+
+Start-Sleep -Seconds 10
+
+docker exec -i ubuntu_apache bash "/tmp/captcha_dependencies.sh"
+
+docker restart ubuntu_apache
+
 echo -e "\nAmbiente Docker Apache/PHP criado com sucesso!"
 
 
