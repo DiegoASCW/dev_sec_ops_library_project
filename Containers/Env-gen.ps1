@@ -16,7 +16,7 @@ $escolha = Read-Host "Deseja realizar a limpeza total do ambiente (y/N)?"
 if ($escolha -eq "y") {
     docker stop ubuntu_apache mysql_stable -t 0 | Out-Null
     docker rm ubuntu_apache mysql_stable mysql-stable | Out-Null
-    #docker rmi diegolautenscs/personal_stables:mysql-openshelf-v3 diegolautenscs/web_sec_stables:mysql-openshelf-v12 mysql-openshelf-v12 mysql php:8.2-apache -f | Out-Null
+    docker rmi diegolautenscs/personal_stables:mysql-openshelf-v3 diegolautenscs/web_sec_stables:mysql-openshelf-v12 mysql-openshelf-v12 mysql php:8.2-apache -f | Out-Null
     docker network rm apache_network-R5 mysql_network-R4 apache_mysql_network-R4-5 openshelf_mysql_network-R4 | Out-Null
     docker volume rm mysql-data -f | Out-Null
 }
