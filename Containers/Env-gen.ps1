@@ -16,7 +16,7 @@ $escolha = Read-Host "Deseja realizar a limpeza total do ambiente (y/N)?"
 if ($escolha -eq "y") {
     docker stop ubuntu_apache mysql_stable -t 0 | Out-Null
     docker rm ubuntu_apache mysql_stable mysql-stable | Out-Null
-    docker rmi diegolautenscs/personal_stables:mysql-openshelf-v3 diegolautenscs/web_sec_stables:mysql-openshelf-v12 mysql-openshelf-v12 mysql php:8.2-apache -f | Out-Null
+    #docker rmi diegolautenscs/personal_stables:mysql-openshelf-v3 diegolautenscs/web_sec_stables:mysql-openshelf-v12 mysql-openshelf-v12 mysql php:8.2-apache -f | Out-Null
     docker network rm apache_network-R5 mysql_network-R4 apache_mysql_network-R4-5 openshelf_mysql_network-R4 | Out-Null
     docker volume rm mysql-data -f | Out-Null
 }
@@ -61,7 +61,15 @@ docker run -d `
   --ip 10.0.5.10 `
   -v "$pwdUnix/../Projeto_Web/site:/var/www/html" `
   php:8.2-apache `
-  bash -c "docker-php-ext-install pdo_mysql && a2enmod rewrite && apache2-foreground"
+  bash -c 'docker-php-ext-install pdo_mysql && a2enmod rewrite && apache2-foreground'
+
+docker cp ./captcha_dependencies.sh ubuntu_apache:/tmp
+
+Start-Sleep -Seconds 10
+
+docker exec -i ubuntu_apache bash "/tmp/captcha_dependencies.sh"
+
+docker restart ubuntu_apache
 
 docker network connect --ip 10.0.45.20 apache_mysql_network-R4-5 ubuntu_apache
 
@@ -83,7 +91,6 @@ docker run -d `
   --network mysql_network-R4 `
   --ip 10.0.4.10 `
   -e MYSQL_ROOT_PASSWORD=passwd `
-  -e MYSQL_DATABASE=openshelf_schema `
   -e MYSQL_USER=Admin `
   -e MYSQL_PASSWORD=passwd `
   mysql
@@ -92,8 +99,14 @@ docker network connect --ip 10.0.45.10 apache_mysql_network-R4-5 mysql_stable
 
 Start-Sleep -Seconds 10
 
-docker exec -i mysql_stable mysql -u root -ppasswd -e "
-CREATE DATABASE openshelf;
+docker exec -i mysql_stable mysql -u root -ppasswd -e "CREATE DATABASE openshelf;"
+
+docker exec -i mysql_stable mysql -u root -ppasswd -e "SHOW DATABASES;"
+
+
+Start-Sleep -Seconds 5 
+
+$CreateTablesQuery = @"
 USE openshelf;
 
 CREATE TABLE admin (
@@ -190,12 +203,15 @@ CREATE TABLE tblworkers (
     FullName VARCHAR(255) NOT NULL,
     Role VARCHAR(100) NOT NULL
 );
-"
+"@
+
+$CreateTablesQuery | docker exec -i mysql_stable mysql -u root -ppasswd
 
 Write-Host "`nDocker MySQL environment created successfully!`n"
 
 docker exec -i mysql_stable mysql -u root -ppasswd -e "USE openshelf;INSERT INTO tblstudents (StudentId, FullName, EmailId, MobileNumber, Password, Status) VALUES ('STD007', 'teste', 'teste@gmail.com', '123', '698dc19d489c4e4db73e28a713eab07b', 1);"
 Write-Host "`nusuario teste estudantes criado com sucesso!`n"
+
 docker exec -it mysql_stable mysql -u root -ppasswd -e "USE openshelf;INSERT INTO admin (FullName, AdminEmail, UserName, Password) VALUES ('teste', 'teste@gmail.com', 'teste', '698dc19d489c4e4db73e28a713eab07b');"
 Write-Host "`nUsuario teste admin crieado com sucesso`n"
 

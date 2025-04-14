@@ -83,7 +83,7 @@ if (isset($_POST['login'])) {
 </div>
  <div class="form-group">
 <label>Verification code : </label>
-<input type="text"  name="vercode" maxlength="5" autocomplete="off" required style="width: 150px; height: 25px;" />&nbsp;<img src="captcha.php">
+<input type="text"  name="vercode" maxlength="5" autocomplete="off" required style="width: 150px; height: 25px;" />&nbsp;<img src="./captcha.php">
 </div>  
 
  <button type="submit" name="login" class="btn btn-info">LOGIN </button>
