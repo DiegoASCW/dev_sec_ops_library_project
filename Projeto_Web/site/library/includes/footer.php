@@ -1,8 +1,8 @@
    <section class="footer-section">
         <div class="container">
             <div class="row">
-                <div class="col-md-12">
-                   &copy; 2019 Online Library Management System |<a href="https://github.com/kumarpandule2000" target="_blank"  > Designed by : Kumar Pandule</a> 
+                <div class="col-md-12"  style="align-content: center; display: flex; justify-content: center">
+                &#9996; 2025 Openshelf Open-Source Project |<a href="https://github.com/DiegoASCW/dev_sec_ops_library_project" target="_blank"  > Designed by : Bruno Grande, Diego Lautenschlager, Eduardo Zaruvne, Matheus Grupp</a> 
                 </div>
 
             </div>

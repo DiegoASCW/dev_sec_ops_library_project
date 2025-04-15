@@ -1,7 +1,7 @@
 <?php 
 // DB credentials.
 define('DB_HOST','10.0.45.10');
-define('DB_USER','root');
+define('DB_USER','admin');
 define('DB_PASS','passwd');
 define('DB_NAME','openshelf');
 // Establish database connection.
@@ -14,3 +14,7 @@ catch (PDOException $e)
 exit("Error: " . $e->getMessage());
 }
 ?>
+
+
+
+
