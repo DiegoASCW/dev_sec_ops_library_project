@@ -1,5 +1,5 @@
 <?php 
-require_once("includes/config.php");
+require_once("../includes/config.php");
 if(!empty($_POST["bookid"])) {
   $bookid=$_POST["bookid"];
  
