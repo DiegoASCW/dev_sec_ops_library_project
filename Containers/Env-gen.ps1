@@ -1,12 +1,15 @@
+chcp 65001 > $null
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+
 # Verifica se o Docker está instalado
 if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
-    Write-Host "Docker não está instalado."
+    Write-Host "ERRO: Docker não está instalado." 
     exit 1
 }
 
 docker info > $null
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "Docker NÃO está rodando."
+    Write-Host "ERRO: Docker NÃO está rodando."
     exit 1
 }
 
@@ -14,17 +17,19 @@ if ($LASTEXITCODE -ne 0) {
 $escolha = Read-Host "Deseja realizar a limpeza total do ambiente (y/N)?"
 
 if ($escolha -eq "y") {
-    docker stop ubuntu_apache mysql_stable -t 0 | Out-Null
-    docker rm ubuntu_apache mysql_stable mysql-stable | Out-Null
-    #docker rmi diegolautenscs/personal_stables:mysql-openshelf-v3 diegolautenscs/web_sec_stables:mysql-openshelf-v12 mysql-openshelf-v12 mysql php:8.2-apache -f | Out-Null
-    docker network rm apache_network-R5 mysql_network-R4 apache_mysql_network-R4-5 openshelf_mysql_network-R4 | Out-Null
-    docker volume rm mysql-data -f | Out-Null
+  Write-Host "INFO: Realizando remoção dos containers, redes, volumes, e imagens, referentes ao projeto..."
+  docker stop ubuntu_apache mysql_stable -t 0 *> $null
+  docker rm ubuntu_apache mysql_stable mysql-stable *> $null
+  #docker rmi diegolautenscs/personal_stables:mysql-openshelf-v3 diegolautenscs/web_sec_stables:mysql-openshelf-v12 mysql-openshelf-v12 mysql php:8.2-apache -f *> $null
+  docker network rm apache_network-R5 mysql_network-R4 apache_mysql_network-R4-5 openshelf_mysql_network-R4 *> $null
+  docker volume rm mysql-data -f *> $null
+  Write-Host "INFO: Remoção realizada com sucesso!"
 }
 
 # Verificar se a porta 3306 está sendo usada
 $porta3306 = Get-NetTCPConnection -LocalPort 3306 -State Listen -ErrorAction SilentlyContinue
 if ($porta3306) {
-    Write-Host "A porta 3306 já está sendo usada. Verifique se o MySQL ou outro serviço está rodando. Execute:"
+    Write-Host "ERRO: A porta 3306 já está sendo usada. Verifique se o MySQL ou outro serviço está rodando. Execute:"
     Write-Host "Get-NetTCPConnection -LocalPort 3306 | Format-Table"
     Write-Host "Veja também se há outro container mysql sendo executado"
     Write-Host "docker ps"
@@ -34,7 +39,7 @@ if ($porta3306) {
 # Verificar se a porta 80 está sendo usada
 $porta80 = Get-NetTCPConnection -LocalPort 80 -State Listen -ErrorAction SilentlyContinue
 if ($porta80) {
-    Write-Host "A porta 80 já está sendo usada. Verifique se o Apache ou outro serviço está rodando. Execute:"
+    Write-Host "ERRO: A porta 80 já está sendo usada. Verifique se o Apache ou outro serviço está rodando. Execute:"
     Write-Host "Get-NetTCPConnection -LocalPort 80 | Format-Table"
     Write-Host "Veja também se há outro container apache ou php sendo executado"
     Write-Host "docker ps"
@@ -43,7 +48,7 @@ if ($porta80) {
 
 # Step 1: Create Docker networks
 Write-Host "`nCreating Docker networks..."
-docker network create --driver bridge --subnet=10.0.5.0/24 --ip-range=10.0.5.0/24 --gateway=10.0.5.254 apache_network-R5
+docker network create --driver bridge --subnet=10.0.5.0/24 --ip-range=10.0.5.0/24 --gateway=10.0.5.254 apache_network-R5 
 docker network create --driver bridge --subnet=10.0.4.0/24 --ip-range=10.0.4.0/24 --gateway=10.0.4.254 mysql_network-R4
 docker network create --driver bridge --subnet=10.0.45.0/24 --ip-range=10.0.45.0/24 --gateway=10.0.45.254 apache_mysql_network-R4-5
 
@@ -67,7 +72,8 @@ docker cp ./captcha_dependencies.sh ubuntu_apache:/tmp
 
 Start-Sleep -Seconds 10
 
-docker exec -i ubuntu_apache bash "/tmp/captcha_dependencies.sh"
+Write-Host "`Installing dependencies for Apache2 'GD'"
+docker exec -i ubuntu_apache bash "/tmp/captcha_dependencies.sh" | out-null
 
 docker restart ubuntu_apache
 
@@ -95,7 +101,7 @@ docker run -d `
 
 docker network connect --ip 10.0.45.10 apache_mysql_network-R4-5 mysql_stable
 
-Start-Sleep -Seconds 10
+Start-Sleep -Seconds 15
 
 docker exec -i mysql_stable mysql -u root -ppasswd -e "CREATE DATABASE openshelf;"
 
@@ -282,3 +288,8 @@ Write-Host "docker exec -it ubuntu_apache bash"
 Write-Host "`n`nTo test PHP:"
 Write-Host "Open in your browser: http://localhost/library"
 Write-Host "`n"
+
+Write-Host "`n`n`n===============[MySQL]==============="
+Write-Host "`n`nCREDENCIAIS DO DOCKER:`nuser: root`nPassword: passwd"
+Write-Host "`n`nPara acessar o docker:`ndocker start mysql_stable`ndocker exec -it mysql_stable mysql -u root -p"
+Write-Host "`n`nDetalhes de rede:`nNome: mysql_network-R4`nGateway:10.0.4.254`nip-range: 10.0.4.0/24`nContainer IP: 10.0.4.11"
