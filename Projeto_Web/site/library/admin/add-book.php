@@ -2,14 +2,15 @@
 session_start();
 error_reporting(0);
 
-include('../includes/config.php');
+include '../includes/config.php';
+include '../includes/sanitize_validation.php';
 
 if (strlen($_SESSION['alogin']) == 0) {
     header('location:index.php');
 } else {
 
     if (isset($_POST['add'])) {
-        $bookname = $_POST['bookname'];
+        $bookname = sanitize_string_ascii($_POST['bookname']);
         $description = $_POST['description'];
         $category = $_POST['category'];
         $author = $_POST['author'];
