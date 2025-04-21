@@ -11,12 +11,27 @@ if (strlen($_SESSION['alogin']) == 0) {
 
     if (isset($_POST['add'])) {
         $bookname = sanitize_string_ascii($_POST['bookname']);
-        $description = $_POST['description'];
-        $category = $_POST['category'];
-        $author = $_POST['author'];
-        $quantitytotal = $_POST['QuantityTotal'];
-        $isbn = $_POST['isbn'];
-        $price = $_POST['price'];
+        if (is_injection($bookname)) {die('ERRO: Entrada inválida detectada no campo...');}
+
+        $description = sanitize_string_ascii($_POST['description']);
+        if (is_injection($description)) {die('ERRO: Entrada inválida detectada no campo...');}
+
+        $category = sanitize_string_ascii($_POST['category']);
+        if (is_injection($category)) {die('ERRO: Entrada inválida detectada no campo...');}
+
+        $author = sanitize_string_ascii($_POST['author']);
+        if (is_injection($author)) {die('ERRO: Entrada inválida detectada no campo...');}
+
+        $quantitytotal = sanitize_string_ascii($_POST['quantitytotal']);
+        if (is_injection($quantitytotal)) {die('ERRO: Entrada inválida detectada no campo...');}
+
+        $isbn = sanitize_string_ascii($_POST['isbn']);
+        if (is_injection($isbn)) {die('ERRO: Entrada inválida detectada no campo...');}
+
+        $price = sanitize_string_ascii($_POST['price']);
+        if (is_injection($price)) {die('ERRO: Entrada inválida detectada no campo...');}
+        //echo 'Bookname ', $bookname, '      Description,', $description, '      Category', $category,  '      Author', $author, '      QuantityTotal', $quantitytotal, '      ISBN', $isbn, '      Price', $price;
+
 
         $sql = "INSERT INTO  tblbooks(BookName,Description,CatId,AuthorId,QuantityTotal,QuantityLeft,ISBNNumber,BookPrice) VALUES(:bookname,:description,:category,:author,:quantitytotal,:quantitytotal,:isbn,:price)";
         
@@ -29,7 +44,9 @@ if (strlen($_SESSION['alogin']) == 0) {
         $query->bindParam(':isbn', $isbn, PDO::PARAM_STR);
         $query->bindParam(':price', $price, PDO::PARAM_STR);
         $query->execute();
+        
         $lastInsertId = $dbh->lastInsertId();
+
         echo $_SESSION['msg'];
         if ($lastInsertId) {
             $_SESSION['msg'] = "Book Listed successfully";
@@ -134,7 +151,7 @@ if (strlen($_SESSION['alogin']) == 0) {
 
                                 <div class="form-group">
                                     <label>Quantity Total<span style="color:red;">*</span></label>
-                                    <input class="form-control" type="text" name="QuantityTotal" required="required"
+                                    <input class="form-control" type="text" name="quantitytotal" required="required"
                                         autocomplete="off" />
                                 </div>
 

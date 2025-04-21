@@ -10,14 +10,13 @@ function sanitize_string_ascii($string) {
 }
 
 
-
 // Função para detectar injeção de código XSS ou SQLi
-function injection_detect($input) {
+function is_injection($input) {
     $patterns = [
-        '/\b(SELECT|UNION|INSERT|UPDATE|DELETE|DROP|--|;|OR\s+1=1)\b/i', // SQLi
-        '/<script\b[^>]*>(.*?)<\/script>/i', // XSS
-        '/on\w+=["\']?[^"\']+["\']?/i', // Atributos via JS como onclick, onerror, e demais
-        '/\b(alert|prompt|confirm)\s*\(/i' // JS malicioso
+        '/(select|union|insert|update|delete|drop|--|;|or\s+1=1)/i', // SQLi
+        '/<script[^>]*>.*?<\/script>/i', // XSS básico
+        '/on\w+\s*=\s*["\']?.*?["\']?/i', // Atributos JS como onclick, onerror
+        '/(alert|prompt|confirm)\s*\(/i' // Funções JS potencialmente perigosas
     ];
 
     foreach ($patterns as $pattern) {
@@ -25,6 +24,7 @@ function injection_detect($input) {
             return true;
         }
     }
+
     return false;
 }
 ?>
