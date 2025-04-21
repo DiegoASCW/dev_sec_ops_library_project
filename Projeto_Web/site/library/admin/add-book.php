@@ -10,21 +10,26 @@ if (strlen($_SESSION['alogin']) == 0) {
 
     if (isset($_POST['add'])) {
         $bookname = $_POST['bookname'];
+        $description = $_POST['description'];
         $category = $_POST['category'];
         $author = $_POST['author'];
+        $quantitytotal = $_POST['QuantityTotal'];
         $isbn = $_POST['isbn'];
         $price = $_POST['price'];
-        $sql = "INSERT INTO  tblbooks(BookName,'Description',CatId,AuthorId,ISBNNumber,BookPrice) VALUES(:bookname,:description,:category,:author,:isbn,:price)";
+
+        $sql = "INSERT INTO  tblbooks(BookName,Description,CatId,AuthorId,QuantityTotal,QuantityLeft,ISBNNumber,BookPrice) VALUES(:bookname,:description,:category,:author,:quantitytotal,:quantitytotal,:isbn,:price)";
+        
         $query = $dbh->prepare($sql);
         $query->bindParam(':bookname', $bookname, PDO::PARAM_STR);
-        $query->bindParam(':description', $bookname, PDO::PARAM_STR);
+        $query->bindParam(':description', $description, PDO::PARAM_STR);
         $query->bindParam(':category', $category, PDO::PARAM_STR);
         $query->bindParam(':author', $author, PDO::PARAM_STR);
+        $query->bindParam(':quantitytotal', $quantitytotal, PDO::PARAM_STR);
         $query->bindParam(':isbn', $isbn, PDO::PARAM_STR);
         $query->bindParam(':price', $price, PDO::PARAM_STR);
         $query->execute();
         $lastInsertId = $dbh->lastInsertId();
-
+        echo $_SESSION['msg'];
         if ($lastInsertId) {
             $_SESSION['msg'] = "Book Listed successfully";
             header('location:manage-books.php');
@@ -124,6 +129,12 @@ if (strlen($_SESSION['alogin']) == 0) {
                                             <?php }
                                         } ?>
                                     </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Quantity Total<span style="color:red;">*</span></label>
+                                    <input class="form-control" type="text" name="QuantityTotal" required="required"
+                                        autocomplete="off" />
                                 </div>
 
                                 <div class="form-group">

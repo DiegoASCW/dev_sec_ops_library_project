@@ -17,7 +17,7 @@ if ($LASTEXITCODE -ne 0) {
 $escolha = Read-Host "Deseja realizar a limpeza total do ambiente (y/N)?"
 
 if ($escolha -eq "y") {
-  Write-Host "INFO: Realizando remoção dos containers, redes, volumes, e imagens, referentes ao projeto..."
+  Write-Host "INFO: Realizando remoção dos containers, redes, volumes, e imagens, referentes ao projeto 'Openshelf'"
   docker stop ubuntu_apache mysql_stable -t 0 *> $null
   docker rm ubuntu_apache mysql_stable mysql-stable *> $null
   #docker rmi diegolautenscs/personal_stables:mysql-openshelf-v3 diegolautenscs/web_sec_stables:mysql-openshelf-v12 mysql-openshelf-v12 mysql php:8.2-apache -f *> $null
@@ -72,7 +72,7 @@ docker cp ./captcha_dependencies.sh ubuntu_apache:/tmp
 
 Start-Sleep -Seconds 10
 
-Write-Host "`Installing dependencies for Apache2 'GD'"
+Write-Host "`Installing dependencies for Apache2 'GD' into 'ubuntu_apache' container..."
 docker exec -i ubuntu_apache bash "/tmp/captcha_dependencies.sh" | out-null
 
 docker restart ubuntu_apache
@@ -117,7 +117,7 @@ GRANT ALL PRIVILEGES ON *.* TO 'admin'@'%';
 USE openshelf;
 
 CREATE TABLE admin (
-    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     FullName VARCHAR(100),
     AdminEmail VARCHAR(120),
     UserName VARCHAR(100) NOT NULL,
@@ -126,14 +126,14 @@ CREATE TABLE admin (
 );
 
 CREATE TABLE tblauthors (
-    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     AuthorName VARCHAR(159),
     creationDate TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     UpdationDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 CREATE TABLE tblbooks (
-    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     CatId INT,
     CommentId INT,
     PublisherId INT,
@@ -149,7 +149,7 @@ CREATE TABLE tblbooks (
 );
 
 CREATE TABLE tblcategory (
-    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     CategoryName VARCHAR(150),
     Status INT,
     CreationDate TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
@@ -157,14 +157,14 @@ CREATE TABLE tblcategory (
 );
 
 CREATE TABLE tblcomment (
-    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    UserId INT NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    Userid INT,
     Comment VARCHAR(255) NOT NULL,
     CreationDate TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE tblhelpdesk (
-    id INT NOT NULL PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     FullName VARCHAR(100),
     HelpDeskEmail VARCHAR(120),
     UserName VARCHAR(100) NOT NULL,
@@ -173,7 +173,7 @@ CREATE TABLE tblhelpdesk (
 );
 
 CREATE TABLE tblissuedbookdetails (
-    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     BookId INT,
     StudentID VARCHAR(150),
     IssuesDate TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
@@ -183,14 +183,14 @@ CREATE TABLE tblissuedbookdetails (
 );
 
 CREATE TABLE tblpublisher (
-    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     Name VARCHAR(255) NOT NULL,
     CNPJ VARCHAR(20) NOT NULL UNIQUE,
     CreationDate TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE tblstudents (
-    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     StudentId VARCHAR(100) UNIQUE,
     FullName VARCHAR(120),
     EmailId VARCHAR(120),
@@ -202,7 +202,7 @@ CREATE TABLE tblstudents (
 );
 
 CREATE TABLE tblworkers (
-    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     WorkerEmail VARCHAR(120) NOT NULL UNIQUE,
     Password VARCHAR(255) NOT NULL,
     Username VARCHAR(255) NOT NULL UNIQUE,
