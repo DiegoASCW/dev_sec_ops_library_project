@@ -1,14 +1,15 @@
 <?php
-error_reporting(E_ALL);  // Report all errors
-ini_set('display_errors', 1);  // Display errors on the screen
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 session_start();
 error_reporting(0);
-include('Projeto_Web\site\library\includes\config.php');
-if(strlen($_SESSION['login'])==0)
-  { 
-header('location:index.php');
+include('includes/config.php');
+
+if(strlen($_SESSION['login'])==0){ 
+  header('location:index.php');
 }
+
 else{?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -46,8 +47,7 @@ else{?>
 
             <?php 
             $sid=$_SESSION['stdid'];
-            #$sql1 ="SELECT id from tblissuedbookdetails where StudentID=:sid";
-            $sql1 ="SELECT id from tblissuedbookdetails";
+            $sql1 ="SELECT id from tblissuedbookdetails where StudentID=:sid";
             $query1 = $dbh -> prepare($sql1);
             $query1->bindParam(':sid',$sid,PDO::PARAM_STR);
             $query1->execute();
@@ -64,8 +64,7 @@ else{?>
           <div class="alert alert-warning back-widget-set text-center">
             <i class="fa fa-recycle fa-5x"></i>
             <?php 
-            #$sql2 ="SELECT id from tblissuedbookdetails where StudentID=:sid and RetrunStatus=:rsts";
-            $sql2 ="SELECT id from tblissuedbookdetails where RetrunStatus=0";
+            $sql2 ="SELECT id from tblissuedbookdetails where StudentID=:sid and RetrunStatus=:rsts";
             $query2 = $dbh -> prepare($sql2);
             $query2->bindParam(':sid',$sid,PDO::PARAM_STR);
             $query2->execute();

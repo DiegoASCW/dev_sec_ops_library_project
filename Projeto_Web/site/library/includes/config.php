@@ -1,20 +1,21 @@
-<?php 
+<?php
 // DB credentials.
-define('DB_HOST','10.0.45.10');
+define('DB_HOST','10.0.45.10');      // mude 10.0.45.10 para o nome do serviço/container
+define('DB_PORT','3306');
 define('DB_USER','admin');
 define('DB_PASS','passwd');
 define('DB_NAME','openshelf');
-// Establish database connection.
-try
-{
-$dbh = new PDO("mysql:host=".DB_HOST.";dbname=".DB_NAME,DB_USER, DB_PASS,array(PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8'"));
+
+try {
+    $dsn = sprintf(
+      'mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4',
+      DB_HOST, DB_PORT, DB_NAME
+    );
+    $opts = [
+      PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+      PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
+    ];
+    $dbh = new PDO($dsn, DB_USER, DB_PASS, $opts);
+} catch (PDOException $e) {
+    exit('Erro na conexão: ' . $e->getMessage());
 }
-catch (PDOException $e)
-{
-exit("Error: " . $e->getMessage());
-}
-?>
-
-
-
-
