@@ -6,5 +6,5 @@
 <br>        user: teste
 <br>        senha: teste
 <br><br>    2.2 Usuário de teste para usuário normal:
-<br>        user: teste
+<br>        user: teste@gmail.com
 <br>        senha: teste
