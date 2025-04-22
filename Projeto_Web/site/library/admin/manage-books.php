@@ -1,7 +1,9 @@
 <?php
 session_start();
 error_reporting(0);
+
 include('../includes/config.php');
+
 if(strlen($_SESSION['alogin'])==0)
     {   
 header('location:index.php');
@@ -114,12 +116,13 @@ header('location:manage-books.php');
                                             <th>Category</th>
                                             <th>Author</th>
                                             <th>ISBN</th>
+                                            <th>Quantity Left</th>
                                             <th>Price</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-<?php $sql = "SELECT tblbooks.BookName,tblcategory.CategoryName,tblauthors.AuthorName,tblbooks.ISBNNumber,tblbooks.BookPrice,tblbooks.id as bookid from  tblbooks join tblcategory on tblcategory.id=tblbooks.CatId join tblauthors on tblauthors.id=tblbooks.AuthorId";
+<?php $sql = "SELECT tblbooks.BookName,tblcategory.CategoryName,tblauthors.AuthorName,tblbooks.ISBNNumber,tblbooks.QuantityLeft,tblbooks.BookPrice,tblbooks.id as bookid from  tblbooks join tblcategory on tblcategory.id=tblbooks.CatId  join tblauthors on tblauthors.id=tblbooks.AuthorId";
 $query = $dbh -> prepare($sql);
 $query->execute();
 $results=$query->fetchAll(PDO::FETCH_OBJ);
@@ -134,6 +137,7 @@ foreach($results as $result)
                                             <td class="center"><?php echo htmlentities($result->CategoryName);?></td>
                                             <td class="center"><?php echo htmlentities($result->AuthorName);?></td>
                                             <td class="center"><?php echo htmlentities($result->ISBNNumber);?></td>
+                                            <td class="center"><?php echo htmlentities($result->QuantityLeft);?></td>
                                             <td class="center"><?php echo htmlentities($result->BookPrice);?></td>
                                             <td class="center">
 

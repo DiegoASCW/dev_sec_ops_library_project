@@ -27,7 +27,10 @@ else{
         $query->execute();
         
         // adiciona a quantidade de livros disponíveis (QuantityLeft) e +1
-        $sql="UPDATE tblbooks SET QuantityLeft = QuantityLeft + 1 WHERE id = 1;";
+        $sql_add_quantity = "UPDATE tblbooks SET QuantityLeft = QuantityLeft + 1 WHERE id = :rid;";
+        
+        $query = $dbh->prepare($sql_add_quantity);
+        $query->bindParam(':rid',$rid,PDO::PARAM_STR);
         $query->execute();
 
         $_SESSION['msg']="Book Returned successfully";
@@ -107,7 +110,7 @@ error:function (){}
 
 </div>
 <div class="row">
-<div class="col-md-10 col-sm-6 col-xs-12 col-md-offset-1"">
+<div class="col-md-10 col-sm-6 col-xs-12 col-md-offset-1">
 <div class="panel panel-info">
 <div class="panel-heading">
 Issued Book Details

@@ -20,7 +20,9 @@ if (strlen($_SESSION['alogin']) == 0) {
         $query->bindParam(':bookid', $bookid, PDO::PARAM_STR);
         $query->execute();
 
-        $sql="UPDATE tblbooks SET QuantityLeft = QuantityLeft - 1 WHERE id = 1;";
+        $sql_remove_quantity="UPDATE tblbooks SET QuantityLeft = QuantityLeft - 1 WHERE id = :bookid;";
+        $query = $dbh->prepare($sql_remove_quantity);
+        $query->bindParam(':bookid', $bookid, PDO::PARAM_STR);
         $query->execute();
         
         $lastInsertId = $dbh->lastInsertId();
