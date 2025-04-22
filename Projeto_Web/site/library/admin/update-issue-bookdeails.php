@@ -27,13 +27,15 @@ else{
         $query->execute();
         
         // adiciona a quantidade de livros disponíveis (QuantityLeft) e +1
-        $sql_add_quantity = "UPDATE tblbooks SET QuantityLeft = QuantityLeft + 1 WHERE id = :rid;";
+        $bookid=intval($_GET['bookid']);
+
+        $sql_add_quantity = "UPDATE tblbooks SET QuantityLeft = QuantityLeft + 1 WHERE id = :bookid;";
         
         $query = $dbh->prepare($sql_add_quantity);
-        $query->bindParam(':rid',$rid,PDO::PARAM_STR);
+        $query->bindParam(':bookid',$bookid,PDO::PARAM_STR);
         $query->execute();
 
-        $_SESSION['msg']="Book Returned successfully";
+        $_SESSION['msg']="Book ID '$bookid' Returned successfully";
         header('location:manage-issued-books.php');
     }
 
