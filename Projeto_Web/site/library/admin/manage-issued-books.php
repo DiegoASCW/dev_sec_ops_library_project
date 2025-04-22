@@ -1,15 +1,14 @@
 <?php
 session_start();
 error_reporting(0);
+
 include('../includes/config.php');
+
 if(strlen($_SESSION['alogin'])==0)
     {   
 header('location:index.php');
 }
 else{ 
-
-
-
     ?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -62,9 +61,6 @@ else{
 </div>
 </div>
 <?php } ?>
-
-
-
    <?php if($_SESSION['delmsg']!="")
     {?>
 <div class="col-md-6">
@@ -75,10 +71,7 @@ else{
 </div>
 </div>
 <?php } ?>
-
 </div>
-
-
         </div>
             <div class="row">
                 <div class="col-md-12">
@@ -102,7 +95,8 @@ else{
                                         </tr>
                                     </thead>
                                     <tbody>
-<?php $sql = "SELECT tblstudents.FullName,tblbooks.BookName,tblbooks.ISBNNumber,tblissuedbookdetails.IssuesDate,tblissuedbookdetails.ReturnDate,tblissuedbookdetails.id as rid from  tblissuedbookdetails join tblstudents on tblstudents.StudentId=tblissuedbookdetails.StudentId join tblbooks on tblbooks.id=tblissuedbookdetails.BookId order by tblissuedbookdetails.id desc";
+<?php 
+$sql = "SELECT tblstudents.FullName,tblbooks.BookName,tblbooks.ISBNNumber,tblissuedbookdetails.IssuesDate,tblissuedbookdetails.ReturnDate,tblissuedbookdetails.id as rid from  tblissuedbookdetails join tblstudents on tblstudents.StudentId=tblissuedbookdetails.StudentId join tblbooks on tblbooks.id=tblissuedbookdetails.BookId order by tblissuedbookdetails.id desc";
 $query = $dbh -> prepare($sql);
 $query->execute();
 $results=$query->fetchAll(PDO::FETCH_OBJ);
@@ -142,9 +136,6 @@ foreach($results as $result)
                     <!--End Advanced Tables -->
                 </div>
             </div>
-
-
-            
     </div>
     </div>
 
