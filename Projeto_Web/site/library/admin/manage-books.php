@@ -16,9 +16,7 @@ $query -> bindParam(':id',$id, PDO::PARAM_STR);
 $query -> execute();
 $_SESSION['delmsg']="Category deleted scuccessfully ";
 header('location:manage-books.php');
-
 }
-
 
     ?>
 <!DOCTYPE html>

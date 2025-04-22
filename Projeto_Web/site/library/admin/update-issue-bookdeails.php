@@ -1,31 +1,39 @@
 <?php
 session_start();
 error_reporting(0);
-include('../includes/config.php');
+
+include '../includes/config.php';
+include '../includes/sanitize_validation.php';
+
 if(strlen($_SESSION['alogin'])==0)
     {   
 header('location:index.php');
 }
+
 else{ 
+    if(isset($_POST['return']))
+    {
+        $rid=intval($_GET['rid']);
+        $fine=$_POST['fine'];
+        $rstatus=1;
 
-if(isset($_POST['return']))
-{
-$rid=intval($_GET['rid']);
-$fine=$_POST['fine'];
-$rstatus=1;
-$sql="update tblissuedbookdetails set fine=:fine,RetrunStatus=:rstatus where id=:rid";
-$query = $dbh->prepare($sql);
-$query->bindParam(':rid',$rid,PDO::PARAM_STR);
-$query->bindParam(':fine',$fine,PDO::PARAM_STR);
-$query->bindParam(':rstatus',$rstatus,PDO::PARAM_STR);
-$query->execute();
+        // registra novo evento de devolução de livro
+        $sql="update tblissuedbookdetails set fine=:fine,RetrunStatus=:rstatus where id=:rid";
 
-$_SESSION['msg']="Book Returned successfully";
-header('location:manage-issued-books.php');
+        $query = $dbh->prepare($sql);
+        $query->bindParam(':rid',$rid,PDO::PARAM_STR);
+        $query->bindParam(':fine',$fine,PDO::PARAM_STR);
+        $query->bindParam(':rstatus',$rstatus,PDO::PARAM_STR);
+        $query->execute();
+        
+        // adiciona a quantidade de livros disponíveis (QuantityLeft) e +1
+        $sql="UPDATE tblbooks SET QuantityLeft = QuantityLeft + 1 WHERE id = 1;";
+        $query->execute();
 
+        $_SESSION['msg']="Book Returned successfully";
+        header('location:manage-issued-books.php');
+    }
 
-
-}
 ?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -108,19 +116,21 @@ Issued Book Details
 <form role="form" method="post">
 <?php 
 $rid=intval($_GET['rid']);
+
 $sql = "SELECT tblstudents.FullName,tblbooks.BookName,tblbooks.ISBNNumber,tblissuedbookdetails.IssuesDate,tblissuedbookdetails.ReturnDate,tblissuedbookdetails.id as rid,tblissuedbookdetails.fine,tblissuedbookdetails.RetrunStatus from  tblissuedbookdetails join tblstudents on tblstudents.StudentId=tblissuedbookdetails.StudentId join tblbooks on tblbooks.id=tblissuedbookdetails.BookId where tblissuedbookdetails.id=:rid";
+
 $query = $dbh -> prepare($sql);
 $query->bindParam(':rid',$rid,PDO::PARAM_STR);
 $query->execute();
+
 $results=$query->fetchAll(PDO::FETCH_OBJ);
+
 $cnt=1;
 if($query->rowCount() > 0)
 {
 foreach($results as $result)
-{               ?>                                      
-                   
-
-
+{
+?>                                      
 
 <div class="form-group">
 <label>Student Name :</label>
@@ -150,8 +160,6 @@ foreach($results as $result)
                                             {
                                                 echo htmlentities("Not Return Yet");
                                             } else {
-
-
                                             echo htmlentities($result->ReturnDate);
 }
                                             ?>

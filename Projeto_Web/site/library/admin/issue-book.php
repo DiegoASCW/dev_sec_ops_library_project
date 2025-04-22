@@ -13,11 +13,14 @@ if (strlen($_SESSION['alogin']) == 0) {
         $studentid = strtoupper($_POST['studentid']);
         $bookid = $_POST['bookdetails'];
         
-        $sql = "INSERT INTO  tblissuedbookdetails(StudentID,BookId) VALUES(:studentid,:bookid)";
+        $sql = "INSERT INTO tblissuedbookdetails(StudentID, BookId) SELECT :studentid, :bookid FROM tblbooks WHERE id = :bookid AND QuantityLeft > 0;";
         
         $query = $dbh->prepare($sql);
         $query->bindParam(':studentid', $studentid, PDO::PARAM_STR);
         $query->bindParam(':bookid', $bookid, PDO::PARAM_STR);
+        $query->execute();
+
+        $sql="UPDATE tblbooks SET QuantityLeft = QuantityLeft - 1 WHERE id = 1;";
         $query->execute();
         
         $lastInsertId = $dbh->lastInsertId();
@@ -31,7 +34,7 @@ if (strlen($_SESSION['alogin']) == 0) {
         }
     }
     ?>
-    
+
     <!DOCTYPE html>
     <html xmlns="http://www.w3.org/1999/xhtml">
 
