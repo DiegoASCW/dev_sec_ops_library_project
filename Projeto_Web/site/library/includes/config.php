@@ -1,6 +1,6 @@
 <?php
 // DB credentials.
-define('DB_HOST','10.0.45.10');      // mude 10.0.45.10 para o nome do serviço/container
+define('DB_HOST','10.0.45.10'); 
 define('DB_PORT','3306');
 define('DB_USER','admin');
 define('DB_PASS','passwd');
