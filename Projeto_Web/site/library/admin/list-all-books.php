@@ -50,51 +50,6 @@ else{
                 <div class="col-md-12">
                     <h4 class="header-line">List All Books</h4>
                 </div>
-                <div class="row">
-                    <?php if($_SESSION['error']!="")
-                    {?>
-                        <div class="col-md-6">
-                            <div class="alert alert-danger" >
-                                <strong>Error :</strong> 
-                                <?php echo htmlentities($_SESSION['error']);?>
-                                <?php echo htmlentities($_SESSION['error']="");?>
-                            </div>
-                        </div>
-                    <?php } ?>
-                    <?php if($_SESSION['msg']!="")
-                    {?>
-                        <div class="col-md-6">
-                            <div class="alert alert-success" >
-                                <strong>Success :</strong> 
-                                <?php echo htmlentities($_SESSION['msg']);?>
-                                <?php echo htmlentities($_SESSION['msg']="");?>
-                            </div>
-                        </div>
-                    <?php } ?>
-                    <?php if($_SESSION['updatemsg']!="")
-                    {?>
-                        <div class="col-md-6">
-                            <div class="alert alert-success" >
-                                <strong>Success :</strong> 
-                                <?php echo htmlentities($_SESSION['updatemsg']);?>
-                                <?php echo htmlentities($_SESSION['updatemsg']="");?>
-                            </div>
-                        </div>
-                    <?php } ?>
-
-
-                    <?php if($_SESSION['delmsg']!="")
-                    {?>
-                        <div class="col-md-6">
-                            <div class="alert alert-success" >
-                                <strong>Success :</strong> 
-                                <?php echo htmlentities($_SESSION['delmsg']);?>
-                                <?php echo htmlentities($_SESSION['delmsg']="");?>
-                            </div>
-                        </div>
-                    <?php } ?>
-
-                </div>
             </div>
             <div class="row">
                 <div class="col-md-12">
@@ -114,12 +69,12 @@ else{
                                             <th>Author</th>
                                             <th>ISBN</th>
                                             <th>Quantity Left</th>
+                                            <th>Quantity Total</th>
                                             <th>Price</th>
-                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-<?php $sql = "SELECT tblbooks.BookName,tblcategory.CategoryName,tblauthors.AuthorName,tblbooks.ISBNNumber,tblbooks.QuantityLeft,tblbooks.BookPrice,tblbooks.id as bookid from  tblbooks join tblcategory on tblcategory.id=tblbooks.CatId  join tblauthors on tblauthors.id=tblbooks.AuthorId";
+<?php $sql = "SELECT tblbooks.BookName,tblcategory.CategoryName,tblauthors.AuthorName,tblbooks.ISBNNumber,tblbooks.QuantityLeft,tblbooks.QuantityTotal,tblbooks.BookPrice,tblbooks.id as bookid from  tblbooks join tblcategory on tblcategory.id=tblbooks.CatId  join tblauthors on tblauthors.id=tblbooks.AuthorId";
 $query = $dbh -> prepare($sql);
 $query->execute();
 $results=$query->fetchAll(PDO::FETCH_OBJ);
@@ -135,11 +90,9 @@ foreach($results as $result)
                                             <td class="center"><?php echo htmlentities($result->AuthorName);?></td>
                                             <td class="center"><?php echo htmlentities($result->ISBNNumber);?></td>
                                             <td class="center"><?php echo htmlentities($result->QuantityLeft);?></td>
+                                            <td class="center"><?php echo htmlentities($result->QuantityTotal);?></td>
                                             <td class="center"><?php echo htmlentities($result->BookPrice);?></td>
-                                            <td class="center">
 
-                                            <a href="edit-book.php?bookid=<?php echo htmlentities($result->bookid);?>"><button class="btn btn-primary"><i class="fa fa-edit "></i> Edit</button> 
-                                          <a href="manage-books.php?del=<?php echo htmlentities($result->bookid);?>" onclick="return confirm('Are you sure you want to delete?');"" >  <button class="btn btn-danger"><i class="fa fa-pencil"></i> Delete</button>
                                             </td>
                                         </tr>
                                     <?php $cnt=$cnt+1;}} ?>                                      
