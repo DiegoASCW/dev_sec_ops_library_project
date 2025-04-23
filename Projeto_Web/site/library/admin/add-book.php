@@ -11,30 +11,44 @@ if (strlen($_SESSION['alogin']) == 0) {
 
     if (isset($_POST['add'])) {
         $bookname = sanitize_string_ascii($_POST['bookname']);
-        if (is_injection($bookname)) {die('ERRO: Entrada inválida detectada no campo...');}
+        if (is_injection($bookname)) {
+            die('ERRO: Entrada inválida detectada no campo...');
+        }
 
         $description = sanitize_string_ascii($_POST['description']);
-        if (is_injection($description)) {die('ERRO: Entrada inválida detectada no campo...');}
+        if (is_injection($description)) {
+            die('ERRO: Entrada inválida detectada no campo...');
+        }
 
         $category = sanitize_string_ascii($_POST['category']);
-        if (is_injection($category)) {die('ERRO: Entrada inválida detectada no campo...');}
+        if (is_injection($category)) {
+            die('ERRO: Entrada inválida detectada no campo...');
+        }
 
         $author = sanitize_string_ascii($_POST['author']);
-        if (is_injection($author)) {die('ERRO: Entrada inválida detectada no campo...');}
+        if (is_injection($author)) {
+            die('ERRO: Entrada inválida detectada no campo...');
+        }
 
         $quantitytotal = sanitize_string_ascii($_POST['quantitytotal']);
-        if (is_injection($quantitytotal)) {die('ERRO: Entrada inválida detectada no campo...');}
+        if (is_injection($quantitytotal)) {
+            die('ERRO: Entrada inválida detectada no campo...');
+        }
 
         $isbn = sanitize_string_ascii($_POST['isbn']);
-        if (is_injection($isbn)) {die('ERRO: Entrada inválida detectada no campo...');}
+        if (is_injection($isbn)) {
+            die('ERRO: Entrada inválida detectada no campo...');
+        }
 
         $price = sanitize_string_ascii($_POST['price']);
-        if (is_injection($price)) {die('ERRO: Entrada inválida detectada no campo...');}
+        if (is_injection($price)) {
+            die('ERRO: Entrada inválida detectada no campo...');
+        }
         //echo 'Bookname ', $bookname, '      Description,', $description, '      Category', $category,  '      Author', $author, '      QuantityTotal', $quantitytotal, '      ISBN', $isbn, '      Price', $price;
 
 
         $sql = "INSERT INTO  tblbooks(BookName,Description,CatId,AuthorId,QuantityTotal,QuantityLeft,ISBNNumber,BookPrice) VALUES(:bookname,:description,:category,:author,:quantitytotal,:quantitytotal,:isbn,:price)";
-        
+
         $query = $dbh->prepare($sql);
         $query->bindParam(':bookname', $bookname, PDO::PARAM_STR);
         $query->bindParam(':description', $description, PDO::PARAM_STR);
@@ -44,7 +58,7 @@ if (strlen($_SESSION['alogin']) == 0) {
         $query->bindParam(':isbn', $isbn, PDO::PARAM_STR);
         $query->bindParam(':price', $price, PDO::PARAM_STR);
         $query->execute();
-        
+
         $lastInsertId = $dbh->lastInsertId();
 
         echo $_SESSION['msg'];
@@ -102,7 +116,8 @@ if (strlen($_SESSION['alogin']) == 0) {
 
                                 <div class="form-group">
                                     <label>Descrição (até 255 caracteres)<span style="color:red;">*</span></label>
-                                    <input class="form-control" type="text" name="description" autocomplete="off" required />
+                                    <input class="form-control" type="text" name="description" autocomplete="off"
+                                        required />
                                 </div>
 
                                 <div class="form-group">
@@ -122,7 +137,8 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         if ($query->rowCount() > 0) {
                                             foreach ($results as $result) { ?>
                                                 <option value="<?php echo htmlentities($result->id); ?>">
-                                                    <?php echo htmlentities($result->CategoryName); ?></option>
+                                                    <?php echo htmlentities($result->CategoryName); ?>
+                                                </option>
                                             <?php }
                                         } ?>
                                     </select>
@@ -132,7 +148,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                     <label> Author<span style="color:red;">*</span></label>
                                     <select class="form-control" name="author" required="required">
                                         <option value=""> Select Author</option>
-                                        
+
                                         <!-- Lista os autores da tabela 'tblauthors' -->
                                         <?php
                                         $sql = "SELECT * from  tblauthors ";
@@ -143,7 +159,8 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         if ($query->rowCount() > 0) {
                                             foreach ($results as $result) { ?>
                                                 <option value="<?php echo htmlentities($result->id); ?>">
-                                                    <?php echo htmlentities($result->AuthorName); ?></option>
+                                                    <?php echo htmlentities($result->AuthorName); ?>
+                                                </option>
                                             <?php }
                                         } ?>
                                     </select>
@@ -188,5 +205,6 @@ if (strlen($_SESSION['alogin']) == 0) {
         <!-- CUSTOM SCRIPTS  -->
         <script src="assets/js/custom.js"></script>
     </body>
+
     </html>
 <?php } ?>

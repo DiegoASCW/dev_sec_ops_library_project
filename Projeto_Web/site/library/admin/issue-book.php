@@ -12,19 +12,19 @@ if (strlen($_SESSION['alogin']) == 0) {
     if (isset($_POST['issue'])) {
         $studentid = strtoupper($_POST['studentid']);
         $bookid = $_POST['bookdetails'];
-        
+
         $sql = "INSERT INTO tblissuedbookdetails(StudentID, BookId) SELECT :studentid, :bookid FROM tblbooks WHERE id = :bookid AND QuantityLeft > 0;";
-        
+
         $query = $dbh->prepare($sql);
         $query->bindParam(':studentid', $studentid, PDO::PARAM_STR);
         $query->bindParam(':bookid', $bookid, PDO::PARAM_STR);
         $query->execute();
 
-        $sql_remove_quantity="UPDATE tblbooks SET QuantityLeft = QuantityLeft - 1 WHERE id = :bookid;";
+        $sql_remove_quantity = "UPDATE tblbooks SET QuantityLeft = QuantityLeft - 1 WHERE id = :bookid;";
         $query = $dbh->prepare($sql_remove_quantity);
         $query->bindParam(':bookid', $bookid, PDO::PARAM_STR);
         $query->execute();
-        
+
         $lastInsertId = $dbh->lastInsertId();
 
         if ($lastInsertId) {
@@ -159,5 +159,6 @@ if (strlen($_SESSION['alogin']) == 0) {
         <!-- CUSTOM SCRIPTS  -->
         <script src="assets/js/custom.js"></script>
     </body>
+
     </html>
 <?php } ?>
