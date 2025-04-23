@@ -27,7 +27,7 @@ else{
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Openshelf | Manage Books</title>
+    <title>Openshelf | List All Books</title>
     <!-- BOOTSTRAP CORE STYLE  -->
     <link href="assets/css/bootstrap.css" rel="stylesheet" />
     <!-- FONT AWESOME STYLE  -->
@@ -48,7 +48,7 @@ else{
         <div class="container">
             <div class="row pad-botm">
                 <div class="col-md-12">
-                    <h4 class="header-line">Manage Books</h4>
+                    <h4 class="header-line">List All Books</h4>
                 </div>
                 <div class="row">
                     <?php if($_SESSION['error']!="")
