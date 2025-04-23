@@ -1,136 +1,88 @@
-# Check if 'Docker' in installed
+# DEBUG MODE: show every step
+#$VerbosePreference = 'Continue'
+#$DebugPreference   = 'Continue'
+#Set-PSDebug -Trace 1
+
+Write-Host "[CHECK] Verifying Docker installation..."
 if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
-    Write-Host "ERROR" -ForegroundColor Red -NoNewline
-    Write-Host ": Docker is not installed." 
+    Write-Host "[ERROR] Docker is not installed." -ForegroundColor Red
     exit 1
 }
 
-# Check if 'Docker' is running
-docker info > $null
+Write-Host "[CHECK] Verifying Docker daemon..."
+docker info | Out-Null
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "ERROR" -ForegroundColor Red -NoNewline
-    Write-Host ": Docker is not running."
+    Write-Host "[ERROR] Docker daemon is not running." -ForegroundColor Red
     exit 1
 }
 
-# Enviroment cleaning
-$escolha = Read-Host "`nDo you want to clean the enviroment (recomended in case of redeploy the infraestructure)?  [y/N] "
-
-if ($escolha -eq "y") {
-  Write-Host "INFO" -ForegroundColor Blue -NoNewline
-  Write-Host ": removing containers, networks, volumes, and images, about 'Openshelf' project"
-
-  docker stop ubuntu_apache mysql_stable -t 0 *> $null
-  docker rm ubuntu_apache mysql_stable mysql-stable *> $null
-  #docker rmi diegolautenscs/personal_stables:mysql-openshelf-v3 diegolautenscs/web_sec_stables:mysql-openshelf-v12 mysql-openshelf-v12 mysql php:8.2-apache -f *> $null
-  docker network rm apache_network-R5 mysql_network-R4 apache_mysql_network-R4-5 openshelf_mysql_network-R4 *> $null
-  docker volume rm mysql-data -f *> $null
-
-  Write-Host "INFO" -ForegroundColor Blue -NoNewline
-  Write-Host ": enviroment cleaning finished!"
+Write-Host "`n[CLEAN] Stopping & removing old containers, networks, volumes and images..."
+$escolha = Read-Host "Do you want to clean the environment (recommended before redeploying)? [y/N]"
+if ($escolha.ToLower() -eq 'y') {
+    docker stop ubuntu_apache mysql_stable -t 0 | Out-Null
+    docker rm -f ubuntu_apache mysql_stable | Out-Null
+    docker network rm -f apache_network-R5 mysql_network-R4 apache_mysql_network-R4-5 | Out-Null
+    docker volume rm -f mysql-data | Out-Null
+    docker rmi -f php:8.2-apache mysql:latest | Out-Null
+    Write-Host "[CLEAN] Environment cleaning finished!" -ForegroundColor Green
 }
 
-# Check the availability for port 3306
-$porta3306 = Get-NetTCPConnection -LocalPort 3306 -State Listen -ErrorAction SilentlyContinue
-if ($porta3306) {
-    Write-Host "`nERROR" -ForegroundColor Red -NoNewline
-    Write-Host ": the port 3306 is already in using by another application. Please, verify if MySQL or another service is running in 3306 port. Run for troubleshoot:"
-    Write-Host "Get-NetTCPConnection -LocalPort 3306 | Format-Table"
-    Write-Host "See also if another Docker container is using the port 3306:"
-    Write-Host "docker ps"
-    exit 1
+function Test-Port([int]$p) {
+    Write-Host "[CHECK] Port $p availability..."
+    if (Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction SilentlyContinue) {
+        Write-Host "[ERROR] Port $p is in use. Debug with 'Get-NetTCPConnection -LocalPort $p | Format-Table' or 'docker ps'." -ForegroundColor Red
+        exit 1
+    } else {
+        Write-Host "[OK] Port $p is free."
+    }
 }
+Test-Port 80
+Test-Port 3306
 
-# Check the availability for port 80
-$porta80 = Get-NetTCPConnection -LocalPort 80 -State Listen -ErrorAction SilentlyContinue
-if ($porta80) {
-    Write-Host "`nERROR: the port 80 is already in using by another application. Please, verify if Apache or another service is running in 3306 port. Run for troubleshoot:"
-    Write-Host "Get-NetTCPConnection -LocalPort 80 | Format-Table"
-    Write-Host "See also if another Docker container is using the port 80:"
-    Write-Host "docker ps"
-    exit 1
-}
+Write-Host "`n[NETWORK] Creating apache_network-R5"
+docker network create --driver bridge --subnet 10.0.5.0/24 --gateway 10.0.5.254 apache_network-R5 | Out-Null
+Write-Host "[NETWORK] Creating mysql_network-R4"
+docker network create --driver bridge --subnet 10.0.4.0/24 --gateway 10.0.4.254 mysql_network-R4 | Out-Null
+Write-Host "[NETWORK] Creating apache_mysql_network-R4-5"
+docker network create --driver bridge --subnet 10.0.45.0/24 --gateway 10.0.45.254 apache_mysql_network-R4-5 | Out-Null
 
-# Step 1: Create Docker networks
-Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
-Write-Host ": creating Docker networks"
-
-Write-Host "Network 'apache_network-R5' (ip-range: 10.0.5.0/24): " -ForegroundColor Blue -NoNewline
-docker network create --driver bridge --subnet=10.0.5.0/24 --ip-range=10.0.5.0/24 --gateway=10.0.5.254 apache_network-R5 
-
-Write-Host "`nNetwork 'mysql_network-R4' (ip-range: 10.0.4.0/24): " -ForegroundColor Blue -NoNewline
-docker network create --driver bridge --subnet=10.0.4.0/24 --ip-range=10.0.4.0/24 --gateway=10.0.4.254 mysql_network-R4
-
-Write-Host "`nNetwork 'apache_mysql_network-R4-5' (ip-range: 10.0.45.0/24): " -ForegroundColor Blue -NoNewline
-docker network create --driver bridge --subnet=10.0.45.0/24 --ip-range=10.0.45.0/24 --gateway=10.0.45.254 apache_mysql_network-R4-5
-
-# ===============[APACHE]===============
-# Step 2: Run the Apache/PHP container
-Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
-Write-Host ": creating Apache/PHP container..."
-
-# Convert the current working directory to a Unix-friendly path (replace backslashes with forward slashes)
-$pwdUnix = ($PWD.Path -replace "\\", "/")
-
-docker run -d `
-  --name ubuntu_apache `
-  -p 80:80 `
-  --network apache_network-R5 `
-  --ip 10.0.5.10 `
-  -v "$pwdUnix/../Projeto_Web/site:/var/www/html" `
-  php:8.2-apache `
-  bash -c 'docker-php-ext-install pdo_mysql && a2enmod rewrite && apache2-foreground'
-
-docker cp ./captcha_dependencies.sh ubuntu_apache:/tmp
-
+Write-Host "`n[DEPLOY] Apache/PHP container"
+$pwdUnix = $PWD.Path -replace '\\','/'
+docker run -d --name ubuntu_apache -p 80:80 --network apache_network-R5 --ip 10.0.5.10 -v "$pwdUnix/../Projeto_Web/site:/var/www/html" php:8.2-apache | Out-Null
 Start-Sleep -Seconds 10
 
-Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
-Write-Host ": installing dependencies for Apache2 'GD' into 'ubuntu_apache' container..."
-docker exec -i ubuntu_apache bash "/tmp/captcha_dependencies.sh" | out-null
+Write-Host "`n[CONFIG] Installing apt-utils & PHP extensions"
+$bashCmd = @'
+export DEBIAN_FRONTEND=noninteractive
+apt-get update -qq
+apt-get install -y apt-utils libfreetype-dev libjpeg62-turbo-dev libpng-dev imagemagick ghostscript
+docker-php-ext-configure mysqli
+docker-php-ext-configure pdo_mysql
+docker-php-ext-install -j$(nproc) mysqli pdo_mysql
+docker-php-ext-configure gd --with-freetype --with-jpeg
+docker-php-ext-install -j$(nproc) gd
+docker-php-ext-enable mysqli pdo_mysql gd
+a2enmod rewrite
+'@ -replace "`r",""
 
-docker restart ubuntu_apache
+docker exec ubuntu_apache bash -c $bashCmd
+docker exec ubuntu_apache apache2ctl restart | Out-Null
 
-docker network connect --ip 10.0.45.20 apache_mysql_network-R4-5 ubuntu_apache
+Write-Host "[NETWORK] Connecting Apache to apache_mysql_network-R4-5"
+docker network connect --ip 10.0.45.20 apache_mysql_network-R4-5 ubuntu_apache | Out-Null
 
-Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
-Write-Host ": docker Apache/PHP environment created successfully!"
-
-# ===============[MYSQL]===============
-# Step 2: Create the Docker volume for MySQL data persistence
-Write-Host "`n`n`nINFO" -ForegroundColor Blue -NoNewline
-Write-Host ": creating Docker volume 'mysql-data'"
+Write-Host "`n[DEPLOY] MySQL container and volume"
 docker volume create mysql-data | Out-Null
+docker run -d --name mysql_stable --network mysql_network-R4 --ip 10.0.4.10 -v mysql-data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=passwd mysql:latest | Out-Null
 
-# Step 3: Run the MySQL container
-Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
-Write-Host ": creating MySQL container"
-docker pull mysql
+Write-Host "[NETWORK] Connecting MySQL to apache_mysql_network-R4-5"
+docker network connect --ip 10.0.45.10 apache_mysql_network-R4-5 mysql_stable | Out-Null
 
-docker run -d `
-  --name mysql_stable `
-  -v mysql-data:/var/lib/mysql `
-  -p 3306:3306 `
-  --network mysql_network-R4 `
-  --ip 10.0.4.10 `
-  -e MYSQL_ROOT_PASSWORD=passwd `
-  mysql
-
-docker network connect --ip 10.0.45.10 apache_mysql_network-R4-5 mysql_stable
-
+Write-Host "[INFO] Waiting for MySQL initialization..."
 Start-Sleep -Seconds 15
-
 docker exec -i mysql_stable mysql -u root -ppasswd -e "CREATE DATABASE openshelf;"
-
-Write-Host "`n`n`nWARN" -ForegroundColor Yellow -NoNewline
-Write-Host ": check if the database 'openshelf' is underneath:"
-docker exec -i mysql_stable mysql -u root -ppasswd -e "SHOW DATABASES;"
-Write-Host "`n"
-
-
-Start-Sleep -Seconds 5 
-
-$CreateTablesQuery = @'
+Write-Host "`n[DB] Loading schema and sample data"
+$schema = @'
 CREATE USER 'admin'@'%' IDENTIFIED BY 'passwd';
 
 GRANT ALL PRIVILEGES ON *.* TO 'admin'@'%';
@@ -232,8 +184,7 @@ CREATE TABLE tblworkers (
     Role VARCHAR(100) NOT NULL
 );
 '@
-
-$InsertSample = @'
+$sample = @'
 USE openshelf;
 
 INSERT INTO 
@@ -295,23 +246,21 @@ INSERT INTO tblstudents (StudentId, FullName, EmailId, MobileNumber, Password, S
 INSERT INTO admin (FullName, AdminEmail, UserName, Password) VALUES ('teste', 'teste@gmail.com', 'teste', '698dc19d489c4e4db73e28a713eab07b');
 '@
 
-$CreateTablesQuery | docker exec -i mysql_stable mysql -u root -ppasswd
-$InsertSample | docker exec -i mysql_stable mysql -u root -ppasswd
+$schema | docker exec -i mysql_stable mysql -u root -ppasswd
+$sample | docker exec -i mysql_stable mysql -u root -ppasswd
 
-Write-Host "`n`n`n==============[APACHE]=============="
-Write-Host "`n`nCONTAINER INFORMATION:"
+Write-Host "`n`n==============[APACHE]=============="
 Write-Host "Apache server with PHP 8.2 installed"
-Write-Host "Included extension: pdo_mysql"
+Write-Host "Included extensions: pdo_mysql, mysqli, gd"
 Write-Host "Enabled Apache module: rewrite"
-Write-Host "`n`nTo access the container:"
-Write-Host "docker exec -it ubuntu_apache bash"
-Write-Host "`n`nTo check Apache Error Logs:"
-Write-Host "docker exec -it ubuntu_apache bash -c 'tail -f /var/log/apache2/error.log'"
-Write-Host "`n`nTo test PHP:"
-Write-Host "Open in your browser: http://localhost/library"
-Write-Host "`n"
+Write-Host "`nTo access the container:"
+Write-Host "  docker exec -it ubuntu_apache bash"
+Write-Host "To check logs:"
+Write-Host "  docker exec -it ubuntu_apache bash -c 'tail -f /var/log/apache2/error.log'"
+Write-Host "`nOpen in browser: http://localhost/library"
 
-Write-Host "`n`n`n===============[MySQL]==============="
-Write-Host "`n`nCREDENCIAIS DO DOCKER:`nuser: root`nPassword: passwd"
-Write-Host "`n`nPara acessar o docker:`ndocker start mysql_stable`ndocker exec -it mysql_stable mysql -u root -p"
-Write-Host "`n`nDetalhes de rede:`nNome: mysql_network-R4`nGateway:10.0.4.254`nip-range: 10.0.4.0/24`nContainer IP: 10.0.4.11`n`n"
+Write-Host "`n`n===============[MYSQL]==============="
+Write-Host "CREDENTIALS: root / passwd"
+Write-Host "docker exec -it mysql_stable mysql -u root -p"
+Write-Host "Network: mysql_network-R4 (GW 10.0.4.254)"
+Write-Host "Container IP: 10.0.4.10"
