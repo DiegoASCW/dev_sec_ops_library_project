@@ -2,57 +2,78 @@
 $global:phpImage   = "php:8.2-apache"
 $global:mysqlImage = "mysql:8.0"
 
+# ─── Logging Function ───────────────────────────────────────────────────────────
+function Write-Log {
+    param(
+        [string]$Message,
+        [string]$Type = "INFO"
+    )
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $color = switch ($Type) {
+        "ERROR" { "Red" }
+        "WARN" { "Yellow" }
+        "SUCCESS" { "Green" }
+        default { "White" }
+    }
+    Write-Host "[$timestamp] [$Type] $Message" -ForegroundColor $color
+}
 
-Write-Host "[CHECK] Verifying Docker installation..."
+Write-Log "Starting environment setup..."
+
+Write-Log "Verifying Docker installation..."
 if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
-    Write-Host "[ERROR] Docker is not installed." -ForegroundColor Red
+    Write-Log "Docker is not installed. Please install Docker first." "ERROR"
     exit 1
 }
 
-Write-Host "[CHECK] Verifying Docker daemon..."
-docker info | Out-Null
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "[ERROR] Docker daemon is not running." -ForegroundColor Red
+Write-Log "Verifying Docker daemon..."
+try {
+    docker info | Out-Null
+    Write-Log "Docker daemon is running" "SUCCESS"
+} catch {
+    Write-Log "Docker daemon is not running. Please start Docker." "ERROR"
     exit 1
 }
 
-Write-Host "`n[CLEAN] Stopping & removing old containers, networks, volumes and images..."
+Write-Log "Cleaning up existing environment..."
 docker stop ubuntu_apache mysql_stable -t 0 | Out-Null
 docker rm -f ubuntu_apache mysql_stable | Out-Null
 docker network rm -f apache_network-R5 mysql_network-R4 apache_mysql_network-R4-5 | Out-Null
 docker volume rm -f mysql-data | Out-Null
 docker rmi -f $phpImage $mysqlImage | Out-Null
-Write-Host "[CLEAN] Environment cleaning finished!" -ForegroundColor Green
+Write-Log "Environment cleaning completed" "SUCCESS"
 
 function Test-Port([int]$p) {
-    Write-Host "[CHECK] Port $p availability..."
+    Write-Log "Checking port $p availability..."
     if (Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction SilentlyContinue) {
-        Write-Host "[ERROR] Port $p is in use. Debug with 'Get-NetTCPConnection -LocalPort $p | Format-Table' or 'docker ps'." -ForegroundColor Red
+        Write-Log "Port $p is in use. Please free the port or choose a different one." "ERROR"
         exit 1
-    } else {
-        Write-Host "[OK] Port $p is free."
     }
+    Write-Log "Port $p is available" "SUCCESS"
 }
+
 Test-Port 80
 Test-Port 3306
 
-Write-Host "`n[NETWORK] Creating apache_network-R5"
+Write-Log "Creating networks..."
+Write-Log "Creating apache_network-R5"
 docker network create --driver bridge --subnet 10.0.5.0/24 --gateway 10.0.5.254 apache_network-R5 | Out-Null
-Write-Host "[NETWORK] Creating mysql_network-R4"
+Write-Log "Creating mysql_network-R4"
 docker network create --driver bridge --subnet 10.0.4.0/24 --gateway 10.0.4.254 mysql_network-R4 | Out-Null
-Write-Host "[NETWORK] Creating apache_mysql_network-R4-5"
+Write-Log "Creating apache_mysql_network-R4-5"
 docker network create --driver bridge --subnet 10.0.45.0/24 --gateway 10.0.45.254 apache_mysql_network-R4-5 | Out-Null
+Write-Log "Networks created successfully" "SUCCESS"
 
-Write-Host "`n[DEPLOY] Apache/PHP container"
+Write-Log "Deploying Apache/PHP container"
 $pwdUnix = $PWD.Path -replace '\\','/'
 docker run -d --name ubuntu_apache -p 80:80 --network apache_network-R5 --ip 10.0.5.10 -v "$pwdUnix/../Projeto_Web/site:/var/www/html" $phpImage | Out-Null
+Write-Log "Apache container started" "SUCCESS"
+
 Start-Sleep -Seconds 10
 
-Write-Host "`n[CONFIG] Installing apt-utils & PHP extensions"
+Write-Log "Installing PHP extensions and configuring Apache"
 $bashCmd = @'
 export DEBIAN_FRONTEND=noninteractive
-
-# 1) Install runtime + build deps (including mysql dev headers)
 apt-get update -qq >/dev/null 2>&1
 apt-get install -y apt-utils libfreetype-dev libjpeg62-turbo-dev libpng-dev imagemagick ghostscript default-mysql-client default-libmysqlclient-dev -qq >/dev/null 2>&1
 echo "ServerName OpenLibrary" >> /etc/apache2/apache2.conf
@@ -67,39 +88,37 @@ apache2ctl restart >/dev/null 2>&1
 '@ -replace "`r",""
 
 docker exec ubuntu_apache bash -c $bashCmd | Out-Null
+Write-Log "PHP extensions installed and Apache configured" "SUCCESS"
 
-
-
-Write-Host "[NETWORK] Connecting Apache to apache_mysql_network-R4-5"
+Write-Log "Connecting Apache to shared network"
 docker network connect --ip 10.0.45.20 apache_mysql_network-R4-5 ubuntu_apache | Out-Null
+Write-Log "Apache connected to shared network" "SUCCESS"
 
-# ─── new block to insert ───────────────────────────────────────────────────────
-Write-Host "`n[DEPLOY] MySQL ($mysqlImage)"
+Write-Log "Deploying MySQL container"
 docker volume create mysql-data | Out-Null
 docker run -d `
-  --name mysql_stable `
-  --network mysql_network-R4 --ip 10.0.4.10 `
-  -v mysql-data:/var/lib/mysql `
-  -e MYSQL_ROOT_PASSWORD=passwd `
-  -e MYSQL_DATABASE=openshelf `
-  -e MYSQL_USER=admin `
-  -e MYSQL_PASSWORD=passwd `
-  $mysqlImage | Out-Null
+    --name mysql_stable `
+    --network mysql_network-R4 --ip 10.0.4.10 `
+    -v mysql-data:/var/lib/mysql `
+    -e MYSQL_ROOT_PASSWORD=passwd `
+    -e MYSQL_DATABASE=openshelf `
+    -e MYSQL_USER=admin `
+    -e MYSQL_PASSWORD=passwd `
+    $mysqlImage | Out-Null
+Write-Log "MySQL container started" "SUCCESS"
 
-
-Write-Host "[NETWORK] Connecting MySQL to apache_mysql_network-R4-5"
+Write-Log "Connecting MySQL to shared network"
 docker network connect --ip 10.0.45.10 apache_mysql_network-R4-5 mysql_stable | Out-Null
+Write-Log "MySQL connected to shared network" "SUCCESS"
 
-
-Write-Host "[HEALTH] Waiting for MySQL to become ready (TCP)…"
+Write-Log "Waiting for MySQL to become ready..."
 while ($true) {
     docker exec mysql_stable mysqladmin ping -h 127.0.0.1 -u root -ppasswd --silent > $null 2>&1
     if ($LASTEXITCODE -eq 0) { break }
-    Write-Host -NoNewline "."  
+    Write-Host -NoNewline "."
     Start-Sleep -Seconds 1
 }
-Write-Host "`n[HEALTH] MySQL is up and accepting connections!"
-
+Write-Log "MySQL is ready and accepting connections" "SUCCESS"
 
 $schema = @'
 USE openshelf;
