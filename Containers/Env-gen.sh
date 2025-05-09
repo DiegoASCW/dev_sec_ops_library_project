@@ -118,10 +118,13 @@ docker run -d \
   mysql:latest
 
 docker network connect --ip 10.0.45.10 apache_mysql_network-R4-5 mysql_stable
-sleep 15
 
 echo -e "\n${BLUE}INFO${NC}: creating 'openshelf' database..."
 docker exec -i mysql_stable mysql -u root -ppasswd -e "CREATE DATABASE IF NOT EXISTS openshelf;"
+
+sleep 15
+
+docker exec -i mysql_stable mysql -u root -ppasswd -e "SHOW DATABASES;"
 
 echo -e "\n${YELLOW}WARN${NC}: loading schema and sample data..."
 # Load schema and sample data
