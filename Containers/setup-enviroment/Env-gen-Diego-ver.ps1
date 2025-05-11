@@ -77,11 +77,11 @@ docker run -d `
   -p 80:80 `
   --network apache_network-R5 `
   --ip 10.0.5.10 `
-  -v "$pwdUnix/../Projeto_Web/site:/var/www/html" `
+  -v "$pwdUnix/../../Projeto_Web/site:/var/www/html" `
   php:8.2-apache `
   bash -c 'docker-php-ext-install pdo_mysql && a2enmod rewrite && apache2-foreground'
 
-docker cp ./captcha_dependencies.sh ubuntu_apache:/tmp
+docker cp .\captcha_dependencies.sh ubuntu_apache:/tmp
 
 Start-Sleep -Seconds 10
 
@@ -118,7 +118,24 @@ docker run -d `
 
 docker network connect --ip 10.0.45.10 apache_mysql_network-R4-5 mysql_stable
 
-Start-Sleep -Seconds 15
+Write-Host "`nINFO: waiting for 'mysqld' service start..."
+
+$teste = $true
+
+while ($teste) {
+    try {
+        docker exec mysql_stable mysql -u root -ppasswd -e "SHOW SCHEMAS;" > $null 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            Start-Sleep -Seconds 5
+            $teste = $false
+        } else {
+            Start-Sleep -Seconds 1
+        }
+    } catch {
+        Start-Sleep -Seconds 1
+    }
+}
+
 
 docker exec -i mysql_stable mysql -u root -ppasswd -e "CREATE DATABASE openshelf;"
 

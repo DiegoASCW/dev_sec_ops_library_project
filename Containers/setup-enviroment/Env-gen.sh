@@ -37,7 +37,7 @@ if [[ "$escolha" == "y" ]]; then
   # docker rmi diegolautenscs/personal_stables:mysql-openshelf-v3 \ 
   #   diegolautenscs/web_sec_stables:mysql-openshelf-v12 mysql-openshelf-v12 php:8.2-apache -f &> /dev/null || true
   docker network rm apache_network-R5 mysql_network-R4 apache_mysql_network-R4-5 openshelf_mysql_network-R4 &> /dev/null || true
-  docker volume rm mysql-data -f &> /dev/null || true
+  docker volume rm mysql-data mysql-data -f &> /dev/null || true
   echo -e "${BLUE}INFO${NC}: environment cleaning finished!"
 fi
 
@@ -83,7 +83,7 @@ docker run -d \
   -p 80:80 \
   --network apache_network-R5 \
   --ip 10.0.5.10 \
-  -v "${PWD_UNIX}/../Projeto_Web/site:/var/www/html" \
+  -v "${PWD_UNIX}/../../Projeto_Web/site:/var/www/html" \
   php:8.2-apache \
   bash -c 'docker-php-ext-install pdo_mysql && a2enmod rewrite && apache2-foreground'
 
@@ -118,10 +118,27 @@ docker run -d \
   mysql:latest
 
 docker network connect --ip 10.0.45.10 apache_mysql_network-R4-5 mysql_stable
-sleep 15
+
+# Verify if MySQL Container has MySQL running
+echo -e "\n${BLUE}INFO${NC}: waiting for 'mysqld' service start..."
+set +euo pipefail
+teste=1
+while [ $teste -eq 1 ];
+do
+	docker exec "mysql_stable" mysql -u root -ppasswd -e "SHOW SCHEMAS;" > /dev/null 2>&1
+
+	if [ $? -eq 0 ]; then
+	    sleep 5
+	    teste=0
+	else
+	    sleep 1
+	fi
+done
 
 echo -e "\n${BLUE}INFO${NC}: creating 'openshelf' database..."
 docker exec -i mysql_stable mysql -u root -ppasswd -e "CREATE DATABASE IF NOT EXISTS openshelf;"
+
+docker exec -i mysql_stable mysql -u root -ppasswd -e "SHOW DATABASES;"
 
 echo -e "\n${YELLOW}WARN${NC}: loading schema and sample data..."
 # Load schema and sample data
