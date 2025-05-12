@@ -171,7 +171,7 @@ foreach($results as $result)
 </div>
 
 <div class="form-group">
-<label>Fine (in USD) :</label>
+<label>Price of fine (if applicable) :</label>
 <?php 
 if($result->fine=="")
 {?>
