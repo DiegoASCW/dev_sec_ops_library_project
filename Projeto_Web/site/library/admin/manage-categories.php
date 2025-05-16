@@ -24,6 +24,7 @@ header('location:manage-categories.php');
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+    
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta name="description" content="" />
@@ -39,6 +40,7 @@ header('location:manage-categories.php');
     <link href="assets/css/style.css" rel="stylesheet" />
     <!-- GOOGLE FONT -->
     <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
+    <link  href='assets/css/manage-category.css' rel='stylesheet'/>
 
 </head>
 <body>
@@ -159,8 +161,10 @@ foreach($results as $result)
 
             
     </div>
+    <div class="custom-footer-link">
+    <a href="https://escritaselvagem.com.br/carreira-literaria/lista-de-generos-literarios/" target="_blank">If you want to know more about the categories/genres of literature</a>
     </div>
-
+    </div>
      <!-- CONTENT-WRAPPER SECTION END-->
   <?php include('includes/footer.php');?>
       <!-- FOOTER SECTION END-->
