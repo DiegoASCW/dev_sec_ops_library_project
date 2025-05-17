@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# Exit immediately if a command exits with a non-zero status
 set -euo pipefail
 
 # ANSI color codes
@@ -36,7 +35,7 @@ if [[ "$escolha" == "y" ]]; then
   # Uncomment and adjust images as needed:
   # docker rmi diegolautenscs/personal_stables:mysql-openshelf-v3 \ 
   #   diegolautenscs/web_sec_stables:mysql-openshelf-v12 mysql-openshelf-v12 php:8.2-apache -f &> /dev/null || true
-  docker network rm apache_network-R5 mysql_network-R4 apache_mysql_network-R4-5 openshelf_mysql_network-R4 &> /dev/null || true
+  docker network rm apache_network-R5 mysql_network-R4 apache_mysql_network-R4-5 openshelf_mysql_network-R4 backup_mysql_network-R94 &> /dev/null || true
   docker volume rm mysql-data mysql-data -f &> /dev/null || true
   echo -e "${BLUE}INFO${NC}: environment cleaning finished!"
 fi
@@ -70,6 +69,9 @@ docker network create --driver bridge --subnet=10.0.4.0/24 --ip-range=10.0.4.0/2
 
 echo -e "\n${BLUE}INFO${NC}: creating apache_mysql_network-R4-5 (10.0.45.0/24)..."
 docker network create --driver bridge --subnet=10.0.45.0/24 --ip-range=10.0.45.0/24 --gateway=10.0.45.254 apache_mysql_network-R4-5
+
+echo -e "\n${BLUE}INFO${NC}: creating backup_mysql_network-R94 (10.0.94.0/24)..."
+docker network create --driver bridge --subnet=10.0.94.0/24 --ip-range=10.0.94.0/24 --gateway=10.0.94.254 backup_mysql_network-R94
 
 # -----------------------------
 # 6. Apache/PHP container setup
@@ -112,12 +114,12 @@ docker run -d \
   --name mysql_stable \
   -v mysql-data:/var/lib/mysql \
   -p 3306:3306 \
-  --network mysql_network-R4 \
-  --ip 10.0.4.10 \
   -e MYSQL_ROOT_PASSWORD=passwd \
   mysql:latest
 
+docker network connect --ip 10.0.4.10 mysql_network-R4 mysql_stable
 docker network connect --ip 10.0.45.10 apache_mysql_network-R4-5 mysql_stable
+docker network connect --ip 10.0.94.11 backup_mysql_network-R94 mysql_stable
 
 # Verify if MySQL Container has MySQL running
 echo -e "\n${BLUE}INFO${NC}: waiting for 'mysqld' service start..."
@@ -131,7 +133,7 @@ do
 	    sleep 5
 	    teste=0
 	else
-	    sleep 1
+	    sleep 0.5
 	fi
 done
 

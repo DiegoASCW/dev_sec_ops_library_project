@@ -23,7 +23,7 @@ if ($escolha -eq "y") {
   docker stop ubuntu_apache mysql_stable -t 0 *> $null
   docker rm ubuntu_apache mysql_stable mysql-stable *> $null
   #docker rmi diegolautenscs/personal_stables:mysql-openshelf-v3 diegolautenscs/web_sec_stables:mysql-openshelf-v12 mysql-openshelf-v12 mysql php:8.2-apache -f *> $null
-  docker network rm apache_network-R5 mysql_network-R4 apache_mysql_network-R4-5 openshelf_mysql_network-R4 *> $null
+  docker network rm apache_network-R5 mysql_network-R4 apache_mysql_network-R4-5 openshelf_mysql_network-R4 backup_mysql_network-R94 *> $null
   docker volume rm mysql-data -f *> $null
 
   Write-Host "INFO" -ForegroundColor Blue -NoNewline
@@ -64,6 +64,10 @@ docker network create --driver bridge --subnet=10.0.4.0/24 --ip-range=10.0.4.0/2
 Write-Host "`nNetwork 'apache_mysql_network-R4-5' (ip-range: 10.0.45.0/24): " -ForegroundColor Blue -NoNewline
 docker network create --driver bridge --subnet=10.0.45.0/24 --ip-range=10.0.45.0/24 --gateway=10.0.45.254 apache_mysql_network-R4-5
 
+Write-Host "`nNetwork 'backup_mysql_network-R94' (ip-range: 10.0.94.0/24): " -ForegroundColor Blue -NoNewline
+docker network create --driver bridge --subnet=10.0.94.0/24 --ip-range=10.0.94.0/24 --gateway=10.0.94.254 backup_mysql_network-R94
+
+
 # ===============[APACHE]===============
 # Step 2: Run the Apache/PHP container
 Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
@@ -81,7 +85,7 @@ docker run -d `
   php:8.2-apache `
   bash -c 'docker-php-ext-install pdo_mysql && a2enmod rewrite && apache2-foreground'
 
-docker cp .\captcha_dependencies.sh ubuntu_apache:/tmp
+docker cp ./captcha_dependencies.sh ubuntu_apache:/tmp
 
 Start-Sleep -Seconds 10
 
@@ -111,14 +115,15 @@ docker run -d `
   --name mysql_stable `
   -v mysql-data:/var/lib/mysql `
   -p 3306:3306 `
-  --network mysql_network-R4 `
-  --ip 10.0.4.10 `
   -e MYSQL_ROOT_PASSWORD=passwd `
   mysql
 
+docker network connect --ip 10.0.4.10 mysql_network-R4 mysql_stable
 docker network connect --ip 10.0.45.10 apache_mysql_network-R4-5 mysql_stable
+docker network connect --ip 10.0.94.11 backup_mysql_network-R94 mysql_stable
 
-Write-Host "`nINFO: waiting for 'mysqld' service start..."
+Write-Host "`n`n`nINFO" -ForegroundColor Blue -NoNewline
+Write-Host ": waiting for 'mysqld' service start..."
 
 $teste = $true
 
