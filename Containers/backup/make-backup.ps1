@@ -1,29 +1,22 @@
-#!/usr/bin/env pwsh
-
-# Data atual no formato YYYY-MM-DD
 $date = (Get-Date).ToString('yyyy-MM-dd')
 
-# Códigos de cor ANSI (funciona se o terminal estiver em modo Virtual Terminal)
-$RED    = "`e[31m"
-$BLUE   = "`e[34m"
-$YELLOW = "`e[33m"
-$NC     = "`e[0m"
-
 # -----------------------------
-# 1. Verificar se o Docker está instalado
+# 1. Check if Docker is installed
 # -----------------------------
 if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
-    Write-Host "${RED}ERROR${NC}: Docker não está instalado."
+    Write-Host "`nERROR" -ForegroundColor Red -NoNewline
+    Write-Host " : Docker não está instalado."
     exit 1
 }
 
 # -----------------------------
-# 2. Verificar se o Docker está em execução
+# 2. Check if Docker is running
 # -----------------------------
 try {
     docker info | Out-Null
 } catch {
-    Write-Host "${RED}ERROR${NC}: Docker não está em execução."
+    Write-Host "`nERROR" -ForegroundColor Red -NoNewline
+    Write-Host " : Docker não está em execução."
     exit 1
 }
 
@@ -39,17 +32,15 @@ $escolha = Read-Host "="
 
 
 # -----------------------------
-# 1. Make Backup
+# 3. Make Backup
 # -----------------------------
 if ($escolha -eq '1') {
     Write-Host ""
     Write-Host "`nWARN" -ForegroundColor Yellow -NoNewline
     Write-Host ": 'Make Backup' option selected"
 
-    # Definir e sanitizar nome do volume
     $backupVolume = ("backup-mysql-data-$date").Trim()
 
-    # Criar volume de backup
     docker volume create $backupVolume | Out-Null
 
     docker run -d `
@@ -69,27 +60,16 @@ if ($escolha -eq '1') {
 
 }
 # -----------------------------
-# 2. Put Backup on prod
+# 4. Replace 'mysql-data' data to backup-mysql-data-$date
 # -----------------------------
 elseif ($escolha -eq '2') {
     Write-Host "`nWARN" -ForegroundColor Yellow -NoNewline
     Write-Host " : 'Put Backup on prod' option selected"
 
-    # Listar volumes de backup existentes
-    $volumes = docker volume ls -q | Where-Object { $_ -like 'backup-mysql-data*' }
-
-    if ($volumes.Count -eq 0) {
-        Write-Host "`nERROR" -ForegroundColor Red -NoNewline
-        Write-Host " : Nenhum volume de backup encontrado."
-        exit 1
-    }
-
-    Write-Host ""
-    Write-Host "Selecione algum backup de volume para restaurar em produção:"
-    # Executa o docker e força o resultado a ser um array
+    Write-Host "`nSelecione algum backup de volume para restaurar em produção:"
+    # Shows and choose a backup volume
     $volumeNames = @(docker volume ls -q)
 
-    # Teste: mostre o conteúdo e confirme que é um array
     Write-Host "Volumes encontrados:"
     for ($i=0; $i -le $volumeNames.Length - 1; $i=$i+1 ) {
         Write-Host "($i) - " ${volumeNames}[$i];
@@ -101,11 +81,9 @@ elseif ($escolha -eq '2') {
     Write-Host "`nWARN" -ForegroundColor Yellow -NoNewline
     Write-Host " : Replacing actual MySQL data with '$backup_chosed'"
 
-    # Resetar banco openshelf no container de produção
     docker exec -i mysql_stable mysql -u root -ppasswd `
         -e "DROP DATABASE IF EXISTS openshelf; CREATE DATABASE openshelf;"
 
-    # Restaurar dump
     docker run -d `
         --name backup_mysql `
         -v mysql-data:/mnt/mysql `
@@ -120,9 +98,4 @@ elseif ($escolha -eq '2') {
 
     Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
     Write-Host " : volume substitution concluded!"
-}
-else {
-    Write-Host "`nERROR" -ForegroundColor Red -NoNewline
-    Write-Host " : Opção inválida."
-    exit 1
 }

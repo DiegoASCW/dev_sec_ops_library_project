@@ -29,7 +29,7 @@ read -rp $' (1) Make Backup\n (2) Put Backup on prod\n\n=' escolha
 
 
 # -----------------------------
-# 1. Make Backup
+# 3. Make Backup
 # -----------------------------
 if [[ "$escolha" -eq "1" ]]; then
     echo -e "\n\n\n${YELLOW}WARN${NC}: 'Make Backup' option selected"
@@ -50,7 +50,7 @@ if [[ "$escolha" -eq "1" ]]; then
     echo -e "\n${BLUE}INFO${NC}: backup volume 'backup-mysql-data-$date' created"
 
   # -----------------------------
-  # 2. Replace 'mysql-data' data to backup-mysql-data-$date
+  # 4. Replace 'mysql-data' data to backup-mysql-data-$date
   # -----------------------------
   elif [[ "$escolha" -eq "2" ]]; then
     echo -e "\n${YELLOW}WARN${NC}: 'Make Backup' option selected"
