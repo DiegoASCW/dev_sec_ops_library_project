@@ -13,6 +13,7 @@ if (strlen($_SESSION['alogin']) == 0) {
 
         # Verifica se o usuário já tem algum livro emprestado
         $studentid = strtoupper($_POST['studentid']);
+
         $sql = "SELECT id FROM tblissuedbookdetails WHERE StudentID = :studentid AND ReturnDate IS NULL";
         $query = $dbh->prepare($sql);
         $query->bindParam(':studentid', $studentid, PDO::PARAM_STR);
@@ -58,7 +59,7 @@ if (strlen($_SESSION['alogin']) == 0) {
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>Online Library Management System | Issue a new Book</title>
+        <title>Openshelf | Issue a new Book</title>
         <!-- BOOTSTRAP CORE STYLE  -->
         <link href="assets/css/bootstrap.css" rel="stylesheet" />
         <!-- FONT AWESOME STYLE  -->
@@ -172,5 +173,6 @@ if (strlen($_SESSION['alogin']) == 0) {
         <!-- CUSTOM SCRIPTS  -->
         <script src="assets/js/custom.js"></script>
     </body>
+
     </html>
 <?php } ?>

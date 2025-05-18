@@ -1,26 +1,15 @@
 <?php
 session_start();
 error_reporting(0);
-include('../includes/config.php');
-if(strlen($_SESSION['alogin'])==0)
+
+include 'includes/config.php';
+
+if(strlen($_SESSION['login'])==0)
     {   
 header('location:index.php');
 }
-else{
-if(isset($_GET['del']))
-{
-$id=$_GET['del'];
-$sql = "delete from tblauthors  WHERE id=:id";
-$query = $dbh->prepare($sql);
-$query -> bindParam(':id',$id, PDO::PARAM_STR);
-$query -> execute();
-$_SESSION['delmsg']="Author deleted";
-header('location:manage-authors.php');
-
-}
-
-
-    ?>
+else{ 
+?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -28,7 +17,7 @@ header('location:manage-authors.php');
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Openshelf | Manage Authors</title>
+    <title>Openshelf | List All Books</title>
     <!-- BOOTSTRAP CORE STYLE  -->
     <link href="assets/css/bootstrap.css" rel="stylesheet" />
     <!-- FONT AWESOME STYLE  -->
@@ -46,65 +35,18 @@ header('location:manage-authors.php');
 <?php include('includes/header.php');?>
 <!-- MENU SECTION END-->
     <div class="content-wrapper">
-         <div class="container">
-        <div class="row pad-botm">
-            <div class="col-md-12">
-                <h4 class="header-line">Manage Authors</h4>
-    </div>
-     <div class="row">
-    <?php if($_SESSION['error']!="")
-    {?>
-<div class="col-md-6">
-<div class="alert alert-danger" >
- <strong>Error :</strong> 
- <?php echo htmlentities($_SESSION['error']);?>
-<?php echo htmlentities($_SESSION['error']="");?>
-</div>
-</div>
-<?php } ?>
-<?php if($_SESSION['msg']!="")
-{?>
-<div class="col-md-6">
-<div class="alert alert-success" >
- <strong>Success :</strong> 
- <?php echo htmlentities($_SESSION['msg']);?>
-<?php echo htmlentities($_SESSION['msg']="");?>
-</div>
-</div>
-<?php } ?>
-<?php if($_SESSION['updatemsg']!="")
-{?>
-<div class="col-md-6">
-<div class="alert alert-success" >
- <strong>Success :</strong> 
- <?php echo htmlentities($_SESSION['updatemsg']);?>
-<?php echo htmlentities($_SESSION['updatemsg']="");?>
-</div>
-</div>
-<?php } ?>
-
-
-   <?php if($_SESSION['delmsg']!="")
-    {?>
-<div class="col-md-6">
-<div class="alert alert-success" >
- <strong>Success :</strong> 
- <?php echo htmlentities($_SESSION['delmsg']);?>
-<?php echo htmlentities($_SESSION['delmsg']="");?>
-</div>
-</div>
-<?php } ?>
-
-</div>
-
-
-        </div>
+        <div class="container">
+            <div class="row pad-botm">
+                <div class="col-md-12">
+                    <h4 class="header-line">List All Books</h4>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-md-12">
                     <!-- Advanced Tables -->
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                           Authors Listing
+                           Books Listing
                         </div>
                         <div class="panel-body">
                             <div class="table-responsive">
@@ -112,15 +54,17 @@ header('location:manage-authors.php');
                                     <thead>
                                         <tr>
                                             <th>#</th>
+                                            <th>Book Name</th>
+                                            <th>Category</th>
                                             <th>Author</th>
-                                         
-                                            <th>Creation Date</th>
-                                            <th>Updation Date</th>
-                                            <th>Action</th>
+                                            <th>ISBN</th>
+                                            <th>Quantity Left</th>
+                                            <th>Quantity Total</th>
+                                            <th>Price</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-<?php $sql = "SELECT * from  tblauthors";
+<?php $sql = "SELECT tblbooks.BookName,tblcategory.CategoryName,tblauthors.AuthorName,tblbooks.ISBNNumber,tblbooks.QuantityLeft,tblbooks.QuantityTotal,tblbooks.BookPrice,tblbooks.id as bookid from  tblbooks join tblcategory on tblcategory.id=tblbooks.CatId  join tblauthors on tblauthors.id=tblbooks.AuthorId";
 $query = $dbh -> prepare($sql);
 $query->execute();
 $results=$query->fetchAll(PDO::FETCH_OBJ);
@@ -131,16 +75,17 @@ foreach($results as $result)
 {               ?>                                      
                                         <tr class="odd gradeX">
                                             <td class="center"><?php echo htmlentities($cnt);?></td>
+                                            <td class="center"><?php echo htmlentities($result->BookName);?></td>
+                                            <td class="center"><?php echo htmlentities($result->CategoryName);?></td>
                                             <td class="center"><?php echo htmlentities($result->AuthorName);?></td>
-                                            <td class="center"><?php echo htmlentities($result->creationDate);?></td>
-                                            <td class="center"><?php echo htmlentities($result->UpdationDate);?></td>
-                                            <td class="center">
+                                            <td class="center"><?php echo htmlentities($result->ISBNNumber);?></td>
+                                            <td class="center"><?php echo htmlentities($result->QuantityLeft);?></td>
+                                            <td class="center"><?php echo htmlentities($result->QuantityTotal);?></td>
+                                            <td class="center"><?php echo htmlentities($result->BookPrice);?></td>
 
-                                            <a href="edit-author.php?athrid=<?php echo htmlentities($result->id);?>"><button class="btn btn-primary"><i class="fa fa-edit "></i> Edit</button> 
-                                          <a href="manage-authors.php?del=<?php echo htmlentities($result->id);?>" onclick="return confirm('Are you sure you want to delete?');"" >  <button class="btn btn-danger"><i class="fa fa-pencil"></i> Delete</button>
                                             </td>
                                         </tr>
- <?php $cnt=$cnt+1;}} ?>                                      
+                                    <?php $cnt=$cnt+1;}} ?>                                      
                                     </tbody>
                                 </table>
                             </div>
@@ -150,14 +95,11 @@ foreach($results as $result)
                     <!--End Advanced Tables -->
                 </div>
             </div>
-
-
-            
-    </div>
+        </div>
     </div>
 
      <!-- CONTENT-WRAPPER SECTION END-->
-  <?php include('includes/footer.php');?>
+    <?php include('./includes/footer.php');?>
       <!-- FOOTER SECTION END-->
     <!-- JAVASCRIPT FILES PLACED AT THE BOTTOM TO REDUCE THE LOADING TIME  -->
     <!-- CORE JQUERY  -->
