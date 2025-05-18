@@ -68,7 +68,8 @@ elseif ($escolha -eq '2') {
 
     Write-Host "`nSelecione algum backup de volume para restaurar em produção:"
     # Shows and choose a backup volume
-    $volumeNames = @(docker volume ls -q)
+    $volumeNames = @(docker volume ls -q | Where-Object { $_ -like "*backup-mysql*" })
+
 
     Write-Host "Volumes encontrados:"
     for ($i=0; $i -le $volumeNames.Length - 1; $i=$i+1 ) {
