@@ -1,6 +1,6 @@
 <?php
 session_start();
-error_reporting(error_level: 1);
+error_reporting(error_level: 0);
 
 include '../includes/config.php';
 include '../includes/sanitize_validation.php';
@@ -35,7 +35,6 @@ if (strlen($_SESSION['alogin']) == 0) {
             $query->bindParam(':bookid', $bookid, PDO::PARAM_STR);
             $query->execute();
             
-    
             if ($lastInsertId) {
                 $_SESSION['msg'] = "Book issued successfully";
                 #$_SESSION['msg'] = "Book issued successfully";
