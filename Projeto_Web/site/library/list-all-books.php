@@ -2,9 +2,9 @@
 session_start();
 error_reporting(0);
 
-include '../includes/config.php';
+include 'includes/config.php';
 
-if(strlen($_SESSION['alogin'])==0)
+if(strlen($_SESSION['login'])==0)
     {   
 header('location:index.php');
 }
@@ -99,7 +99,7 @@ foreach($results as $result)
     </div>
 
      <!-- CONTENT-WRAPPER SECTION END-->
-    <?php include('includes/footer.php');?>
+    <?php include('./includes/footer.php');?>
       <!-- FOOTER SECTION END-->
     <!-- JAVASCRIPT FILES PLACED AT THE BOTTOM TO REDUCE THE LOADING TIME  -->
     <!-- CORE JQUERY  -->
