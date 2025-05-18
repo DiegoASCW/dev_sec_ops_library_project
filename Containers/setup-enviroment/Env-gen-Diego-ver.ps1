@@ -122,7 +122,7 @@ docker network connect --ip 10.0.4.10 mysql_network-R4 mysql_stable
 docker network connect --ip 10.0.45.10 apache_mysql_network-R4-5 mysql_stable
 docker network connect --ip 10.0.94.11 backup_mysql_network-R94 mysql_stable
 
-Write-Host "`n`n`nINFO" -ForegroundColor Blue -NoNewline
+Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": waiting for 'mysqld' service start..."
 
 $teste = $true
@@ -144,7 +144,7 @@ while ($teste) {
 
 docker exec -i mysql_stable mysql -u root -ppasswd -e "CREATE DATABASE openshelf;"
 
-Write-Host "`n`n`nWARN" -ForegroundColor Yellow -NoNewline
+Write-Host "`nWARN" -ForegroundColor Yellow -NoNewline
 Write-Host ": check if the database 'openshelf' is underneath:"
 docker exec -i mysql_stable mysql -u root -ppasswd -e "SHOW DATABASES;"
 Write-Host "`n"
@@ -331,7 +331,6 @@ Write-Host "`n`nTo check Apache Error Logs:"
 Write-Host "docker exec -it ubuntu_apache bash -c 'tail -f /var/log/apache2/error.log'"
 Write-Host "`n`nTo test PHP:"
 Write-Host "Open in your browser: http://localhost/library"
-Write-Host "`n"
 
 Write-Host "`n`n`n===============[MySQL]==============="
 Write-Host "`n`nCREDENCIAIS DO DOCKER:`nuser: root`nPassword: passwd"
