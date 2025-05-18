@@ -1,6 +1,6 @@
 <?php
 session_start();
-error_reporting(0);
+error_reporting(error_level: 0);
 
 include '../includes/config.php';
 include '../includes/sanitize_validation.php';
@@ -10,29 +10,43 @@ if (strlen($_SESSION['alogin']) == 0) {
 } else {
 
     if (isset($_POST['issue'])) {
+
+        # Verifica se o usuário já tem algum livro emprestado
         $studentid = strtoupper($_POST['studentid']);
-        $bookid = $_POST['bookdetails'];
 
-        $sql = "INSERT INTO tblissuedbookdetails(StudentID, BookId) SELECT :studentid, :bookid FROM tblbooks WHERE id = :bookid AND QuantityLeft > 0;";
-
+        $sql = "SELECT id FROM tblissuedbookdetails WHERE StudentID = :studentid AND ReturnDate IS NULL";
         $query = $dbh->prepare($sql);
         $query->bindParam(':studentid', $studentid, PDO::PARAM_STR);
-        $query->bindParam(':bookid', $bookid, PDO::PARAM_STR);
         $query->execute();
+        $results = $query->fetchAll(PDO::FETCH_OBJ);
 
-        $sql_remove_quantity = "UPDATE tblbooks SET QuantityLeft = QuantityLeft - 1 WHERE id = :bookid;";
-        $query = $dbh->prepare($sql_remove_quantity);
-        $query->bindParam(':bookid', $bookid, PDO::PARAM_STR);
-        $query->execute();
-
-        $lastInsertId = $dbh->lastInsertId();
-
-        if ($lastInsertId) {
-            $_SESSION['msg'] = "Book issued successfully";
-            header('location:manage-issued-books.php');
+        if (empty($results)) {
+            # Realiza INSERT do evento em 'tblissuedbookdetails'
+            $bookid = $_POST['bookdetails'];
+            $sql = "INSERT INTO tblissuedbookdetails(StudentID, BookId) SELECT :studentid, :bookid FROM tblbooks WHERE id = :bookid AND QuantityLeft > 0;";
+            $query = $dbh->prepare($sql);
+            $query->bindParam(':studentid', $studentid, PDO::PARAM_STR);
+            $query->bindParam(':bookid', $bookid, PDO::PARAM_STR);
+            $query->execute();
+            $lastInsertId = $dbh->lastInsertId();
+    
+            # Atualiza qntd de livros disponíveis em 'tblbooks'
+            $sql_remove_quantity="UPDATE tblbooks SET QuantityLeft = QuantityLeft - 1 WHERE id = :bookid;";
+            $query = $dbh->prepare($sql_remove_quantity);
+            $query->bindParam(':bookid', $bookid, PDO::PARAM_STR);
+            $query->execute();
+            
+            if ($lastInsertId) {
+                $_SESSION['msg'] = "Book issued successfully";
+                #$_SESSION['msg'] = "Book issued successfully";
+                header('location:./manage-issued-books.php');
+            } else {
+                $_SESSION['error'] = "Something went wrong. Please try again";
+                header('location:./manage-issued-books.php');
+            }
         } else {
-            $_SESSION['error'] = "Something went wrong. Please try again";
-            header('location:manage-issued-books.php');
+            $_SESSION['error'] = "User already has an issued book.";
+            header('location:./manage-issued-books.php');
         }
     }
     ?>

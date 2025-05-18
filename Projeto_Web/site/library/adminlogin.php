@@ -28,7 +28,7 @@ if (isset($_POST['login'])) {
             echo "<script>alert('Invalid Details');</script>";
         }
     }
-} // <-- ESTA chave estava provavelmente faltando no seu código original
+} 
 ?>
 
 
