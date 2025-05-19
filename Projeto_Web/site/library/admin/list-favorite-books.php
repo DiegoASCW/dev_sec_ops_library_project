@@ -8,22 +8,7 @@ if(strlen($_SESSION['alogin'])==0)
     {   
 header('location:index.php');
 }
-else{
-    
-    if (isset($_POST['favorite'])) {
-        $isbnumber = intval($_GET['ISBNNumber']);
-        echo "$isbnumber";
-        $_SESSION['updatemsg'] = "$isbnumber";
-        #$author = $_POST['author'];
-        #$sql = "update  tblauthors set AuthorName=:author where id=:athrid";
-        #$query = $dbh->prepare($sql);
-        #$query->bindParam(':author', $author, PDO::PARAM_STR);
-        #$query->bindParam(':athrid', $athrid, PDO::PARAM_STR);
-        #$query->execute();
-        #$_SESSION['updatemsg'] = "Author info updated successfully";
-        header('location:manage-authors.php');
-    }
-
+else{ 
 ?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -98,12 +83,7 @@ foreach($results as $result)
                                             <td class="center"><?php echo htmlentities($result->QuantityLeft);?></td>
                                             <td class="center"><?php echo htmlentities($result->QuantityTotal);?></td>
                                             <td class="center"><?php echo htmlentities($result->BookPrice);?></td>
-                                            
-                                            <form method="POST">
-                                                <td class="center">
-                                                    <button type="submit" name="favorite" class="btn btn-info">⭐</button>
-                                                </td>
-                                            </form>
+                                            <td class="center"> <button type="submit" name="add" class="btn btn-info">⭐</button> </td>
 
                                             </td>
                                         </tr>
