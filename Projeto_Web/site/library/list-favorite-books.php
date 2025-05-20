@@ -4,11 +4,24 @@ error_reporting(0);
 
 include '../includes/config.php';
 
-if(strlen($_SESSION['alogin'])==0)
+if(strlen($_SESSION['login'])==0)
     {   
 header('location:index.php');
 }
 else{ 
+
+    if (isset($_POST['remove'])) {
+        $isbnumber = intval($_POST['ISBNNumber']);
+        $studentId = $_SESSION['stdid'];
+
+        $sql = "DELETE FROM tblfavoritebook WHERE StudentId = '$studentId' AND ISBNNumber = $isbnumber";
+        $query = $dbh -> prepare($sql);
+        $query->execute();
+
+        $_SESSION['updatemsg'] = "Book removed from!";
+        header('location:list-all-books.php');
+    }
+
 ?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -61,7 +74,7 @@ else{
                                             <th>Quantity Left</th>
                                             <th>Quantity Total</th>
                                             <th>Price</th>
-                                            <th>Favorite</th>
+                                            <th>Remove</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -83,9 +96,15 @@ foreach($results as $result)
                                             <td class="center"><?php echo htmlentities($result->QuantityLeft);?></td>
                                             <td class="center"><?php echo htmlentities($result->QuantityTotal);?></td>
                                             <td class="center"><?php echo htmlentities($result->BookPrice);?></td>
-                                            <td class="center"> <button type="submit" name="add" class="btn btn-info">⭐</button> </td>
 
-                                            </td>
+                                            <form method="POST">
+                                                <input type="hidden" name="ISBNNumber" value="<?php echo htmlentities($result->ISBNNumber); ?>">
+                                                <td class="center">
+                                                    <button type="submit" name="remove" class="btn btn-info">👎</button>
+                                                </td>
+                                            </form>
+
+                                        </td>
                                         </tr>
                                     <?php $cnt=$cnt+1;}} ?>                                      
                                     </tbody>
