@@ -1,8 +1,8 @@
 <?php
 session_start();
-error_reporting(0);
+error_reporting(1);
 
-include '../includes/config.php';
+include 'includes/config.php';
 
 if(strlen($_SESSION['login'])==0)
     {   
@@ -30,7 +30,7 @@ else{
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Openshelf | List All Books</title>
+    <title>Openshelf | Favorite Books</title>
     <!-- BOOTSTRAP CORE STYLE  -->
     <link href="assets/css/bootstrap.css" rel="stylesheet" />
     <!-- FONT AWESOME STYLE  -->
@@ -51,7 +51,7 @@ else{
         <div class="container">
             <div class="row pad-botm">
                 <div class="col-md-12">
-                    <h4 class="header-line">List All Books</h4>
+                    <h4 class="header-line">Favorite Books</h4>
                 </div>
             </div>
             <div class="row">
@@ -78,10 +78,29 @@ else{
                                         </tr>
                                     </thead>
                                     <tbody>
-<?php $sql = "SELECT tblbooks.BookName,tblcategory.CategoryName,tblauthors.AuthorName,tblbooks.ISBNNumber,tblbooks.QuantityLeft,tblbooks.QuantityTotal,tblbooks.BookPrice,tblbooks.id as bookid from  tblbooks join tblcategory on tblcategory.id=tblbooks.CatId  join tblauthors on tblauthors.id=tblbooks.AuthorId";
-$query = $dbh -> prepare($sql);
+<?php 
+$studentId = $_SESSION['stdid'];
+
+$sql = "SELECT 
+            tblbooks.BookName,
+            tblcategory.CategoryName,
+            tblauthors.AuthorName,
+            tblbooks.ISBNNumber,
+            tblbooks.QuantityLeft,
+            tblbooks.QuantityTotal,
+            tblbooks.BookPrice,
+            tblbooks.id as bookid 
+        FROM tblbooks 
+        JOIN tblcategory ON tblcategory.id = tblbooks.CatId 
+        JOIN tblauthors ON tblauthors.id = tblbooks.AuthorId 
+        JOIN tblfavoritebook ON tblfavoritebook.ISBNNumber = tblbooks.ISBNNumber 
+            AND tblfavoritebook.StudentId = :studentid";
+
+$query = $dbh->prepare($sql);
+$query->bindParam(':studentid', $studentId, PDO::PARAM_STR);
 $query->execute();
-$results=$query->fetchAll(PDO::FETCH_OBJ);
+$results = $query->fetchAll(PDO::FETCH_OBJ);
+
 $cnt=1;
 if($query->rowCount() > 0)
 {
