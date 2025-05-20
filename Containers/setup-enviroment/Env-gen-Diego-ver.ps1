@@ -253,6 +253,11 @@ CREATE TABLE tblworkers (
     FullName VARCHAR(255) NOT NULL,
     Role VARCHAR(100) NOT NULL
 );
+
+CREATE TABLE tblfavoritebook(
+    StudentId varchar(100),
+    ISBNNumber bigint
+);
 '@
 
 $InsertSample = @'

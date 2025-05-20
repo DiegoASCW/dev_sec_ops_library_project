@@ -8,7 +8,24 @@ if(strlen($_SESSION['login'])==0)
     {   
 header('location:index.php');
 }
-else{ 
+else{
+
+    if (isset($_POST['favorite'])) {
+        $isbnumber = intval($_POST['ISBNNumber']);
+        $studentId = $_SESSION['stdid'];
+
+        echo "ID do estudante logado: " . $studentId;
+
+        
+        $sql = "SELECT tblbooks.BookName,tblcategory.CategoryName,tblauthors.AuthorName,tblbooks.ISBNNumber,tblbooks.QuantityLeft,tblbooks.QuantityTotal,tblbooks.BookPrice,tblbooks.id as bookid from  tblbooks join tblcategory on tblcategory.id=tblbooks.CatId  join tblauthors on tblauthors.id=tblbooks.AuthorId";
+        $query->bindParam(':author', $author, PDO::PARAM_STR);
+        $query = $dbh -> prepare($sql);
+        $query->execute();
+
+        $_SESSION['updatemsg'] = "Book liked!";
+        header('location:manage-authors.php');
+    }
+
 ?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -61,6 +78,8 @@ else{
                                             <th>Quantity Left</th>
                                             <th>Quantity Total</th>
                                             <th>Price</th>
+                                            <th>Favorite</th>
+
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -82,8 +101,15 @@ foreach($results as $result)
                                             <td class="center"><?php echo htmlentities($result->QuantityLeft);?></td>
                                             <td class="center"><?php echo htmlentities($result->QuantityTotal);?></td>
                                             <td class="center"><?php echo htmlentities($result->BookPrice);?></td>
-
-                                            </td>
+                                            
+                                            <form method="POST">
+                                                <input type="hidden" name="ISBNNumber" value="<?php echo htmlentities($result->ISBNNumber); ?>">
+                                                <td class="center">
+                                                    <button type="submit" name="favorite" class="btn btn-info">⭐</button>
+                                                </td>
+                                            </form>
+                                            
+                                        </td>
                                         </tr>
                                     <?php $cnt=$cnt+1;}} ?>                                      
                                     </tbody>

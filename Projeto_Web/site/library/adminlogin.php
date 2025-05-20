@@ -14,12 +14,14 @@ if (isset($_POST['login'])) {
     } else {
         $username = $_POST['username'];
         $password = md5($_POST['password']);
+        
         $sql = "SELECT UserName,Password FROM admin WHERE UserName=:username and Password=:password";
         $query = $dbh->prepare($sql);
         $query->bindParam(':username', $username, PDO::PARAM_STR);
         $query->bindParam(':password', $password, PDO::PARAM_STR);
         $query->execute();
         $results = $query->fetchAll(PDO::FETCH_OBJ);
+        
 
         if ($query->rowCount() > 0) {
             $_SESSION['alogin'] = $_POST['username'];

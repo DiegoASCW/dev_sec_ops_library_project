@@ -11,16 +11,15 @@ header('location:index.php');
 else{
     
     if (isset($_POST['favorite'])) {
-        $isbnumber = intval($_GET['ISBNNumber']);
+        $isbnumber = intval($_POST['ISBNNumber']);
         echo "$isbnumber";
-        $_SESSION['updatemsg'] = "$isbnumber";
-        #$author = $_POST['author'];
-        #$sql = "update  tblauthors set AuthorName=:author where id=:athrid";
-        #$query = $dbh->prepare($sql);
-        #$query->bindParam(':author', $author, PDO::PARAM_STR);
-        #$query->bindParam(':athrid', $athrid, PDO::PARAM_STR);
-        #$query->execute();
-        #$_SESSION['updatemsg'] = "Author info updated successfully";
+        
+        $sql = "SELECT tblbooks.BookName,tblcategory.CategoryName,tblauthors.AuthorName,tblbooks.ISBNNumber,tblbooks.QuantityLeft,tblbooks.QuantityTotal,tblbooks.BookPrice,tblbooks.id as bookid from  tblbooks join tblcategory on tblcategory.id=tblbooks.CatId  join tblauthors on tblauthors.id=tblbooks.AuthorId";
+        $query->bindParam(':author', $author, PDO::PARAM_STR);
+        $query = $dbh -> prepare($sql);
+        $query->execute();
+
+        $_SESSION['updatemsg'] = "Book liked!";
         header('location:manage-authors.php');
     }
 
@@ -100,10 +99,12 @@ foreach($results as $result)
                                             <td class="center"><?php echo htmlentities($result->BookPrice);?></td>
                                             
                                             <form method="POST">
+                                                <input type="hidden" name="ISBNNumber" value="<?php echo htmlentities($result->ISBNNumber); ?>">
                                                 <td class="center">
                                                     <button type="submit" name="favorite" class="btn btn-info">⭐</button>
                                                 </td>
                                             </form>
+
 
                                             </td>
                                         </tr>

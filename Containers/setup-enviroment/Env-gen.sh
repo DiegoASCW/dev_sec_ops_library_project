@@ -236,6 +236,11 @@ CREATE TABLE tblworkers (
   Role VARCHAR(100) NOT NULL
 );
 
+CREATE TABLE tblfavoritebook(
+    StudentId varchar(100),
+    ISBNNumber bigint
+);
+
 -- Sample data
 INSERT INTO tblauthors (id, AuthorName, creationDate, UpdationDate) VALUES
   (1,'Machado de Assis','2010-03-12 09:15:00','2012-07-20 14:22:30'),
