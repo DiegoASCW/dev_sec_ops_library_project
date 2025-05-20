@@ -186,7 +186,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         required="required" />
                                 </div>
 
-                                <button type="submit" name="add" class="btn btn-info">Add </button>
+                                <button type="submit" name="add" class="btn btn-info">Add</button>
 
                             </form>
                         </div>

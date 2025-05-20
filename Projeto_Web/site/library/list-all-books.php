@@ -1,6 +1,6 @@
 <?php
 session_start();
-error_reporting(0);
+error_reporting(1);
 
 include 'includes/config.php';
 
@@ -8,7 +8,20 @@ if(strlen($_SESSION['login'])==0)
     {   
 header('location:index.php');
 }
-else{ 
+else{
+
+    if (isset($_POST['favorite'])) {
+        $isbnumber = intval($_POST['ISBNNumber']);
+        $studentId = $_SESSION['stdid'];
+
+        $sql = "INSERT INTO tblfavoritebook(StudentId, ISBNNumber) VALUES('$studentId', $isbnumber)";
+        $query = $dbh -> prepare($sql);
+        $query->execute();
+
+        $_SESSION['updatemsg'] = "Book liked!";
+        header('location:list-all-books.php');
+    }
+
 ?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -61,6 +74,8 @@ else{
                                             <th>Quantity Left</th>
                                             <th>Quantity Total</th>
                                             <th>Price</th>
+                                            <th>Remove</th>
+
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -82,8 +97,15 @@ foreach($results as $result)
                                             <td class="center"><?php echo htmlentities($result->QuantityLeft);?></td>
                                             <td class="center"><?php echo htmlentities($result->QuantityTotal);?></td>
                                             <td class="center"><?php echo htmlentities($result->BookPrice);?></td>
-
-                                            </td>
+                                            
+                                            <form method="POST">
+                                                <input type="hidden" name="ISBNNumber" value="<?php echo htmlentities($result->ISBNNumber); ?>">
+                                                <td class="center">
+                                                    <button type="submit" name="favorite" class="btn btn-info">⭐</button>
+                                                </td>
+                                            </form>
+                                            
+                                        </td>
                                         </tr>
                                     <?php $cnt=$cnt+1;}} ?>                                      
                                     </tbody>

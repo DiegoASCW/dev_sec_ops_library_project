@@ -1,14 +1,27 @@
 <?php
 session_start();
-error_reporting(0);
+error_reporting(1);
 
-include '../includes/config.php';
+include 'includes/config.php';
 
-if(strlen($_SESSION['alogin'])==0)
+if(strlen($_SESSION['login'])==0)
     {   
 header('location:index.php');
 }
-else{
+else{ 
+
+    if (isset($_POST['remove'])) {
+        $isbnumber = intval($_POST['ISBNNumber']);
+        $studentId = $_SESSION['stdid'];
+
+        $sql = "DELETE FROM tblfavoritebook WHERE StudentId = '$studentId' AND ISBNNumber = $isbnumber";
+        $query = $dbh -> prepare($sql);
+        $query->execute();
+
+        $_SESSION['updatemsg'] = "Book removed from!";
+        header('location:list-all-books.php');
+    }
+
 ?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -17,7 +30,7 @@ else{
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Openshelf | List All Books</title>
+    <title>Openshelf | Favorite Books</title>
     <!-- BOOTSTRAP CORE STYLE  -->
     <link href="assets/css/bootstrap.css" rel="stylesheet" />
     <!-- FONT AWESOME STYLE  -->
@@ -38,7 +51,7 @@ else{
         <div class="container">
             <div class="row pad-botm">
                 <div class="col-md-12">
-                    <h4 class="header-line">List All Books</h4>
+                    <h4 class="header-line">Favorite Books</h4>
                 </div>
             </div>
             <div class="row">
@@ -61,13 +74,33 @@ else{
                                             <th>Quantity Left</th>
                                             <th>Quantity Total</th>
                                             <th>Price</th>
+                                            <th>Remove</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-<?php $sql = "SELECT tblbooks.BookName,tblcategory.CategoryName,tblauthors.AuthorName,tblbooks.ISBNNumber,tblbooks.QuantityLeft,tblbooks.QuantityTotal,tblbooks.BookPrice,tblbooks.id as bookid from  tblbooks join tblcategory on tblcategory.id=tblbooks.CatId  join tblauthors on tblauthors.id=tblbooks.AuthorId";
-$query = $dbh -> prepare($sql);
+<?php 
+$studentId = $_SESSION['stdid'];
+
+$sql = "SELECT 
+            tblbooks.BookName,
+            tblcategory.CategoryName,
+            tblauthors.AuthorName,
+            tblbooks.ISBNNumber,
+            tblbooks.QuantityLeft,
+            tblbooks.QuantityTotal,
+            tblbooks.BookPrice,
+            tblbooks.id as bookid 
+        FROM tblbooks 
+        JOIN tblcategory ON tblcategory.id = tblbooks.CatId 
+        JOIN tblauthors ON tblauthors.id = tblbooks.AuthorId 
+        JOIN tblfavoritebook ON tblfavoritebook.ISBNNumber = tblbooks.ISBNNumber 
+            AND tblfavoritebook.StudentId = :studentid";
+
+$query = $dbh->prepare($sql);
+$query->bindParam(':studentid', $studentId, PDO::PARAM_STR);
 $query->execute();
-$results=$query->fetchAll(PDO::FETCH_OBJ);
+$results = $query->fetchAll(PDO::FETCH_OBJ);
+
 $cnt=1;
 if($query->rowCount() > 0)
 {
@@ -82,7 +115,15 @@ foreach($results as $result)
                                             <td class="center"><?php echo htmlentities($result->QuantityLeft);?></td>
                                             <td class="center"><?php echo htmlentities($result->QuantityTotal);?></td>
                                             <td class="center"><?php echo htmlentities($result->BookPrice);?></td>
-                                            </td>
+
+                                            <form method="POST">
+                                                <input type="hidden" name="ISBNNumber" value="<?php echo htmlentities($result->ISBNNumber); ?>">
+                                                <td class="center">
+                                                    <button type="submit" name="remove" class="btn btn-info">👎</button>
+                                                </td>
+                                            </form>
+
+                                        </td>
                                         </tr>
                                     <?php $cnt=$cnt+1;}} ?>                                      
                                     </tbody>
