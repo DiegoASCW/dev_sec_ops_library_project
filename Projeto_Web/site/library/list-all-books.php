@@ -1,6 +1,6 @@
 <?php
 session_start();
-error_reporting(0);
+error_reporting(1);
 
 include 'includes/config.php';
 
@@ -14,16 +14,12 @@ else{
         $isbnumber = intval($_POST['ISBNNumber']);
         $studentId = $_SESSION['stdid'];
 
-        echo "ID do estudante logado: " . $studentId;
-
-        
-        $sql = "SELECT tblbooks.BookName,tblcategory.CategoryName,tblauthors.AuthorName,tblbooks.ISBNNumber,tblbooks.QuantityLeft,tblbooks.QuantityTotal,tblbooks.BookPrice,tblbooks.id as bookid from  tblbooks join tblcategory on tblcategory.id=tblbooks.CatId  join tblauthors on tblauthors.id=tblbooks.AuthorId";
-        $query->bindParam(':author', $author, PDO::PARAM_STR);
+        $sql = "INSERT INTO tblfavoritebook(StudentId, ISBNNumber) VALUES('$studentId', $isbnumber)";
         $query = $dbh -> prepare($sql);
         $query->execute();
 
         $_SESSION['updatemsg'] = "Book liked!";
-        header('location:manage-authors.php');
+        header('location:list-all-books.php');
     }
 
 ?>
