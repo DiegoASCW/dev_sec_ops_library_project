@@ -166,11 +166,17 @@ if (strlen($_SESSION['alogin']) == 0) {
 
                                             <div class="form-group">
                                                 <label>Expected Fine :</label>
-                                                <?php if ($result->ReturnDate == "") {
-                                                    echo  ((strtotime("now") - strtotime($result->IssuesDate) . "<br>") / 86400) * 5;
+                                                <?php 
+                                                # Realiza o cálculo da multa recomendada ($10 a cada mês de atraso)
+                                                if ($result->ReturnDate == "") {
+                                                    # now - IssuesDate
+                                                    $fine_value = ((strtotime("now") - strtotime($result->IssuesDate) . "<br>") / 13148715) * 10;
+                                                    echo "$", number_format((float)$fine_value, 2, '.', '');
                                                 
                                                 } else {
-                                                    echo  strtotime($result->ReturnDate) - strtotime($result->IssuesDate) . "<br>";
+                                                    # ReturnDate - IssuesDate
+                                                    $fine_value = ((strtotime($result->ReturnDate) - strtotime($result->IssuesDate) . "<br>") / 13148715) * 10;
+                                                    echo "$", number_format((float)$fine_value, 2, '.', '');
                                                 }
                                                 ?>
                                             </div>
