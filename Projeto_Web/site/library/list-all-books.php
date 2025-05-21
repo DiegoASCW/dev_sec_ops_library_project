@@ -74,7 +74,7 @@ else{
                                             <th>Quantity Left</th>
                                             <th>Quantity Total</th>
                                             <th>Price</th>
-                                            <th>Remove</th>
+                                            <th>Like</th>
 
                                         </tr>
                                     </thead>

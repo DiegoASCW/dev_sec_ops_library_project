@@ -19,7 +19,7 @@ else{
         $query->execute();
 
         $_SESSION['updatemsg'] = "Book removed from!";
-        header('location:list-all-books.php');
+        header('location:list-favorite-books.php');
     }
 
 ?>
