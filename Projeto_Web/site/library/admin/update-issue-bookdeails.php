@@ -1,6 +1,6 @@
 <?php
 session_start();
-error_reporting(0);
+error_reporting(1);
 
 include '../includes/config.php';
 include '../includes/sanitize_validation.php';
@@ -32,6 +32,28 @@ if (strlen($_SESSION['alogin']) == 0) {
         $query->execute();
 
         $_SESSION['msg'] = "Book ID '$bookid' Returned successfully";
+        header('location:manage-issued-books.php');
+    } elseif (isset($_POST['cancel'])) {
+        $rid = intval($_GET['rid']);
+
+        // deleta registro de empréstimo 
+        $sql = "DELETE FROM tblissuedbookdetails where id=:rid";
+
+        $query = $dbh->prepare($sql);
+        $query->bindParam(':rid', $rid, PDO::PARAM_STR);
+        $query->execute();
+
+        // adiciona a quantidade de livros disponíveis (QuantityLeft) e +1
+        $bookid = intval($_GET['bookid']);
+
+        $sql_add_quantity = "UPDATE tblbooks SET QuantityLeft = QuantityLeft + 1 WHERE id = :bookid;";
+
+        $query = $dbh->prepare($sql_add_quantity);
+        $query->bindParam(':bookid', $bookid, PDO::PARAM_STR);
+        $query->execute();
+
+
+        $_SESSION['msg'] = "Book ID '$bookid' has the issue canceled";
         header('location:manage-issued-books.php');
     }
 
@@ -185,7 +207,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                 <label>Input Fine :</label>
                                                 <?php
                                                 if ($result->fine == "") { ?>
-                                                    <input class="form-control" type="text" name="fine" id="fine" required />
+                                                    <input class="form-control" type="text" name="fine" id="fine" />
 
                                                 <?php } else {
                                                     echo htmlentities($result->fine);
@@ -194,9 +216,12 @@ if (strlen($_SESSION['alogin']) == 0) {
                                             </div>
                                             <?php if ($result->RetrunStatus == 0) { ?>
 
-                                                <button type="submit" name="return" id="submit" class="btn btn-info">Return Book
-                                                </button>
-
+                                            <button type="submit" name="return" id="submit" class="btn btn-info">Return Book
+                                            </button>
+                                                    
+                                            <button type="submit" name="cancel" id="submit" class="btn btn-danger">Cancel Issue
+                                            </button>
+                                            
                                         </div>
 
                                     <?php }
