@@ -167,7 +167,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                             <div class="form-group">
                                                 <label>Expected Fine :</label>
                                                 <?php 
-                                                # Realiza o cálculo da multa recomendada ($10 a cada mês de atraso)
+                                                # Realiza o cálculo da multa recomendada ($10 a cada 15d de atraso)
                                                 if ($result->ReturnDate == "") {
                                                     # now - IssuesDate
                                                     $fine_value = ((strtotime("now") - strtotime($result->IssuesDate) . "<br>") / 13148715) * 10;
