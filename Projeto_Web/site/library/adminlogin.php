@@ -13,7 +13,7 @@ if (isset($_POST['login'])) {
         echo "<script>alert('Incorrect verification code');</script>";
     } else {
         $username = $_POST['username'];
-        $password = md5($_POST['password']);
+        $password = hash('sha256', $_POST['password']);
         
         $sql = "SELECT UserName,Password FROM admin WHERE UserName=:username and Password=:password";
         $query = $dbh->prepare($sql);
