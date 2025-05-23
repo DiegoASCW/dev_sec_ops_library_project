@@ -30,8 +30,8 @@ fi
 read -rp $'\nDo you want to clean the environment (recommended before redeploying)? [y/N] ' escolha
 if [[ "$escolha" == "y" ]]; then
   echo -e "${BLUE}INFO${NC}: removing containers, networks, volumes for 'Openshelf' project..."
-  docker stop ubuntu_apache mysql_stable -t 0 &> /dev/null || true
-  docker rm ubuntu_apache mysql_stable mysql-stable &> /dev/null || true
+  docker stop ubuntu_apache mysql_stable debian_api_gateway -t 0 &> /dev/null || true
+  docker rm ubuntu_apache mysql_stable mysql-stable debian_api_gateway &> /dev/null || true
   # Uncomment and adjust images as needed:
   # docker rmi diegolautenscs/personal_stables:mysql-openshelf-v3 \ 
   #   diegolautenscs/web_sec_stables:mysql-openshelf-v12 mysql-openshelf-v12 php:8.2-apache -f &> /dev/null || true
@@ -171,11 +171,13 @@ echo -e "\n\n\n${BLUE}INFO${NC}: starting the creation of Debian 12 'debian_api_
 echo -e "\n${BLUE}INFO${NC}: pulling and deploying Debian container..."
 docker pull debian:12
 
-docker run -d \
+docker run -i \
   --name debian_api_gateway \
   -v "${PWD_UNIX}/../../REST_API:/tmp" \
-  -p 80:10080 \
+  -p 10080:80 \
   debian:12
+
+docker exec -i debian_api_gateway bash 
 
 docker network connect --ip 10.0.74.10 backup_mysql_network-R74 debian_api_gateway
 docker network connect --ip 10.0.75.10 backup_mysql_network-R75 debian_api_gateway
