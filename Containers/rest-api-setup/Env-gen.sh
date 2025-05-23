@@ -174,7 +174,7 @@ docker pull debian:12
 docker run -d \
   --name debian_api_gateway \
   -v "${PWD_UNIX}/../../REST_API:/tmp" \
-  -p 80:80 \
+  -p 80:10080 \
   debian:12
 
 docker network connect --ip 10.0.74.10 backup_mysql_network-R74 debian_api_gateway
