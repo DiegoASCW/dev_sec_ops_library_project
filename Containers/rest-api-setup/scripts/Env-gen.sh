@@ -32,7 +32,7 @@ if [[ "$escolha" == "y" ]]; then
   echo -e "${BLUE}INFO${NC}: removing containers, networks, volumes for 'Openshelf' project..."
   docker stop ubuntu_apache mysql_stable debian_api_gateway -t 0 &> /dev/null || true
   docker rm ubuntu_apache mysql_stable mysql-stable debian_api_gateway &> /dev/null || true
-  docker rmi debian_api_gateway mysql_stable_image apache_openshelf_image -f &> /dev/null || true
+  docker rmi debian_api_gateway_openshelf_image mysql_stable_image apache_openshelf_image -f &> /dev/null || true
   docker network rm apache_network-R5 mysql_network-R4 \
       apache_mysql_network-R4-5 openshelf_mysql_network-R4 \
       backup_mysql_network-R94 backup_mysql_network-R75 \

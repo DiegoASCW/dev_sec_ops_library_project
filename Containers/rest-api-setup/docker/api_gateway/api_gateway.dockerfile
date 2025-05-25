@@ -24,4 +24,4 @@ RUN python3 -m venv venv && \
 EXPOSE 5000
 
 # executa o server
-CMD ["./venv/bin/python", "main.py"]
+CMD ["./venv/bin/python", "/tmp/rest_api/main.py"]
