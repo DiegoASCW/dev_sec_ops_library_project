@@ -81,7 +81,7 @@ docker run -d `
   -p 80:80 `
   --network apache_network-R5 `
   --ip 10.0.5.10 `
-  -v "$pwdUnix/../../Projeto_Web/site:/var/www/html" `
+  -v "$pwdUnix/../../../Projeto_Web/site:/var/www/html" `
   php:8.2-apache `
   bash -c 'docker-php-ext-install pdo_mysql && a2enmod rewrite && apache2-foreground'
 
@@ -142,7 +142,7 @@ while ($teste) {
 }
 
 
-docker cp ./openshelf-setup.sql mysql_stable:/tmp
+docker cp ../sql/openshelf-setup.sql mysql_stable:/tmp
 
 docker exec -i mysql_stable mysql -u root -ppasswd -e "source /tmp/openshelf-setup.sql"
 
