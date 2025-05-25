@@ -1,7 +1,7 @@
 import pymysql
 pymysql.install_as_MySQLdb()
 
-from flask import Flask, request, redirect, url_for, session, send_from_directory, render_template
+from flask import Flask, request, redirect, url_for, session, send_from_directory, render_template, jsonify
 from authlib.integrations.flask_client import OAuth
 import MySQLdb
 
@@ -9,13 +9,19 @@ app = Flask(__name__)
 
 mydb: MySQLdb
 
-@app.route('/')
-def index():
+
+@app.route('/auth/admin', methods=['POST'])
+def auth():
+    data = request.get_json()
+    return jsonify(data)
+
     mycursor = mydb.cursor()
     mycursor.execute("SELECT * FROM tblstudents")
     myresult = mycursor.fetchall()
-    
-    return f"<h1>Clientes</h1><pre>{myresult}</pre>"
+
+    result: bool = (True if myresult != () else False)
+
+    return {"result": result}
 
 
 # realiza tentativas de conexão com o banco
