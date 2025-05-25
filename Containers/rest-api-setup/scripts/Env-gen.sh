@@ -32,7 +32,7 @@ if [[ "$escolha" == "y" ]]; then
   echo -e "${BLUE}INFO${NC}: removing containers, networks, volumes for 'Openshelf' project..."
   docker stop ubuntu_apache mysql_stable debian_api_gateway -t 0 &> /dev/null || true
   docker rm ubuntu_apache mysql_stable mysql-stable debian_api_gateway &> /dev/null || true
-  docker rmi debian_api_gateway mysql_stable_image -f &> /dev/null || true
+  docker rmi debian_api_gateway mysql_stable_image apache_openshelf_image -f &> /dev/null || true
   docker network rm apache_network-R5 mysql_network-R4 \
       apache_mysql_network-R4-5 openshelf_mysql_network-R4 \
       backup_mysql_network-R94 backup_mysql_network-R75 \
@@ -94,38 +94,44 @@ echo -e "\n${BLUE}INFO${NC}: deploying Apache/PHP container..."
 # Convert current path for volume mount
 PWD_UNIX="${PWD//\\//}"
 
-docker run -d \
-  --name ubuntu_apache \
-  -p 80:80 \
-  -v "${PWD_UNIX}/../../../Projeto_Web/site:/var/www/html" \
-  php:8.2-apache \
-  bash -c 'docker-php-ext-install pdo_mysql && a2enmod rewrite && apache2-foreground'
+#docker run -d \
+#  --name ubuntu_apache \
+#  -p 80:80 \
+#  -v "${PWD_UNIX}/../../../Projeto_Web/site:/var/www/html" \
+#  php:8.2-apache \
+#  bash -c 'docker-php-ext-install pdo_mysql && a2enmod rewrite && apache2-foreground'
+#
+#docker cp ./captcha_dependencies.sh ubuntu_apache:/tmp
+#sleep 10
+#
+#echo -e "\n${BLUE}INFO${NC}: installing GD dependencies in 'ubuntu_apache' container..."
+#docker exec -i ubuntu_apache bash "/tmp/captcha_dependencies.sh" &> /dev/null
+#
+#docker restart ubuntu_apache
 
-docker cp ./captcha_dependencies.sh ubuntu_apache:/tmp
-sleep 10
-
-echo -e "\n${BLUE}INFO${NC}: installing GD dependencies in 'ubuntu_apache' container..."
-docker exec -i ubuntu_apache bash "/tmp/captcha_dependencies.sh" &> /dev/null
-
-docker restart ubuntu_apache
+docker build -t apache_openshelf_image -f ../docker/apache/apache.dockerfile ../docker/apache
+docker create --name ubuntu_apache -p 80:80 -v "${PWD_UNIX}/../../../Projeto_Web/site:/var/www/html" apache_openshelf_image
 
 docker network connect --ip 10.0.5.10 apache_network-R5 ubuntu_apache
 docker network connect --ip 10.0.45.20 apache_mysql_network-R4-5 ubuntu_apache
 docker network connect --ip 10.0.75.11 backup_mysql_network-R75 ubuntu_apache
 
+docker start ubuntu_apache
+
 echo -e "\n${BLUE}INFO${NC}: Apache/PHP environment created successfully!"
+
 
 # -----------------------------
 # 7. MySQL container setup
 # -----------------------------
-echo -e "\n\n\n${BLUE}INFO${NC}: starting the creation of MySQL 9.3 'mysql_stable' container..."
+echo -e "\n\n\n${BLUE}INFO${NC}: starting the creation of MySQL 8.0 'mysql_stable' container..."
 
 echo -e "\n${BLUE}INFO${NC}: creating Docker volume 'mysql-data'..."
 docker volume create mysql-data &> /dev/null
 
 echo -e "\n${BLUE}INFO${NC}: preparing enviroment and installing dependencies"
-docker build -t mysql_stable_image -f ../docker/sql/mysql.dockerfile ../docker/sql/
-docker create --name mysql_stable -p 3306:3306 -e MYSQL_ROOT_PASSWORD=passwd -v mysql-data:/var/lib/mysql mysql_stable_image
+docker build -t mysql_openshelf_image -f ../docker/sql/mysql.dockerfile ../docker/sql/
+docker create --name mysql_stable -p 3306:3306 -e MYSQL_ROOT_PASSWORD=passwd -v mysql-data:/var/lib/mysql mysql_openshelf_image
 
 docker network connect --ip 10.0.4.10 mysql_network-R4 mysql_stable
 docker network connect --ip 10.0.45.10 apache_mysql_network-R4-5 mysql_stable
@@ -136,8 +142,6 @@ docker start mysql_stable
 
 echo -e "\n${BLUE}INFO${NC}: creating 'openshelf' database, schema and sample data..."
 
-#docker exec -i mysql_stable mysql -u root -ppasswd -e "source /tmp/openshelf-setup.sql"
-
 
 # -----------------------------
 # 8. API Gateway container setup
@@ -145,15 +149,17 @@ echo -e "\n${BLUE}INFO${NC}: creating 'openshelf' database, schema and sample da
 echo -e "\n\n\n${BLUE}INFO${NC}: starting the creation of Debian 12 'debian_api_gateway' container..."
 
 echo -e "\n${BLUE}INFO${NC}: preparing enviroment and installing dependencies"
-docker build -t debian_api_gateway -f ../docker/api_gateway/api_gateway.dockerfile ../docker/api_gateway
-docker create --name debian_api_gateway -p 5000:5000 debian_api_gateway
+docker build -t debian_api_gateway_openshelf_image -f ../docker/api_gateway/api_gateway.dockerfile ../docker/api_gateway
+docker create --name debian_api_gateway -p 5000:5000 debian_api_gateway_openshelf_image
 docker network connect --ip 10.0.74.10 backup_mysql_network-R74 debian_api_gateway
 docker network connect --ip 10.0.75.10 backup_mysql_network-R75 debian_api_gateway
 
 echo -e "\n${BLUE}INFO${NC}: starting 'debian_api_gateway' container and API Gateway service"
 docker start debian_api_gateway
 
+
 echo -e "\n${BLUE}Setup complete!${NC}"
+
 
 echo -e "\n\n\n==============[APACHE]=============="
 echo -e "\nCONTAINER INFORMATION:"
