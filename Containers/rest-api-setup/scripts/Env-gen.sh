@@ -91,23 +91,7 @@ docker network create --driver bridge --subnet=10.0.74.0/24 --ip-range=10.0.74.0
 echo -e "\n\n\n${BLUE}INFO${NC}: starting the creation of Apache 8.2 'ubuntu_apache' container..."
 
 echo -e "\n${BLUE}INFO${NC}: deploying Apache/PHP container..."
-# Convert current path for volume mount
 PWD_UNIX="${PWD//\\//}"
-
-#docker run -d \
-#  --name ubuntu_apache \
-#  -p 80:80 \
-#  -v "${PWD_UNIX}/../../../Projeto_Web/site:/var/www/html" \
-#  php:8.2-apache \
-#  bash -c 'docker-php-ext-install pdo_mysql && a2enmod rewrite && apache2-foreground'
-#
-#docker cp ./captcha_dependencies.sh ubuntu_apache:/tmp
-#sleep 10
-#
-#echo -e "\n${BLUE}INFO${NC}: installing GD dependencies in 'ubuntu_apache' container..."
-#docker exec -i ubuntu_apache bash "/tmp/captcha_dependencies.sh" &> /dev/null
-#
-#docker restart ubuntu_apache
 
 docker build -t apache_openshelf_image -f ../docker/apache/apache.dockerfile ../docker/apache
 docker create --name ubuntu_apache -p 80:80 -v "${PWD_UNIX}/../../../Projeto_Web/site:/var/www/html" apache_openshelf_image

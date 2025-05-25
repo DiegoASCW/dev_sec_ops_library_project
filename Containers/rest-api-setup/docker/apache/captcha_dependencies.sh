@@ -12,11 +12,9 @@ apt-get update && apt-get install -y \
     libjpeg62-turbo-dev \
     libpng-dev
 
+# aqui só mágica justifica o que é
 docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j"$(nproc)" gd \
     && docker-php-ext-enable gd
 
-# Ativa mod_rewrite do Apache
 a2enmod rewrite
-
-# (Reiniciar apache aqui não é necessário — Docker vai gerenciar isso)
