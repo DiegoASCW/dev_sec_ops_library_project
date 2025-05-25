@@ -32,10 +32,7 @@ if [[ "$escolha" == "y" ]]; then
   echo -e "${BLUE}INFO${NC}: removing containers, networks, volumes for 'Openshelf' project..."
   docker stop ubuntu_apache mysql_stable debian_api_gateway -t 0 &> /dev/null || true
   docker rm ubuntu_apache mysql_stable mysql-stable debian_api_gateway &> /dev/null || true
-  # Uncomment and adjust images as needed:
-  # docker rmi diegolautenscs/personal_stables:mysql-openshelf-v3 \ 
-  #   diegolautenscs/web_sec_stables:mysql-openshelf-v12 mysql-openshelf-v12 php:8.2-apache \ 
-  #   debian_api_gateway -f &> /dev/null || true
+  docker rmi debian_api_gateway mysql_stable_image -f &> /dev/null || true
   docker network rm apache_network-R5 mysql_network-R4 \
       apache_mysql_network-R4-5 openshelf_mysql_network-R4 \
       backup_mysql_network-R94 backup_mysql_network-R75 \
@@ -126,42 +123,20 @@ echo -e "\n\n\n${BLUE}INFO${NC}: starting the creation of MySQL 9.3 'mysql_stabl
 echo -e "\n${BLUE}INFO${NC}: creating Docker volume 'mysql-data'..."
 docker volume create mysql-data &> /dev/null
 
-echo -e "\n${BLUE}INFO${NC}: pulling and deploying MySQL container..."
-docker pull mysql:latest
-
-docker run -d \
-  --name mysql_stable \
-  -v mysql-data:/var/lib/mysql \
-  -p 3306:3306 \
-  -e MYSQL_ROOT_PASSWORD=passwd \
-  mysql:9.3
+echo -e "\n${BLUE}INFO${NC}: preparing enviroment and installing dependencies"
+docker build -t mysql_stable_image -f ../docker/sql/mysql.dockerfile ../docker/sql/
+docker create --name mysql_stable -p 3306:3306 -e MYSQL_ROOT_PASSWORD=passwd -v mysql-data:/var/lib/mysql mysql_stable_image
 
 docker network connect --ip 10.0.4.10 mysql_network-R4 mysql_stable
 docker network connect --ip 10.0.45.10 apache_mysql_network-R4-5 mysql_stable
 docker network connect --ip 10.0.94.11 backup_mysql_network-R94 mysql_stable
 docker network connect --ip 10.0.74.11 backup_mysql_network-R74 mysql_stable
 
-# Verify if MySQL Container has MySQL running
-echo -e "\n${BLUE}INFO${NC}: waiting for 'mysqld' service start..."
-set +euo pipefail
-teste=1
-while [ $teste -eq 1 ];
-do
-	docker exec "mysql_stable" mysql -u root -ppasswd -e "SHOW SCHEMAS;" > /dev/null 2>&1
-
-	if [ $? -eq 0 ]; then
-	    sleep 5
-	    teste=0
-	else
-	    sleep 0.5
-	fi
-done
+docker start mysql_stable
 
 echo -e "\n${BLUE}INFO${NC}: creating 'openshelf' database, schema and sample data..."
 
-docker cp ../sql/openshelf-setup.sql mysql_stable:/tmp
-
-docker exec -i mysql_stable mysql -u root -ppasswd -e "source /tmp/openshelf-setup.sql"
+#docker exec -i mysql_stable mysql -u root -ppasswd -e "source /tmp/openshelf-setup.sql"
 
 
 # -----------------------------
@@ -169,11 +144,8 @@ docker exec -i mysql_stable mysql -u root -ppasswd -e "source /tmp/openshelf-set
 # -----------------------------
 echo -e "\n\n\n${BLUE}INFO${NC}: starting the creation of Debian 12 'debian_api_gateway' container..."
 
-echo -e "\n${BLUE}INFO${NC}: pulling and deploying Debian container..."
-docker pull debian:12
-
 echo -e "\n${BLUE}INFO${NC}: preparing enviroment and installing dependencies"
-docker build -t debian_api_gateway -f ../docker/api_gateway.dockerfile ../docker/
+docker build -t debian_api_gateway -f ../docker/api_gateway/api_gateway.dockerfile ../docker/api_gateway
 docker create --name debian_api_gateway -p 5000:5000 debian_api_gateway
 docker network connect --ip 10.0.74.10 backup_mysql_network-R74 debian_api_gateway
 docker network connect --ip 10.0.75.10 backup_mysql_network-R75 debian_api_gateway
