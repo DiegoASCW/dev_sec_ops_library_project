@@ -34,7 +34,8 @@ if [[ "$escolha" == "y" ]]; then
   docker rm ubuntu_apache mysql_stable mysql-stable debian_api_gateway &> /dev/null || true
   # Uncomment and adjust images as needed:
   # docker rmi diegolautenscs/personal_stables:mysql-openshelf-v3 \ 
-  #   diegolautenscs/web_sec_stables:mysql-openshelf-v12 mysql-openshelf-v12 php:8.2-apache -f &> /dev/null || true
+  #   diegolautenscs/web_sec_stables:mysql-openshelf-v12 mysql-openshelf-v12 php:8.2-apache \ 
+  #   debian_api_gateway -f &> /dev/null || true
   docker network rm apache_network-R5 mysql_network-R4 \
       apache_mysql_network-R4-5 openshelf_mysql_network-R4 \
       backup_mysql_network-R94 backup_mysql_network-R75 \
@@ -171,26 +172,14 @@ echo -e "\n\n\n${BLUE}INFO${NC}: starting the creation of Debian 12 'debian_api_
 echo -e "\n${BLUE}INFO${NC}: pulling and deploying Debian container..."
 docker pull debian:12
 
-docker build -t debian_api_gateway_custom -f api_gateway.dockerfile .
-
-#docker run -i \
-#  --name debian_api_gateway \
-#  -v "${PWD_UNIX}/../../REST_API:/tmp" \
-#  -p 5000:5000 \
-#  debian:12
-
-#echo -e "\n${BLUE}INFO${NC}: preparing enviroment and installing dependencies"
-
+echo -e "\n${BLUE}INFO${NC}: preparing enviroment and installing dependencies"
+docker build -t debian_api_gateway -f ../docker/api_gateway.dockerfile ../docker/
+docker create --name debian_api_gateway -p 5000:5000 debian_api_gateway
 docker network connect --ip 10.0.74.10 backup_mysql_network-R74 debian_api_gateway
 docker network connect --ip 10.0.75.10 backup_mysql_network-R75 debian_api_gateway
 
-#echo -e "\n${BLUE}INFO${NC}: preparing enviroment and installing dependencies"
-#docker cp ./api_gateway_dependencies.sh debian_api_gateway:/tmp
-#docker exec -it debian_api_gateway bash -c "/bin/bash /tmp/api_gateway_dependencies.sh"
-#
-#echo -e "\n${BLUE}INFO${NC}: exec REST API Server"
-#docker exec -it debian_api_gateway bash -c "python3 /tmp/main.py"
-
+echo -e "\n${BLUE}INFO${NC}: starting 'debian_api_gateway' container and API Gateway service"
+docker start debian_api_gateway
 
 echo -e "\n${BLUE}Setup complete!${NC}"
 

@@ -1,23 +1,27 @@
 FROM debian:12
 
-# Instala dependências básicas (ajuste conforme necessário)
-RUN chmod 1777 /tmp \
-    apt update && apt upgrade -y && apt install -y python3 \
-    python3.11-venv \
-    default-libmysqlclient-dev \
-    build-essential \
-    python3-dev
+# Atualiza o sistema e instala dependências completas do Python
+RUN apt update && apt upgrade -y && \
+    apt install -y python3-full python3.11-venv \
+        default-libmysqlclient-dev \
+        build-essential \
+        python3-dev \
+        curl
 
-# Copia os arquivos da API para dentro da imagem
-COPY ../rest_api /tmp
-COPY ./api_gateway_dependencies.sh /tmp
+# Cria diretório da aplicação
+WORKDIR /tmp/rest_api
 
-# Executa o script de instalação de dependências
-RUN chmod +x /tmp/api_gateway_dependencies.sh && \
-    /bin/bash /tmp/api_gateway_dependencies.sh
+# Copia a API para dentro do contêiner
+COPY ./rest_api /tmp/rest_api
+
+# Cria o ambiente virtual e instala dependências
+RUN python3 -m venv venv && \
+    ./venv/bin/python -m ensurepip --upgrade && \
+    ./venv/bin/python -m pip install --upgrade pip setuptools wheel && \
+    ./venv/bin/python -m pip install pymysql flask authlib requests
 
 # Expõe a porta usada pela aplicação
 EXPOSE 5000
 
-# Comando padrão ao iniciar o container
-CMD ["python3", "/tmp/main.py"]
+# Comando de inicialização
+CMD ["./venv/bin/python", "main.py"]
