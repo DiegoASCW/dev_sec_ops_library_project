@@ -164,7 +164,7 @@ docker exec -i mysql_stable mysql -u root -ppasswd -e "source /tmp/openshelf-set
 
 
 # -----------------------------
-# 8. API REST container setup
+# 8. API Gateway container setup
 # -----------------------------
 echo -e "\n\n\n${BLUE}INFO${NC}: starting the creation of Debian 12 'debian_api_gateway' container..."
 
@@ -174,14 +174,19 @@ docker pull debian:12
 docker run -i \
   --name debian_api_gateway \
   -v "${PWD_UNIX}/../../REST_API:/tmp" \
-  -p 10080:80 \
+  -p 5000:5000 \
   debian:12
-
-docker exec -i debian_api_gateway bash 
 
 docker network connect --ip 10.0.74.10 backup_mysql_network-R74 debian_api_gateway
 docker network connect --ip 10.0.75.10 backup_mysql_network-R75 debian_api_gateway
 
+echo -e "\n${BLUE}INFO${NC}: preparing enviroment and installing dependencies"
+docker cp ./api_gateway_dependencies.sh:/tmp
+docker exec -it debian_api_gateway bash -c "/bin/bash /tmp/api_gateway_dependencies.sh"
+
+echo -e "\n${BLUE}INFO${NC}: import REST API server and exec it"
+docker cp ../REST_API/main.py debian_api_gateway:/tmp
+docker exec -it debian_api_gateway bash -c "python3 /tmp/main.py"
 
 
 echo -e "\n${BLUE}Setup complete!${NC}"
