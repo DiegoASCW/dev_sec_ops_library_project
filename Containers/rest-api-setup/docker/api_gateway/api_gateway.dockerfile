@@ -1,4 +1,4 @@
-FROM debian:12
+FROM --platform=linux/amd64 debian:12 AS build
 
 # atualiza o sistema e instala dependências completas do Python
 RUN apt update && apt upgrade -y && \
