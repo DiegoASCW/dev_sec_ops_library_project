@@ -1,27 +1,26 @@
-FROM --platform=linux/amd64 debian:12 AS build
+FROM debian:12
 
-# atualiza o sistema e instala dependências completas do Python
-RUN apt update && apt upgrade -y && \
-    apt install -y python3-full python3.11-venv \
-        default-libmysqlclient-dev \
-        build-essential \
-        python3-dev \
-        curl
+# instala pacotes necessários
+RUN apt-get update \
+ && apt-get upgrade -y \
+ && apt-get install -y --no-install-recommends \
+      python3 python3-venv python3-pip \
+      default-libmysqlclient-dev build-essential curl \
+ && rm -rf /var/lib/apt/lists/*
 
-# cria diretório da aplicação
-WORKDIR /tmp/rest_api
+# cria venv
+ENV VENV_PATH=/opt/venv
+RUN python3 -m venv $VENV_PATH \
+ && $VENV_PATH/bin/python -m pip install --upgrade pip setuptools wheel
 
-# copia o código python
-COPY ./rest_api /tmp/rest_api
+# define o venv como diretório de referência dos binários,
+#   usado nesse caso para definir o 'python3' à partir do venv
+ENV PATH="$VENV_PATH/bin:$PATH"
 
-# cria o venv e instala depedências
-RUN python3 -m venv venv && \
-    ./venv/bin/python -m ensurepip --upgrade && \
-    ./venv/bin/python -m pip install --upgrade pip setuptools wheel && \
-    ./venv/bin/python -m pip install pymysql flask authlib requests
+# copia o seu código e instala bibliotecas
+WORKDIR /app
+COPY ./rest_api /app
+RUN pip install pymysql flask authlib requests
 
-# expõe porta do Flask Server
 EXPOSE 5000
-
-# executa o server
-CMD ["./venv/bin/python", "/tmp/rest_api/main.py"]
+CMD ["python", "main.py"]
