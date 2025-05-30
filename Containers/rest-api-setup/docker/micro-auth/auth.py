@@ -11,41 +11,17 @@ mydb: MySQLdb
 
 
 @app.route('/auth/admin', methods=['POST'])
-def auth_admin():
+def auth():
     data = request.get_json()
-    
-    auth_result: bool
+    return jsonify(data)
 
     mycursor = mydb.cursor()
-    
-    sql = "SELECT * FROM tblstudents WHERE EmailId = %s AND Password = %s AND Status = 1"
-    values = (data["Email"], data["Passwd"])
-    
-    mycursor.execute(sql, values)
+    mycursor.execute("SELECT * FROM tblstudents")
     myresult = mycursor.fetchall()
 
-    auth_result: bool = (True if myresult != () else False)
+    result: bool = (True if myresult != () else False)
 
-    return jsonify({"Result": auth_result})
-
-
-@app.route('/auth/user', methods=['POST'])
-def auth_user():
-    data = request.get_json()
-    
-    auth_result: bool
-
-    mycursor = mydb.cursor()
-    
-    sql = "SELECT * FROM tblstudents WHERE EmailId = %s AND Password = %s AND Status = 1"
-    values = (data["Email"], data["Passwd"])
-    
-    mycursor.execute(sql, values)
-    myresult = mycursor.fetchall()
-
-    auth_result: bool = (True if myresult != () else False)
-
-    return jsonify({"Result": "auth_result"})
+    return {"result": result}
 
 
 # realiza tentativas de conexão com o banco
