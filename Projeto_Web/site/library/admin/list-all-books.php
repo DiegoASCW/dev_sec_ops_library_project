@@ -4,11 +4,10 @@ error_reporting(0);
 
 include '../includes/config.php';
 
-if(strlen($_SESSION['alogin'])==0)
-    {   
-header('location:index.php');
+if(strlen($_SESSION['alogin'])==0) {   
+    header('location:index.php');
+    exit();
 }
-else{
 ?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -27,13 +26,12 @@ else{
     <!-- CUSTOM STYLE  -->
     <link href="assets/css/style.css" rel="stylesheet" />
     <!-- GOOGLE FONT -->
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
-
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
 </head>
 <body>
-      <!------MENU SECTION START-->
-<?php include('includes/header.php');?>
-<!-- MENU SECTION END-->
+    <!------MENU SECTION START-->
+    <?php include('includes/header.php');?>
+    <!-- MENU SECTION END-->
     <div class="content-wrapper">
         <div class="container">
             <div class="row pad-botm">
@@ -64,15 +62,18 @@ else{
                                         </tr>
                                     </thead>
                                     <tbody>
-<?php $sql = "SELECT tblbooks.BookName,tblcategory.CategoryName,tblauthors.AuthorName,tblbooks.ISBNNumber,tblbooks.QuantityLeft,tblbooks.QuantityTotal,tblbooks.BookPrice,tblbooks.id as bookid from  tblbooks join tblcategory on tblcategory.id=tblbooks.CatId  join tblauthors on tblauthors.id=tblbooks.AuthorId";
-$query = $dbh -> prepare($sql);
+<?php 
+$sql = "SELECT tblbooks.BookName,tblcategory.CategoryName,tblauthors.AuthorName,tblbooks.ISBNNumber,tblbooks.QuantityLeft,tblbooks.QuantityTotal,tblbooks.BookPrice,tblbooks.id as bookid 
+        FROM tblbooks 
+        JOIN tblcategory ON tblcategory.id=tblbooks.CatId  
+        JOIN tblauthors ON tblauthors.id=tblbooks.AuthorId";
+$query = $dbh->prepare($sql);
 $query->execute();
-$results=$query->fetchAll(PDO::FETCH_OBJ);
-$cnt=1;
-if($query->rowCount() > 0)
-{
-foreach($results as $result)
-{               ?>                                      
+$results = $query->fetchAll(PDO::FETCH_OBJ);
+$cnt = 1;
+
+if($query->rowCount() > 0) {
+    foreach($results as $result) { ?>                                      
                                         <tr class="odd gradeX">
                                             <td class="center"><?php echo htmlentities($cnt);?></td>
                                             <td class="center"><?php echo htmlentities($result->BookName);?></td>
@@ -82,13 +83,13 @@ foreach($results as $result)
                                             <td class="center"><?php echo htmlentities($result->QuantityLeft);?></td>
                                             <td class="center"><?php echo htmlentities($result->QuantityTotal);?></td>
                                             <td class="center"><?php echo htmlentities($result->BookPrice);?></td>
-                                            </td>
                                         </tr>
-                                    <?php $cnt=$cnt+1;}} ?>                                      
+    <?php $cnt=$cnt+1;
+    }
+} ?>                                      
                                     </tbody>
                                 </table>
                             </div>
-                            
                         </div>
                     </div>
                     <!--End Advanced Tables -->
@@ -97,9 +98,9 @@ foreach($results as $result)
         </div>
     </div>
 
-     <!-- CONTENT-WRAPPER SECTION END-->
+    <!-- CONTENT-WRAPPER SECTION END-->
     <?php include('includes/footer.php');?>
-      <!-- FOOTER SECTION END-->
+    <!-- FOOTER SECTION END-->
     <!-- JAVASCRIPT FILES PLACED AT THE BOTTOM TO REDUCE THE LOADING TIME  -->
     <!-- CORE JQUERY  -->
     <script src="assets/js/jquery-1.10.2.js"></script>
@@ -108,8 +109,7 @@ foreach($results as $result)
     <!-- DATATABLE SCRIPTS  -->
     <script src="assets/js/dataTables/jquery.dataTables.js"></script>
     <script src="assets/js/dataTables/dataTables.bootstrap.js"></script>
-      <!-- CUSTOM SCRIPTS  -->
+    <!-- CUSTOM SCRIPTS  -->
     <script src="assets/js/custom.js"></script>
 </body>
 </html>
-<?php } ?>

@@ -1,26 +1,32 @@
 <?php
 session_start();
-error_reporting(1);
+error_reporting(E_ALL);
 
 include 'includes/config.php';
 
-if(strlen($_SESSION['login'])==0)
-    {   
-header('location:index.php');
+if(strlen($_SESSION['login'])==0) {   
+    header('location:index.php');
+    exit();
 }
-else{
 
-    if (isset($_POST['favorite'])) {
-        $isbnumber = intval($_POST['ISBNNumber']);
-        $studentId = $_SESSION['stdid'];
+if (isset($_POST['favorite'])) {
+    $isbnumber = intval($_POST['ISBNNumber']);
+    $studentId = $_SESSION['stdid'];
 
-        $sql = "INSERT INTO tblfavoritebook(StudentId, ISBNNumber) VALUES('$studentId', $isbnumber)";
-        $query = $dbh -> prepare($sql);
-        $query->execute();
-
+    // Use prepared statements to prevent SQL injection
+    $sql = "INSERT INTO tblfavoritebook(StudentId, ISBNNumber) VALUES(:studentId, :isbnumber)";
+    $query = $dbh->prepare($sql);
+    $query->bindParam(':studentId', $studentId, PDO::PARAM_STR);
+    $query->bindParam(':isbnumber', $isbnumber, PDO::PARAM_INT);
+    
+    if($query->execute()) {
         $_SESSION['updatemsg'] = "Book liked!";
-        header('location:list-all-books.php');
+    } else {
+        $_SESSION['errormsg'] = "Error adding to favorites.";
     }
+    header('location:list-all-books.php');
+    exit();
+}
 
 ?>
 <!DOCTYPE html>
@@ -40,20 +46,33 @@ else{
     <!-- CUSTOM STYLE  -->
     <link href="assets/css/style.css" rel="stylesheet" />
     <!-- GOOGLE FONT -->
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
-
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
 </head>
 <body>
-      <!------MENU SECTION START-->
-<?php include('includes/header.php');?>
-<!-- MENU SECTION END-->
+    <!------MENU SECTION START-->
+    <?php include('includes/header.php');?>
+    <!-- MENU SECTION END-->
+    
     <div class="content-wrapper">
         <div class="container">
             <div class="row pad-botm">
                 <div class="col-md-12">
                     <h4 class="header-line">List All Books</h4>
+                    
+                    <?php if(isset($_SESSION['updatemsg'])) { ?>
+                        <div class="alert alert-success">
+                            <?php echo htmlentities($_SESSION['updatemsg']); unset($_SESSION['updatemsg']); ?>
+                        </div>
+                    <?php } ?>
+                    
+                    <?php if(isset($_SESSION['errormsg'])) { ?>
+                        <div class="alert alert-danger">
+                            <?php echo htmlentities($_SESSION['errormsg']); unset($_SESSION['errormsg']); ?>
+                        </div>
+                    <?php } ?>
                 </div>
             </div>
+            
             <div class="row">
                 <div class="col-md-12">
                     <!-- Advanced Tables -->
@@ -75,19 +94,22 @@ else{
                                             <th>Quantity Total</th>
                                             <th>Price</th>
                                             <th>Like</th>
-
                                         </tr>
                                     </thead>
                                     <tbody>
-<?php $sql = "SELECT tblbooks.BookName,tblcategory.CategoryName,tblauthors.AuthorName,tblbooks.ISBNNumber,tblbooks.QuantityLeft,tblbooks.QuantityTotal,tblbooks.BookPrice,tblbooks.id as bookid from  tblbooks join tblcategory on tblcategory.id=tblbooks.CatId  join tblauthors on tblauthors.id=tblbooks.AuthorId";
-$query = $dbh -> prepare($sql);
+<?php 
+$sql = "SELECT tblbooks.BookName, tblcategory.CategoryName, tblauthors.AuthorName, tblbooks.ISBNNumber, tblbooks.QuantityLeft, tblbooks.QuantityTotal, tblbooks.BookPrice, tblbooks.id as bookid 
+        FROM tblbooks 
+        JOIN tblcategory ON tblcategory.id = tblbooks.CatId  
+        JOIN tblauthors ON tblauthors.id = tblbooks.AuthorId";
+
+$query = $dbh->prepare($sql);
 $query->execute();
-$results=$query->fetchAll(PDO::FETCH_OBJ);
-$cnt=1;
-if($query->rowCount() > 0)
-{
-foreach($results as $result)
-{               ?>                                      
+$results = $query->fetchAll(PDO::FETCH_OBJ);
+$cnt = 1;
+
+if($query->rowCount() > 0) {
+    foreach($results as $result) { ?>                                      
                                         <tr class="odd gradeX">
                                             <td class="center"><?php echo htmlentities($cnt);?></td>
                                             <td class="center"><?php echo htmlentities($result->BookName);?></td>
@@ -97,21 +119,23 @@ foreach($results as $result)
                                             <td class="center"><?php echo htmlentities($result->QuantityLeft);?></td>
                                             <td class="center"><?php echo htmlentities($result->QuantityTotal);?></td>
                                             <td class="center"><?php echo htmlentities($result->BookPrice);?></td>
-                                            
-                                            <form method="POST">
-                                                <input type="hidden" name="ISBNNumber" value="<?php echo htmlentities($result->ISBNNumber); ?>">
-                                                <td class="center">
-                                                    <button type="submit" name="favorite" class="btn btn-info">⭐</button>
-                                                </td>
-                                            </form>
-                                            
-                                        </td>
+                                            <td class="center">
+                                                <form method="POST" style="display: inline;">
+                                                    <input type="hidden" name="ISBNNumber" value="<?php echo htmlentities($result->ISBNNumber); ?>">
+                                                    <button type="submit" name="favorite" class="btn btn-info" title="Add to favorites">⭐</button>
+                                                </form>
+                                            </td>
                                         </tr>
-                                    <?php $cnt=$cnt+1;}} ?>                                      
+                                        <?php $cnt++; 
+    } 
+} else { ?>
+                                        <tr>
+                                            <td colspan="9" class="text-center">No books found</td>
+                                        </tr>
+<?php } ?>                                      
                                     </tbody>
                                 </table>
                             </div>
-                            
                         </div>
                     </div>
                     <!--End Advanced Tables -->
@@ -120,9 +144,10 @@ foreach($results as $result)
         </div>
     </div>
 
-     <!-- CONTENT-WRAPPER SECTION END-->
+    <!-- CONTENT-WRAPPER SECTION END-->
     <?php include('./includes/footer.php');?>
-      <!-- FOOTER SECTION END-->
+    <!-- FOOTER SECTION END-->
+    
     <!-- JAVASCRIPT FILES PLACED AT THE BOTTOM TO REDUCE THE LOADING TIME  -->
     <!-- CORE JQUERY  -->
     <script src="assets/js/jquery-1.10.2.js"></script>
@@ -131,8 +156,7 @@ foreach($results as $result)
     <!-- DATATABLE SCRIPTS  -->
     <script src="assets/js/dataTables/jquery.dataTables.js"></script>
     <script src="assets/js/dataTables/dataTables.bootstrap.js"></script>
-      <!-- CUSTOM SCRIPTS  -->
+    <!-- CUSTOM SCRIPTS  -->
     <script src="assets/js/custom.js"></script>
 </body>
 </html>
-<?php } ?>
