@@ -31,43 +31,16 @@ def auth_admin():
 
 @app.route('/auth/user', methods=['POST'])
 def auth_user():
-    data = request.get_json()
-    
-    auth_result: bool
+        data = request.get_json()
+        
+        header = "Content-Type: application/json"
 
-    mycursor = mydb.cursor()
-    
-    sql = "SELECT * FROM tblstudents WHERE EmailId = %s AND Password = %s AND Status = 1"
-    values = (data["Email"], data["Passwd"])
-    
-    mycursor.execute(sql, values)
-    myresult = mycursor.fetchall()
+        url = "http://10.100.1.10:5000/auth/user"
 
-    auth_result: bool = (True if myresult != () else False)
+        result = request.post(url, data=data, headers=header)
 
-    return jsonify({"Result": "auth_result"})
-
-
-# realiza tentativas de conexão com o banco
-# Gambiarra necessária, dado que script cria container de API Gateway
-#   sem necessariamente validar se MySQL está OK.
-#   Mantido assim por causa de ganho de performance no setup
-def main() -> None:
-    global mydb
-    
-    while True:
-        try:
-            mydb = MySQLdb.connect(
-            host="10.0.74.11",
-            database="openshelf",
-            user="root",
-            password="passwd"
-            )
-            break
-        except:
-            pass
+        return jsonify({"Result": f"{result}"})
 
 
 if __name__ == '__main__':
-    main()
     app.run(host='0.0.0.0', port=5000, debug=True)

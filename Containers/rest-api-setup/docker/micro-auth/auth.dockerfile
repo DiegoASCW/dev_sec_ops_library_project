@@ -22,5 +22,5 @@ WORKDIR /app
 COPY ./rest_api /app
 RUN pip install pymysql flask authlib requests
 
-EXPOSE 5000
+EXPOSE 5001
 CMD ["python", "main.py"]
