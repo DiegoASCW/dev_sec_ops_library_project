@@ -25,6 +25,7 @@ if (isset($_POST['login'])) {
         ],
     ];
 
+    # request POST pro API Gateway
     $context = stream_context_create($options);
     $result = @file_get_contents($url, false, $context);
 
@@ -41,7 +42,7 @@ if (isset($_POST['login'])) {
         $status = $responseData['Status'] ?? null;
         $EmailId = $responseData['EmailId'] ?? null;
 
-        # verificações da requisição e login
+        # verificação da requisição e validação do login
         if ($authResult != "Error" or $authResult != "False") {
             $_SESSION['stdid'] = $studentId;
             if ($status == "1") {
