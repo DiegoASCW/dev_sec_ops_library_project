@@ -83,16 +83,17 @@ docker network create --driver bridge --subnet=10.0.94.0/24 --ip-range=10.0.94.0
 
 # REST API
 ## API_GATEWAY <> Apache
-Write-Host "`nNetwork 'backup_mysql_network-R75' (10.0.75.0/24): " -ForegroundColor Blue -NoNewline
-docker network create --driver bridge --subnet=10.0.75.0/24 --ip-range=10.0.75.0/24 --gateway=10.0.75.254 backup_mysql_network-R75
-
-## API_GATEWAY <> MySQL
-Write-Host "`nNetwork 'backup_mysql_network-R74' (10.0.74.0/24): " -ForegroundColor Blue -NoNewline
-docker network create --driver bridge --subnet=10.0.74.0/24 --ip-range=10.0.74.0/24 --gateway=10.0.74.254 backup_mysql_network-R74
+Write-Host "`nNetwork 'api_gateway_apache_network-R1015' (10.101.0.0/24): " -ForegroundColor Blue -NoNewline
+docker network create --driver bridge --subnet=10.101.0.0/24 --ip-range=10.101.0.0/24 --gateway=10.101.0.254 api_gateway_apache_network-R1015
 
 ## API_GATEWAY <> Micro-Auth
 Write-Host "`nNetwork 'micro_auth_network_R1001' (10.100.1.0/24): " -ForegroundColor Blue -NoNewline
 docker network create --driver bridge --subnet=10.100.1.0/24 --ip-range=10.100.1.0/24 --gateway=10.100.1.254 micro_auth_network_R1001
+
+## Micro-Auth <> MySQL
+echo -e "\n${BLUE}INFO${NC}: creating micro_auth_mysql_network-R10014 (10.100.4.0/24)..."
+docker network create --driver bridge --subnet=10.100.4.0/24 --ip-range=10.100.4.0/24 --gateway=10.100.4.254 micro_auth_mysql_network-R10014
+
 
 
 # -----------------------------
@@ -112,7 +113,7 @@ docker create --name ubuntu_apache -p 80:80 -v "${file_path}/../../../Projeto_We
 
 docker network connect --ip 10.0.5.10 apache_network-R5 ubuntu_apache
 docker network connect --ip 10.0.45.20 apache_mysql_network-R4-5 ubuntu_apache
-docker network connect --ip 10.0.75.11 backup_mysql_network-R75 ubuntu_apache
+docker network connect --ip 10.101.0.11 api_gateway_apache_network-R1015 ubuntu_apache
 
 Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": starting 'ubuntu_apache' container and Apache2 service"
@@ -138,7 +139,7 @@ docker create --name mysql_stable -p 3306:3306 -e MYSQL_ROOT_PASSWORD=passwd -v 
 docker network connect --ip 10.0.4.10 mysql_network-R4 mysql_stable
 docker network connect --ip 10.0.45.10 apache_mysql_network-R4-5 mysql_stable
 docker network connect --ip 10.0.94.11 backup_mysql_network-R94 mysql_stable
-docker network connect --ip 10.0.74.11 backup_mysql_network-R74 mysql_stable
+docker network connect --ip 10.100.4.10 micro_auth_mysql_network-R10014 mysql_stable
 
 Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": starting 'mysql_stable' container and MySQL service"
@@ -156,10 +157,9 @@ Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": preparing enviroment and installing dependencies"
 docker build --platform=linux/amd64 -t debian_api_gateway_openshelf_image -f ../docker/api_gateway/api_gateway.dockerfile ../docker/api_gateway
 docker create --name debian_api_gateway -p 5000:5000 debian_api_gateway_openshelf_image
-docker network connect --ip 10.0.74.10 backup_mysql_network-R74 debian_api_gateway
-docker network connect --ip 10.0.75.10 backup_mysql_network-R75 debian_api_gateway
-docker network connect --ip 10.100.1.11 micro_auth_network_R1001 micro-auth-api
 
+docker network connect --ip 10.101.0.10 api_gateway_apache_network-R1015 debian_api_gateway
+docker network connect --ip 10.100.1.11 micro_auth_network_R1001 debian_api_gateway
 
 Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": starting 'debian_api_gateway' container and API Gateway service"
@@ -177,7 +177,9 @@ Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": preparing enviroment and installing dependencies"
 docker build --platform=linux/amd64 -t micro-auth_openshelf_image -f ../docker/micro-auth/auth.dockerfile ../docker/micro-auth
 docker create --name micro-auth-api -p 5001:5001 micro-auth_openshelf_image
-docker network connect --ip 10.100.1.10 micro_auth_network_R1001 micro-auth-api
+
+docker network connect --ip 10.100.4.11 micro_auth_mysql_network-R10014 micro_auth_api
+docker network connect --ip 10.100.1.10 micro_auth_network_R1001 micro_auth_api
 
 Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": starting 'debian_api_gateway' container and API Gateway service"

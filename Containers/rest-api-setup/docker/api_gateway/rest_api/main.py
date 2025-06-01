@@ -44,6 +44,7 @@ def auth_user():
             return jsonify({"Result": "Error", "HTML Code": f"{response.status_code}"})
 
         try:
+            # parse
             resp_json = response.json()
             result = resp_json.get("Result", "False")
             StudentId = resp_json.get("StudentId")
