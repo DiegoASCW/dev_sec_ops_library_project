@@ -24,14 +24,14 @@ if (isset($_POST['login'])) {
 
 
 
-    $url = 'http://10.100.1.10:5000/auth/user';
+    $url = 'http://10.101.0.10:5000/auth/user';
     $data = ['Email' => $email, 'Passwd' => $password];
 
     $options = [
         'http' => [
-            'header' => "Content-Type: application/json",
+            'header' => "Content-Type: application/json\r\n", // add \r\n for header
             'method' => 'POST',
-            'content' => http_build_query($data),
+            'content' => json_encode($data),  // <-- Send JSON body
         ],
     ];
 
@@ -39,9 +39,11 @@ if (isset($_POST['login'])) {
     $result = file_get_contents($url, false, $context);
     if ($result === false) {
         echo 'ERROR';
+    } else {
+        echo $result;
+        var_dump($result);
     }
-    echo $result;
-    var_dump($result);
+
 
 
 

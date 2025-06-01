@@ -38,9 +38,11 @@ def auth_user():
 
         url = "http://10.100.1.10:5001/auth/user"
 
-        result = requests.post(url, json=data, headers=header)
+        response = requests.post(url, json=data, headers=header)
 
-        return jsonify({"Result": f"{result.json()}"})
+        result = response.json()["Result"]
+
+        return jsonify({"Result": f"{result}"})
 
 
 if __name__ == '__main__':
