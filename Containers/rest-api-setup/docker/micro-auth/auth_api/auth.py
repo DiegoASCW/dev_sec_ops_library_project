@@ -58,7 +58,7 @@ def main() -> None:
     while True:
         try:
             mydb = MySQLdb.connect(
-            host="10.0.74.11",
+            host="10.100.4.10",
             database="openshelf",
             user="root",
             password="passwd"

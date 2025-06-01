@@ -19,8 +19,8 @@ ENV PATH="$VENV_PATH/bin:$PATH"
 
 # copia o seu código e instala bibliotecas
 WORKDIR /app
-COPY ./rest_api /app
+COPY ./auth_api /app
 RUN pip install pymysql flask authlib requests
 
 EXPOSE 5001
-CMD ["python", "main.py"]
+CMD ["python", "auth.py"]

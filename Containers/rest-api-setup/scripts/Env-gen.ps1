@@ -158,6 +158,8 @@ docker build --platform=linux/amd64 -t debian_api_gateway_openshelf_image -f ../
 docker create --name debian_api_gateway -p 5000:5000 debian_api_gateway_openshelf_image
 docker network connect --ip 10.0.74.10 backup_mysql_network-R74 debian_api_gateway
 docker network connect --ip 10.0.75.10 backup_mysql_network-R75 debian_api_gateway
+docker network connect --ip 10.100.1.11 micro_auth_network_R1001 micro-auth-api
+
 
 Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": starting 'debian_api_gateway' container and API Gateway service"
