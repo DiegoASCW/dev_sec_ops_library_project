@@ -12,8 +12,7 @@ app = Flask(__name__)
 
 mydb: pymysql.connections.Connection  
 
-audit_file_path = path.abspath('openshelf_audit.log')
-logging.basicConfig(filename=audit_file_path, level=logging.INFO)
+logging.basicConfig(filename='/var/log/audit_log/openshelf_audit.log', level=logging.INFO)
 
 
 @app.route('/auth/admin', methods=['POST'])
