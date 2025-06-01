@@ -1,13 +1,12 @@
 import pymysql
 pymysql.install_as_MySQLdb()
 
-from flask import Flask, request, redirect, url_for, session, send_from_directory, render_template, jsonify
+from flask import Flask, request, jsonify
 from authlib.integrations.flask_client import OAuth
-import MySQLdb
 
 app = Flask(__name__)
 
-mydb: MySQLdb
+mydb: pymysql.connections.Connection  
 
 
 @app.route('/auth/admin', methods=['POST'])
@@ -62,7 +61,7 @@ def main() -> None:
     
     while True:
         try:
-            mydb = MySQLdb.connect(
+            mydb = pymysql.connect(
             host="10.100.4.10",
             database="openshelf",
             user="root",
