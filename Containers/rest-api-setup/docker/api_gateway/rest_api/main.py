@@ -1,14 +1,18 @@
+import logging
+import datetime
+from os import path
+
+from flask import Flask, request, jsonify
+from authlib.integrations.flask_client import OAuth
+import requests
 import pymysql
 pymysql.install_as_MySQLdb()
 
-from flask import Flask, request, redirect, url_for, session, send_from_directory, render_template, jsonify
-from authlib.integrations.flask_client import OAuth
-import MySQLdb
-import requests
-
 app = Flask(__name__)
 
-mydb: MySQLdb
+mydb: pymysql.connections.Connection  
+
+logging.basicConfig(filename='/var/log/audit_log/openshelf_audit.log', level=logging.INFO)
 
 
 @app.route('/auth/admin', methods=['POST'])
@@ -34,6 +38,8 @@ def auth_admin():
 def auth_user():
         data = request.get_json()
         
+        logging.info('[%s] (/auth/user) User %s is trying to authenticate', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("Email", "None"))
+        
         header = {"Content-Type": "application/json"}
 
         url = "http://10.100.1.10:5001/auth/user"
@@ -57,4 +63,5 @@ def auth_user():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    logging.info('[%s] API Gateway started', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"))
+    app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)

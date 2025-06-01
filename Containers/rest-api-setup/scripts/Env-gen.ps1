@@ -32,7 +32,7 @@ if ($escolha -eq "y") {
   docker rm ubuntu_apache mysql_stable debian_api_gateway micro-auth-api micro_auth_api *> $null
   docker rmi debian_api_gateway_openshelf_image micro-auth_openshelf_image mysql_stable_image apache_openshelf_image -f *> $null
   docker network rm apache_network-R5 mysql_network-R4 apache_mysql_network-R4-5 openshelf_mysql_network-R4 backup_mysql_network-R94 backup_mysql_network-R75 backup_mysql_network-R74 micro_auth_network_R1001 api_gateway_apache_network-R1015 micro_auth_mysql_network-R10014 *> $null
-  #docker volume rm mysql-data -f *> $null
+  docker volume rm mysql-data audit_logs -f *> $null
 
   Write-Host "INFO" -ForegroundColor Blue -NoNewline
   Write-Host ": enviroment cleaning finished!"
@@ -153,10 +153,13 @@ docker start mysql_stable
 Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": starting the creation of Debian 12 'debian_api_gateway' container..."
 
+Write-Host ": creating Docker volume 'audit_logs'..."
+docker volume create audit_logs | out-null
+
 Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": preparing enviroment and installing dependencies"
 docker build --platform=linux/amd64 -t debian_api_gateway_openshelf_image -f ../docker/api_gateway/api_gateway.dockerfile ../docker/api_gateway
-docker create --name debian_api_gateway -p 5000:5000 debian_api_gateway_openshelf_image
+docker create --name debian_api_gateway -p 5000:5000 -v audit_logs:/var/log/audit_log debian_api_gateway_openshelf_image
 
 docker network connect --ip 10.101.0.10 api_gateway_apache_network-R1015 debian_api_gateway
 docker network connect --ip 10.100.1.11 micro_auth_network_R1001 debian_api_gateway
@@ -165,6 +168,7 @@ Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": starting 'debian_api_gateway' container and API Gateway service"
 docker start debian_api_gateway
 
+docker exec -i debian_api_gateway bash -c "touch /var/log/audit_log/openshelf_audit.log && chmod go-rwx /var/log/audit_log/openshelf_audit.log"
 
 # -----------------------------
 # 9. Micro Auth
