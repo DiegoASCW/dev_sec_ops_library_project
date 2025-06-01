@@ -42,7 +42,7 @@ if (isset($_POST['login'])) {
         $EmailId = $responseData['EmailId'] ?? null;
 
         # verificação da requisição e validação do login
-        if ($authResult != "Error" or $authResult != "False") {
+        if ($authResult != "Error" && $authResult != "False") {
             $_SESSION['stdid'] = $studentId;
             if ($status == "1") {
               $_SESSION['login'] = $_POST['emailid'];

@@ -23,7 +23,7 @@ def auth_admin():
         
         header = {"Content-Type": "application/json"}
 
-        url = "http://10.100.1.10:5001/auth/user"
+        url = "http://10.100.1.10:5001/auth/admin"
 
         response = requests.post(url, json=data, headers=header)
 
@@ -35,12 +35,13 @@ def auth_admin():
             resp_json = response.json()
             result = resp_json.get("Result", "False")
         except Exception as e:
+            logging.info("[%s] (/auth/admin) Internal error to API Gateway 'main.py': %s", datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), str(e))
             return jsonify({"Result": "Error", "Error": str(e)})
 
         if result == "False":
-            logging.info('[%s] (/auth/user) User Admin %s fail to authenticate', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("Username", "None"))
+            logging.info('[%s] (/auth/user) User Admin "%s" fail to authenticate', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("Username", "None"))
         else:
-            logging.info('[%s] (/auth/user) User Admin %s successfuly authenticate', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("Username", "None"))
+            logging.info('[%s] (/auth/user) User Admin "%s" successfuly authenticate', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("Username", "None"))
 
         return jsonify({"Result": f"{result}"})
 
@@ -49,7 +50,7 @@ def auth_admin():
 def auth_user():
         data = request.get_json()
         
-        logging.info('[%s] (/auth/user) User %s is trying to authenticate', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("Email", "None"))
+        logging.info('[%s] (/auth/user) User "%s" is trying to authenticate', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("Email", "None"))
         
         header = {"Content-Type": "application/json"}
 
@@ -68,12 +69,13 @@ def auth_user():
             Status = resp_json.get("Status")
             EmailId = resp_json.get("EmailId")
         except Exception as e:
+            logging.info("[%s] (/auth/user) Internal error to API Gateway 'main.py': %s", datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), str(e))
             return jsonify({"Result": "Error", "Error": str(e)})
 
         if result == "False":
-            logging.info('[%s] (/auth/user) User %s fail to authenticate', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("Email", "None"))
+            logging.info('[%s] (/auth/user) User "%s" fail to authenticate', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("Email", "None"))
         else:
-            logging.info('[%s] (/auth/user) User %s successfuly authenticate', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("Email", "None"))
+            logging.info('[%s] (/auth/user) User "%s" successfuly authenticate', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("Email", "None"))
 
         return jsonify({"Result": f"{result}", "StudentId": f"{StudentId}", "Status": f"{Status}", "EmailId": f"{EmailId}"})
 

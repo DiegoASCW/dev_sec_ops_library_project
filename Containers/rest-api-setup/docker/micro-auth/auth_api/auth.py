@@ -16,7 +16,7 @@ def auth_admin():
     auth_result: bool
 
     mycursor = mydb.cursor()
-    sql = "SELECT UserName FROM tblstudents WHERE UserName = %s and Password = %s"
+    sql = "SELECT UserName FROM admin WHERE UserName = %s and Password = %s"
 
     values = (data["Username"], data["Passwd"])
     

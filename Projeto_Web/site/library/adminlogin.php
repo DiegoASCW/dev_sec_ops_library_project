@@ -50,7 +50,7 @@ if (isset($_POST['login'])) {
 
             $authResult = $responseData['Result'];
 
-            if ($authResult != "Error" or $authResult != "False") {
+            if ($authResult != "Error" && $authResult != "False") {
                 $_SESSION['alogin'] = $username;
                 echo "<script type='text/javascript'> document.location ='admin/dashboard.php'; </script>";
             } else {
