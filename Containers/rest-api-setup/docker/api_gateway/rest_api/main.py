@@ -48,10 +48,11 @@ def auth_user():
             result = resp_json.get("Result", "False")
             StudentId = resp_json.get("StudentId")
             Status = resp_json.get("Status")
+            EmailId = resp_json.get("EmailId")
         except Exception as e:
             return jsonify({"Result": "Error", "Error": str(e)})
 
-        return jsonify({"Result": f"{result}", "StudentId": f"{StudentId}", "Status": f"{Status}"})
+        return jsonify({"Result": f"{result}", "StudentId": f"{StudentId}", "Status": f"{Status}", "EmailId": f"{EmailId}"})
 
 
 if __name__ == '__main__':

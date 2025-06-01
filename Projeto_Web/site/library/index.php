@@ -14,65 +14,49 @@ if (isset($_POST['login'])) {
     $email = $_POST['emailid'];
     $password = hash('sha256', $_POST['password']);
 
-    #$sql = "SELECT EmailId,Password,StudentId,Status FROM tblstudents WHERE EmailId=:email and Password=:password";
-    #$query = $dbh->prepare($sql);
-    #$query->bindParam(':email', $email, PDO::PARAM_STR);
-    #$query->bindParam(':password', $password, PDO::PARAM_STR);
-    #$query->execute();
-    #$results = $query->fetchAll(PDO::FETCH_OBJ);
+    $url = 'http://10.101.0.10:5000/auth/user';
+    $data = ['Email' => $email, 'Passwd' => $password];
 
+    $options = [
+        'http' => [
+            'header'  => "Content-Type: application/json\r\n",
+            'method'  => 'POST',
+            'content' => json_encode($data),
+        ],
+    ];
 
+    $context = stream_context_create($options);
+    $result = @file_get_contents($url, false, $context);
 
+    if ($result === false) {
+        echo "ERROR: $result";
 
+    } else {
+        echo $result;
+        // converte o objeto JSON do request em array
+        $responseData = json_decode($result, true);
 
+        $authResult = $responseData['Result'];
+        $studentId = $responseData['StudentId'] ?? null;
+        $status = $responseData['Status'] ?? null;
+        $EmailId = $responseData['EmailId'] ?? null;
 
-$url = 'http://10.101.0.10:5000/auth/user';
-$data = ['Email' => $email, 'Passwd' => $password];
-
-$options = [
-    'http' => [
-        'header'  => "Content-Type: application/json\r\n",
-        'method'  => 'POST',
-        'content' => json_encode($data),
-    ],
-];
-
-$context = stream_context_create($options);
-$result = @file_get_contents($url, false, $context);
-
-if ($result === false) {
-    echo "ERROR\n";
-
-    // Print HTTP response headers (including error code)
-    if (isset($http_response_header)) {
-        foreach ($http_response_header as $header) {
-            echo $header . "\n";
+        if ($authResult != "Error" or $authResult != "False") {
+            $_SESSION['stdid'] = $studentId;
+            if ($status == "1") {
+              $_SESSION['login'] = $_POST['emailid'];
+              
+              echo "<script type='text/javascript'> document.location ='dashboard.php'; </script>";
+            } else {
+              echo "<script>alert('Your Account Has been blocked .Please contact admin');</script>";
+              
+            }
+          
+        } else {
+          echo "<script>alert('Invalid Details');</script>";
         }
+      }
     }
-} else {
-    echo $result;
-}
-
-
-
-
-#    if ($query->rowCount() > 0) {
-#      foreach ($results as $result) {
-#        $_SESSION['stdid'] = $result->StudentId;
-#        if ($result->Status == 1) {
-#          $_SESSION['login'] = $_POST['emailid'];
-#
-#          echo "<script type='text/javascript'> document.location ='dashboard.php'; </script>";
-#        } else {
-#          echo "<script>alert('Your Account Has been blocked .Please contact admin');</script>";
-#
-#        }
-#      }
-#
-#    } else {
-#      echo "<script>alert('Invalid Details');</script>";
-#    }
-  }
 }
 ?>
 <!DOCTYPE html>

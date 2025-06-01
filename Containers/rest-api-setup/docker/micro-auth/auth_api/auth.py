@@ -37,7 +37,7 @@ def auth_user():
 
     mycursor = mydb.cursor()
     
-    sql = "SELECT StudentId, Status FROM tblstudents WHERE EmailId = %s and Password = %s"
+    sql = "SELECT StudentId, Status, EmailId FROM tblstudents WHERE EmailId = %s and Password = %s"
 
     values = (data["Email"], data["Passwd"])
     
@@ -47,8 +47,8 @@ def auth_user():
     auth_result: bool = (True if myresult != () else False)
 
     if auth_result == True:
-        StudentId, Status = myresult[0]
-        return jsonify({"Result": f"{auth_result}", "StudentId": f"{StudentId}", "Status": f"{Status}"})
+        StudentId, Status, EmailId = myresult[0]
+        return jsonify({"Result": f"{auth_result}", "StudentId": f"{StudentId}", "Status": f"{Status}", "EmailId": f"{EmailId}"})
     else:
         return jsonify({"Result": f"{auth_result}"})
 
