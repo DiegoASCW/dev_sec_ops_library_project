@@ -40,9 +40,18 @@ def auth_user():
 
         response = requests.post(url, json=data, headers=header)
 
-        result = response.json()["Result"]
+        if response.status_code != 200:
+            return jsonify({"Result": "Error", "HTML Code": f"{response.status_code}"})
 
-        return jsonify({"Result": f"{result}"})
+        try:
+            resp_json = response.json()
+            result = resp_json.get("Result", "False")
+            StudentId = resp_json.get("StudentId")
+            Status = resp_json.get("Status")
+        except Exception as e:
+            return jsonify({"Result": "Error", "Error": str(e)})
+
+        return jsonify({"Result": f"{result}", "StudentId": f"{StudentId}", "Status": f"{Status}"})
 
 
 if __name__ == '__main__':
