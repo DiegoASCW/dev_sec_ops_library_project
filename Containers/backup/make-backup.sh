@@ -56,7 +56,7 @@ if [[ "$escolha" -eq "1" ]]; then
     echo -e "\n${YELLOW}WARN${NC}: 'Make Backup' option selected"
     readarray -t array_docker_volume < <(docker volume ls -q | grep "backup-mysql-data")
 
-    # Shows and choose a backup volume
+    # Retorna os volumes de backup disponíveis e permite escolha
     echo -e "\nSelecione algum backup de volume para adicionar em produção:"
     for volume_index in "${!array_docker_volume[@]}"
     do

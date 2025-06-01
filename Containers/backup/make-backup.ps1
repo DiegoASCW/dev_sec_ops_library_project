@@ -66,11 +66,9 @@ elseif ($escolha -eq '2') {
     Write-Host "`nWARN" -ForegroundColor Yellow -NoNewline
     Write-Host " : 'Put Backup on prod' option selected"
 
+    # Retorna os volumes de backup disponíveis e permite escolha
     Write-Host "`nSelecione algum backup de volume para restaurar em produção:"
-    # Shows and choose a backup volume
     $volumeNames = @(docker volume ls -q | Where-Object { $_ -like "*backup-mysql*" })
-
-
     Write-Host "Volumes encontrados:"
     for ($i=0; $i -le $volumeNames.Length - 1; $i=$i+1 ) {
         Write-Host "($i) - " ${volumeNames}[$i];
