@@ -4,6 +4,7 @@ pymysql.install_as_MySQLdb()
 from flask import Flask, request, redirect, url_for, session, send_from_directory, render_template, jsonify
 from authlib.integrations.flask_client import OAuth
 import MySQLdb
+import requests
 
 app = Flask(__name__)
 
@@ -11,39 +12,49 @@ mydb: MySQLdb
 
 
 @app.route('/auth/admin', methods=['POST'])
-def auth():
+def auth_admin():
     data = request.get_json()
-    return jsonify(data)
+    
+    auth_result: bool
 
     mycursor = mydb.cursor()
-    mycursor.execute("SELECT * FROM tblstudents")
+    
+    sql = "SELECT * FROM tblstudents WHERE EmailId = %s AND Password = %s AND Status = 1"
+    values = (data["Email"], data["Passwd"])
+    
+    mycursor.execute(sql, values)
     myresult = mycursor.fetchall()
 
-    result: bool = (True if myresult != () else False)
+    auth_result: bool = (True if myresult != () else False)
 
-    return {"result": result}
+    return jsonify({"Result": auth_result})
 
 
-# realiza tentativas de conexão com o banco
-# Gambiarra necessária, dado que script cria container de API Gateway
-#   sem necessariamente validar se MySQL está OK.
-#   Mantido assim por causa de ganho de performance no setup
-def main() -> None:
-    global mydb
-    
-    while True:
+@app.route('/auth/user', methods=['POST'])
+def auth_user():
+        data = request.get_json()
+        
+        header = {"Content-Type": "application/json"}
+
+        url = "http://10.100.1.10:5001/auth/user"
+
+        response = requests.post(url, json=data, headers=header)
+
+        if response.status_code != 200:
+            return jsonify({"Result": "Error", "HTML Code": f"{response.status_code}"})
+
         try:
-            mydb = MySQLdb.connect(
-            host="10.0.74.11",
-            database="openshelf",
-            user="root",
-            password="passwd"
-            )
-            break
-        except:
-            pass
+            # parse
+            resp_json = response.json()
+            result = resp_json.get("Result", "False")
+            StudentId = resp_json.get("StudentId")
+            Status = resp_json.get("Status")
+            EmailId = resp_json.get("EmailId")
+        except Exception as e:
+            return jsonify({"Result": "Error", "Error": str(e)})
+
+        return jsonify({"Result": f"{result}", "StudentId": f"{StudentId}", "Status": f"{Status}", "EmailId": f"{EmailId}"})
 
 
 if __name__ == '__main__':
-    main()
     app.run(host='0.0.0.0', port=5000, debug=True)

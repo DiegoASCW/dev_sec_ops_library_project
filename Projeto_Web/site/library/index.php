@@ -10,32 +10,53 @@ if (isset($_POST['login'])) {
   if ($_POST["vercode"] != $_SESSION["vercode"] or $_SESSION["vercode"] == '') {
     echo "<script>alert('Incorrect verification code');</script>";
   } else {
+
     $email = $_POST['emailid'];
     $password = hash('sha256', $_POST['password']);
-    $sql = "SELECT EmailId,Password,StudentId,Status FROM tblstudents WHERE EmailId=:email and Password=:password";
-    $query = $dbh->prepare($sql);
-    $query->bindParam(':email', $email, PDO::PARAM_STR);
-    $query->bindParam(':password', $password, PDO::PARAM_STR);
-    $query->execute();
-    $results = $query->fetchAll(PDO::FETCH_OBJ);
 
-    if ($query->rowCount() > 0) {
-      foreach ($results as $result) {
-        $_SESSION['stdid'] = $result->StudentId;
-        if ($result->Status == 1) {
-          $_SESSION['login'] = $_POST['emailid'];
+    $url = 'http://10.101.0.10:5000/auth/user';
+    $data = ['Email' => $email, 'Passwd' => $password];
 
-          echo "<script type='text/javascript'> document.location ='dashboard.php'; </script>";
-        } else {
-          echo "<script>alert('Your Account Has been blocked .Please contact admin');</script>";
+    $options = [
+        'http' => [
+            'header'  => "Content-Type: application/json\r\n",
+            'method'  => 'POST',
+            'content' => json_encode($data),
+        ],
+    ];
 
-        }
-      }
+    # request POST pro API Gateway
+    $context = stream_context_create($options);
+    $result = @file_get_contents($url, false, $context);
+
+    if ($result === false) {
+        echo "ERROR: $result";
 
     } else {
-      echo "<script>alert('Invalid Details');</script>";
+        echo $result;
+        // converte o objeto JSON do request em array
+        $responseData = json_decode($result, true);
+
+        $authResult = $responseData['Result'];
+        $studentId = $responseData['StudentId'] ?? null;
+        $status = $responseData['Status'] ?? null;
+        $EmailId = $responseData['EmailId'] ?? null;
+
+        # verificação da requisição e validação do login
+        if ($authResult != "Error" or $authResult != "False") {
+            $_SESSION['stdid'] = $studentId;
+            if ($status == "1") {
+              $_SESSION['login'] = $_POST['emailid'];
+              echo "<script type='text/javascript'> document.location ='dashboard.php'; </script>";
+            } else {
+              echo "<script>alert('Your Account Has been blocked .Please contact admin');</script>";
+            }
+          
+        } else {
+          echo "<script>alert('Invalid Details');</script>";
+        }
+      }
     }
-  }
 }
 ?>
 <!DOCTYPE html>

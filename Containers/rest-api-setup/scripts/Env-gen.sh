@@ -30,13 +30,14 @@ fi
 read -rp $'\nDo you want to clean the environment (recommended before redeploying)? [y/N] ' escolha
 if [[ "$escolha" == "y" ]]; then
   echo -e "${BLUE}INFO${NC}: removing containers, networks, volumes for 'Openshelf' project..."
-  docker stop ubuntu_apache mysql_stable debian_api_gateway -t 0 &> /dev/null || true
-  docker rm ubuntu_apache mysql_stable mysql-stable debian_api_gateway &> /dev/null || true
-  docker rmi debian_api_gateway_openshelf_image mysql_stable_image apache_openshelf_image -f &> /dev/null || true
+  docker stop ubuntu_apache mysql_stable debian_api_gateway micro_auth_api -t 0 &> /dev/null || true
+  docker rm ubuntu_apache mysql_stable mysql-stable debian_api_gateway micro_auth_api &> /dev/null || true
+  docker rmi debian_api_gateway_openshelf_image mysql_stable_image apache_openshelf_image micro_auth_openshelf_image -f &> /dev/null || true
   docker network rm apache_network-R5 mysql_network-R4 \
       apache_mysql_network-R4-5 openshelf_mysql_network-R4 \
       backup_mysql_network-R94 backup_mysql_network-R75 \
-      backup_mysql_network-R74 &> /dev/null || true
+      micro_auth_network_R1001 \
+      micro_auth_mysql_network-R10014 api_gateway_apache_network-R1015 &> /dev/null || true
 
   docker volume rm mysql-data mysql-data -f &> /dev/null || true
   echo -e "${BLUE}INFO${NC}: environment cleaning finished!"
@@ -63,7 +64,7 @@ check_port 80
 # -----------------------------
 echo -e "\n${BLUE}INFO${NC}: creating Docker networks..."
 
-echo -e "\n${BLUE}INFO${NC}: creating mysql_network-R5 (10.0.5.0/24)..."
+echo -e "\n${BLUE}INFO${NC}: creating apache_network-R5 (10.0.5.0/24)..."
 docker network create --driver bridge --subnet=10.0.5.0/24 --ip-range=10.0.5.0/24 --gateway=10.0.5.254 apache_network-R5
 
 echo -e "\n${BLUE}INFO${NC}: creating mysql_network-R4 (10.0.4.0/24)..."
@@ -77,13 +78,18 @@ echo -e "\n${BLUE}INFO${NC}: creating backup_mysql_network-R94 (10.0.94.0/24)...
 docker network create --driver bridge --subnet=10.0.94.0/24 --ip-range=10.0.94.0/24 --gateway=10.0.94.254 backup_mysql_network-R94
 
 # REST API
-## API <> Apache
-echo -e "\n${BLUE}INFO${NC}: creating backup_mysql_network-R75 (10.0.75.0/24)..."
-docker network create --driver bridge --subnet=10.0.75.0/24 --ip-range=10.0.75.0/24 --gateway=10.0.75.254 backup_mysql_network-R75
+## API_GATEWAY <> Apache
+echo -e "\n${BLUE}INFO${NC}: creating api_gateway_apache_network-R1015 (10.101.0.0/24)..."
+docker network create --driver bridge --subnet=10.101.0.0/24 --ip-range=10.101.0.0/24 --gateway=10.101.0.254 api_gateway_apache_network-R1015
 
-## API <> MySQL
-echo -e "\n${BLUE}INFO${NC}: creating backup_mysql_network-R74 (10.0.74.0/24)..."
-docker network create --driver bridge --subnet=10.0.74.0/24 --ip-range=10.0.74.0/24 --gateway=10.0.74.254 backup_mysql_network-R74
+## API_GATEWAY <> Micro-Auth
+echo -e "\n${BLUE}INFO${NC}: creating micro_auth_network_R1001 (10.100.1.0/24)..."
+docker network create --driver bridge --subnet=10.100.1.0/24 --ip-range=10.100.1.0/24 --gateway=10.100.1.254 micro_auth_network_R1001
+
+## Micro-Auth <> MySQL
+echo -e "\n${BLUE}INFO${NC}: creating micro_auth_mysql_network-R10014 (10.100.4.0/24)..."
+docker network create --driver bridge --subnet=10.100.4.0/24 --ip-range=10.100.4.0/24 --gateway=10.100.4.254 micro_auth_mysql_network-R10014
+
 
 # -----------------------------
 # 6. Apache/PHP container setup
@@ -98,7 +104,7 @@ docker create --name ubuntu_apache -p 80:80 -v "${PWD_UNIX}/../../../Projeto_Web
 
 docker network connect --ip 10.0.5.10 apache_network-R5 ubuntu_apache
 docker network connect --ip 10.0.45.20 apache_mysql_network-R4-5 ubuntu_apache
-docker network connect --ip 10.0.75.11 backup_mysql_network-R75 ubuntu_apache
+docker network connect --ip 10.101.0.11 api_gateway_apache_network-R1015 ubuntu_apache
 
 docker start ubuntu_apache
 
@@ -120,7 +126,7 @@ docker create --name mysql_stable -p 3306:3306 -e MYSQL_ROOT_PASSWORD=passwd -v 
 docker network connect --ip 10.0.4.10 mysql_network-R4 mysql_stable
 docker network connect --ip 10.0.45.10 apache_mysql_network-R4-5 mysql_stable
 docker network connect --ip 10.0.94.11 backup_mysql_network-R94 mysql_stable
-docker network connect --ip 10.0.74.11 backup_mysql_network-R74 mysql_stable
+docker network connect --ip 10.100.4.10 micro_auth_mysql_network-R10014 mysql_stable
 
 docker start mysql_stable
 
@@ -135,12 +141,29 @@ echo -e "\n\n\n${BLUE}INFO${NC}: starting the creation of Debian 12 'debian_api_
 echo -e "\n${BLUE}INFO${NC}: preparing enviroment and installing dependencies"
 docker build -t debian_api_gateway_openshelf_image -f ../docker/api_gateway/api_gateway.dockerfile ../docker/api_gateway
 docker create --name debian_api_gateway -p 5000:5000 debian_api_gateway_openshelf_image
-docker network connect --ip 10.0.74.10 backup_mysql_network-R74 debian_api_gateway
-docker network connect --ip 10.0.75.10 backup_mysql_network-R75 debian_api_gateway
+
+docker network connect --ip 10.101.0.10 api_gateway_apache_network-R1015 debian_api_gateway
+docker network connect --ip 10.100.1.11 micro_auth_network_R1001 debian_api_gateway
 
 echo -e "\n${BLUE}INFO${NC}: starting 'debian_api_gateway' container and API Gateway service"
 docker start debian_api_gateway
 
+
+# -----------------------------
+# 9. Micro Auth
+# -----------------------------
+echo -e "\n${BLUE}INFO${NC}: starting the creation of Debian 12 'micro_auth_api' container..."
+
+echo -e "\n${BLUE}INFO${NC}: preparing enviroment and installing dependencies"
+
+docker build --platform=linux/amd64 -t micro_auth_openshelf_image -f ../docker/micro-auth/auth.dockerfile ../docker/micro-auth
+docker create --name micro_auth_api -p 5001:5001 micro_auth_openshelf_image
+
+docker network connect --ip 10.100.4.11 micro_auth_mysql_network-R10014 micro_auth_api
+docker network connect --ip 10.100.1.10 micro_auth_network_R1001 micro_auth_api
+
+echo -e "\n${BLUE}INFO${NC}: starting 'micro_auth_api' container and API Gateway service"
+docker start micro_auth_api
 
 echo -e "\n${BLUE}Setup complete!${NC}"
 
