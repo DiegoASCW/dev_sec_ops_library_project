@@ -4,6 +4,7 @@ pymysql.install_as_MySQLdb()
 from flask import Flask, request, redirect, url_for, session, send_from_directory, render_template, jsonify
 from authlib.integrations.flask_client import OAuth
 import MySQLdb
+import requests
 
 app = Flask(__name__)
 
@@ -33,13 +34,13 @@ def auth_admin():
 def auth_user():
         data = request.get_json()
         
-        header = "Content-Type: application/json"
+        header = {"Content-Type": "application/json"}
 
-        url = "http://10.100.1.10:5000/auth/user"
+        url = "http://10.100.1.10:5001/auth/user"
 
-        result = request.post(url, data=data, headers=header)
+        result = requests.post(url, json=data, headers=header)
 
-        return jsonify({"Result": f"{result}"})
+        return jsonify({"Result": f"{result.json()}"})
 
 
 if __name__ == '__main__':

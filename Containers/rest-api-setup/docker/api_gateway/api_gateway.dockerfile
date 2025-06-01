@@ -23,4 +23,5 @@ COPY ./rest_api /app
 RUN pip install pymysql flask authlib requests
 
 EXPOSE 5000
-CMD ["python", "main.py"]
+#CMD ["python", "main.py"]
+CMD ["tail", "-f", "/dev/null"]

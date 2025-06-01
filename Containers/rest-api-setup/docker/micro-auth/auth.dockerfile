@@ -23,4 +23,5 @@ COPY ./auth_api /app
 RUN pip install pymysql flask authlib requests
 
 EXPOSE 5001
-CMD ["python", "auth.py"]
+#CMD ["python", "auth.py"]
+CMD ["tail", "-f", "/dev/null"]
