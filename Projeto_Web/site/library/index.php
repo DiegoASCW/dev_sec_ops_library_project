@@ -33,7 +33,6 @@ if (isset($_POST['login'])) {
         echo "ERROR: $result";
 
     } else {
-        echo $result;
         // converte o objeto JSON do request em array
         $responseData = json_decode($result, true);
 
