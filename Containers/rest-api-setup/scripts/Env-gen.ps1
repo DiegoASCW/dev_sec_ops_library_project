@@ -28,10 +28,15 @@ if ($escolha -eq "y") {
   Write-Host "INFO" -ForegroundColor Blue -NoNewline
   Write-Host ": removing containers, networks, volumes, and images, about 'Openshelf' project"
 
-  docker stop ubuntu_apache mysql_stable debian_api_gateway micro-auth-api micro_auth_api 0 *> $null
-  docker rm ubuntu_apache mysql_stable debian_api_gateway micro-auth-api micro_auth_api *> $null
+  docker stop ubuntu_apache mysql_stable debian_api_gateway micro-auth-api micro_auth_api micro_list_reg_books_api 0 *> $null
+  docker rm ubuntu_apache mysql_stable debian_api_gateway micro-auth-api micro_auth_api micro_list_reg_books_api *> $null
   docker rmi debian_api_gateway_openshelf_image micro-auth_openshelf_image mysql_stable_image apache_openshelf_image -f *> $null
-  docker network rm apache_network-R5 mysql_network-R4 apache_mysql_network-R4-5 openshelf_mysql_network-R4 backup_mysql_network-R94 backup_mysql_network-R75 backup_mysql_network-R74 micro_auth_network_R1001 api_gateway_apache_network-R1015 micro_auth_mysql_network-R10014 *> $null
+  docker network rm apache_network-R5 mysql_network-R4 `
+    apache_mysql_network-R4-5 openshelf_mysql_network-R4 `
+    backup_mysql_network-R94 backup_mysql_network-R75 `
+    backup_mysql_network-R74 micro_auth_network_R1001 `
+    api_gateway_apache_network-R1015 micro_auth_mysql_network-R10014 `
+    micro_list_reg_books_network_R1002 micro_list_reg_books_mysql_network-R10024 *> $null
   docker volume rm mysql-data audit_logs -f *> $null
 
   Write-Host "INFO" -ForegroundColor Blue -NoNewline
@@ -86,14 +91,23 @@ docker network create --driver bridge --subnet=10.0.94.0/24 --ip-range=10.0.94.0
 Write-Host "`nNetwork 'api_gateway_apache_network-R1015' (10.101.0.0/24): " -ForegroundColor Blue -NoNewline
 docker network create --driver bridge --subnet=10.101.0.0/24 --ip-range=10.101.0.0/24 --gateway=10.101.0.254 api_gateway_apache_network-R1015
 
+### [Micro-Auth]
 ## API_GATEWAY <> Micro-Auth
 Write-Host "`nNetwork 'micro_auth_network_R1001' (10.100.1.0/24): " -ForegroundColor Blue -NoNewline
 docker network create --driver bridge --subnet=10.100.1.0/24 --ip-range=10.100.1.0/24 --gateway=10.100.1.254 micro_auth_network_R1001
 
 ## Micro-Auth <> MySQL
-Write-Host "`nNetwork 'micro_auth_mysql_network-R10014' (10.100.4.0/24): " -ForegroundColor Blue -NoNewline
-docker network create --driver bridge --subnet=10.100.4.0/24 --ip-range=10.100.4.0/24 --gateway=10.100.4.254 micro_auth_mysql_network-R10014
+Write-Host "`nNetwork 'micro_auth_mysql_network-R10014' (10.100.14.0/24): " -ForegroundColor Blue -NoNewline
+docker network create --driver bridge --subnet=10.100.14.0/24 --ip-range=10.100.14.0/24 --gateway=10.100.14.254 micro_auth_mysql_network-R10014
 
+### [Micro-List-Reg-Books]
+## API_GATEWAY <> Micro-List-Reg-Books
+Write-Host "`nNetwork 'micro_list_reg_books_network_R1002' (10.100.2.0/24): " -ForegroundColor Blue -NoNewline
+docker network create --driver bridge --subnet=10.100.2.0/24 --ip-range=10.100.2.0/24 --gateway=10.100.2.254 micro_list_reg_books_network_R1002
+
+## Micro-List-Reg-Books <> MySQL
+Write-Host "`nNetwork 'micro_list_reg_books_mysql_network-R10024' (10.100.24.0/24): " -ForegroundColor Blue -NoNewline
+docker network create --driver bridge --subnet=10.100.24.0/24 --ip-range=10.100.24.0/24 --gateway=10.100.24.254 micro_list_reg_books_mysql_network-R10024
 
 
 # -----------------------------
@@ -139,7 +153,7 @@ docker create --name mysql_stable -p 3306:3306 -e MYSQL_ROOT_PASSWORD=passwd -v 
 docker network connect --ip 10.0.4.10 mysql_network-R4 mysql_stable
 docker network connect --ip 10.0.45.10 apache_mysql_network-R4-5 mysql_stable
 docker network connect --ip 10.0.94.11 backup_mysql_network-R94 mysql_stable
-docker network connect --ip 10.100.4.10 micro_auth_mysql_network-R10014 mysql_stable
+docker network connect --ip 10.100.14.10 micro_auth_mysql_network-R10014 mysql_stable
 
 Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": starting 'mysql_stable' container and MySQL service"
@@ -153,6 +167,7 @@ docker start mysql_stable
 Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": starting the creation of Debian 12 'debian_api_gateway' container..."
 
+Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": creating Docker volume 'audit_logs'..."
 docker volume create audit_logs | out-null
 
@@ -170,25 +185,45 @@ docker start debian_api_gateway
 
 docker exec -i debian_api_gateway bash -c "touch /var/log/audit_log/openshelf_audit.log && chmod go-rwx /var/log/audit_log/openshelf_audit.log"
 
+
 # -----------------------------
 # 9. Micro Auth
 # -----------------------------
 
 Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
-Write-Host ": starting the creation of Debian 12 'debian_api_gateway' container..."
+Write-Host ": starting the creation of Debian 12 'micro_auth_api' container..."
 
 Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": preparing enviroment and installing dependencies"
 docker build --platform=linux/amd64 -t micro-auth_openshelf_image -f ../docker/micro-auth/auth.dockerfile ../docker/micro-auth
 docker create --name micro_auth_api -p 5001:5001 micro-auth_openshelf_image
 
-docker network connect --ip 10.100.4.11 micro_auth_mysql_network-R10014 micro_auth_api
+docker network connect --ip 10.100.14.11 micro_auth_mysql_network-R10014 micro_auth_api
 docker network connect --ip 10.100.1.10 micro_auth_network_R1001 micro_auth_api
 
 Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
-Write-Host ": starting 'debian_api_gateway' container and API Gateway service"
+Write-Host ": starting 'micro_auth_api' container and API Gateway service"
 docker start micro_auth_api
 
+
+# -----------------------------
+# 10. Micro List Reg Books
+# -----------------------------
+
+Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
+Write-Host ": starting the creation of Debian 12 'micro_list_reg_books_api' container..."
+
+Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
+Write-Host ": preparing enviroment and installing dependencies"
+docker build --platform=linux/amd64 -t micro-list_reg_books_openshelf_image -f ../docker/micro-list-reg-books/list_reg.dockerfile ../docker/micro-list-reg-books
+docker create --name micro_list_reg_books_api -p 5002:5002 micro-list_reg_books_openshelf_image
+
+docker network connect --ip 10.100.24.11 micro_list_reg_books_mysql_network-R10024 micro_list_reg_books_api
+docker network connect --ip 10.100.2.10 micro_list_reg_books_network_R1002 micro_list_reg_books_api
+
+Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
+Write-Host ": starting 'micro_list_reg_books_api' container and API Gateway service"
+docker start micro_list_reg_books_api
 
 
 Write-Host "`n`n`n==============[APACHE]=============="
