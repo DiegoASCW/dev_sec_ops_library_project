@@ -16,9 +16,9 @@ def auth_admin():
     auth_result: bool
 
     mycursor = mydb.cursor()
-    
-    sql = "SELECT * FROM admin WHERE FullName = %s AND Password = %s"
-    values = (data["FullName"], data["Passwd"])
+    sql = "SELECT UserName FROM admin WHERE UserName = %s and Password = %s"
+
+    values = (data["Username"], data["Passwd"])
     
     mycursor.execute(sql, values)
     myresult = mycursor.fetchall()

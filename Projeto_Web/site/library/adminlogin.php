@@ -15,19 +15,47 @@ if (isset($_POST['login'])) {
         $username = $_POST['username'];
         $password = hash('sha256', $_POST['password']);
         
-        $sql = "SELECT UserName,Password FROM admin WHERE UserName=:username and Password=:password";
-        $query = $dbh->prepare($sql);
-        $query->bindParam(':username', $username, PDO::PARAM_STR);
-        $query->bindParam(':password', $password, PDO::PARAM_STR);
-        $query->execute();
-        $results = $query->fetchAll(PDO::FETCH_OBJ);
-        
+        #$sql = "SELECT UserName,Password FROM admin WHERE UserName=:username and Password=:password";
+        #$query = $dbh->prepare($sql);
+        #$query->bindParam(':username', $username, PDO::PARAM_STR);
+        #$query->bindParam(':password', $password, PDO::PARAM_STR);
+        #$query->execute();
+        #$results = $query->fetchAll(PDO::FETCH_OBJ);
 
-        if ($query->rowCount() > 0) {
-            $_SESSION['alogin'] = $_POST['username'];
-            echo "<script type='text/javascript'> document.location ='admin/dashboard.php'; </script>";
+
+
+
+        $url = 'http://10.101.0.10:5000/auth/admin';
+        $data = ['Username' => $username, 'Passwd' => $password];
+
+        $options = [
+            'http' => [
+                'header'  => "Content-Type: application/json\r\n",
+                'method'  => 'POST',
+                'content' => json_encode($data),
+            ],
+        ];
+
+        # request POST pro API Gateway
+        $context = stream_context_create($options);
+        $result = @file_get_contents($url, false, $context);
+
+        if ($result === false) {
+            echo "ERROR: $result";
+
         } else {
-            echo "<script>alert('Invalid Details');</script>";
+
+            // converte o objeto JSON do request em array
+            $responseData = json_decode($result, true);
+
+            $authResult = $responseData['Result'];
+
+            if ($authResult != "Error" && $authResult != "False") {
+                $_SESSION['alogin'] = $username;
+                echo "<script type='text/javascript'> document.location ='admin/dashboard.php'; </script>";
+            } else {
+                echo "<script>alert('Invalid Details');</script>";
+            }
         }
     }
 } 
