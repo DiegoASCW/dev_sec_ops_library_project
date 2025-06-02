@@ -28,8 +28,8 @@ if ($escolha -eq "y") {
   Write-Host "INFO" -ForegroundColor Blue -NoNewline
   Write-Host ": removing containers, networks, volumes, and images, about 'Openshelf' project"
 
-  docker stop ubuntu_apache mysql_stable debian_api_gateway micro-auth-api micro_auth_api 0 *> $null
-  docker rm ubuntu_apache mysql_stable debian_api_gateway micro-auth-api micro_auth_api *> $null
+  docker stop ubuntu_apache mysql_stable debian_api_gateway micro-auth-api micro_auth_api micro_list_reg_books_api 0 *> $null
+  docker rm ubuntu_apache mysql_stable debian_api_gateway micro-auth-api micro_auth_api micro_list_reg_books_api *> $null
   docker rmi debian_api_gateway_openshelf_image micro-auth_openshelf_image mysql_stable_image apache_openshelf_image -f *> $null
   docker network rm apache_network-R5 mysql_network-R4 `
     apache_mysql_network-R4-5 openshelf_mysql_network-R4 `
