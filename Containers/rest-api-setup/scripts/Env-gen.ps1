@@ -167,6 +167,7 @@ docker start mysql_stable
 Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": starting the creation of Debian 12 'debian_api_gateway' container..."
 
+Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": creating Docker volume 'audit_logs'..."
 docker volume create audit_logs | out-null
 
@@ -217,8 +218,8 @@ Write-Host ": preparing enviroment and installing dependencies"
 docker build --platform=linux/amd64 -t micro-list_reg_books_openshelf_image -f ../docker/micro-list-reg-books/list_reg.dockerfile ../docker/micro-list-reg-books
 docker create --name micro_list_reg_books_api -p 5002:5002 micro-list_reg_books_openshelf_image
 
-docker network connect --ip 10.100.4.11 micro_auth_mysql_network-R10014 micro_list_reg_books_api
-docker network connect --ip 10.100.24.10 micro_list_reg_books_mysql_network-R10024 micro_list_reg_books_api
+docker network connect --ip 10.100.24.11 micro_list_reg_books_mysql_network-R10024 micro_list_reg_books_api
+docker network connect --ip 10.100.2.10 micro_list_reg_books_network_R1002 micro_list_reg_books_api
 
 Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": starting 'micro_list_reg_books_api' container and API Gateway service"
