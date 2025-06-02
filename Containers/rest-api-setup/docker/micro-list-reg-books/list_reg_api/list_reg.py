@@ -62,7 +62,7 @@ def main() -> None:
     while True:
         try:
             mydb = pymysql.connect(
-            host="10.100.14.10",
+            host="10.100.4.10",
             database="openshelf",
             user="root",
             password="passwd"
@@ -74,4 +74,4 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    app.run(host='0.0.0.0', port=5002, debug=True)
