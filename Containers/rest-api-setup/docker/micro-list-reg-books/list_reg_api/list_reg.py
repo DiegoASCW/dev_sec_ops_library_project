@@ -37,6 +37,9 @@ def book_list():
 
     mycursor.execute(sql)
     myresult = mycursor.fetchall()
+    
+    # commit para forçar o fim da transação, mesmo que SELECT
+    mydb.commit()  
 
     books = []
     for book in myresult:
