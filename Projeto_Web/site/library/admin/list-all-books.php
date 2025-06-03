@@ -99,7 +99,7 @@ if ($result === false) {
         $QuantityTotal = $book['QuantityTotal'] ?? null;
         $BookPrice = $book['BookPrice'] ?? null;
         $ISBNNumber = $book['ISBNNumber'] ?? null;
-               ?>                                      
+               ?>
                                         <tr class="odd gradeX">
                                             <td class="center"><?php echo htmlentities($cnt);?></td>
                                             <td class="center"><?php echo htmlentities($BookName);?></td>

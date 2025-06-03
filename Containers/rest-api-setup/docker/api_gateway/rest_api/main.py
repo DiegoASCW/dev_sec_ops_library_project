@@ -105,7 +105,29 @@ def book_list():
 
 @app.route('/book/register', methods=['POST'])
 def book_register():
-    pass
+        data = request.get_json()
+        
+        logging.info('[%s] (/book/register) User "%s" is trying to register a book', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("stdId", "None"))
+        
+        header = {"Content-Type": "application/json"}
+
+        url = "http://10.100.2.10:5002/book/register"
+
+        response = requests.post(url, json=data, headers=header)
+
+        if response.status_code != 200:
+            return jsonify({"Result": "Error", "HTML Code": f"{response.status_code}"})
+
+        resp_json = response.json()
+        result = resp_json.get("Result", "False")
+
+        if result == "False":
+            logging.info('[%s] (/book/register) User "%s" fail to register a book', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("stdId", "None"))
+        else:
+            logging.info('[%s] (/book/register) User "%s" successfuly register a book', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("result", "None"))
+
+        return jsonify({"Result": f"{result}"})
+    
 
 if __name__ == '__main__':
     logging.info('[%s] API Gateway started', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"))

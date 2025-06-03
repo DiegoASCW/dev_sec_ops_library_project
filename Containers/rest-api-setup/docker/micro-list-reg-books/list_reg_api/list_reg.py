@@ -53,20 +53,22 @@ def book_register():
 
     mycursor = mydb.cursor()
     
-    sql = "SELECT StudentId, Status, EmailId FROM tblstudents WHERE EmailId = %s and Password = %s"
+    sql = """INSERT INTO 
+                tblbooks(BookName,
+                        Description,
+                        CatId,
+                        AuthorId,
+                        QuantityTotal,
+                        QuantityLeft,
+                        ISBNNumber,
+                        BookPrice)
+            VALUES(%s,%s,%s,%s,%s,%s,%s,%s)"""
 
-    values = (data["Email"], data["Passwd"])
+    values = (data["bookname"], data["description"], data["category"], data["author"], data["quantitytotal"], data["quantitytotal"], data["isbn"], data["price"])
     
     mycursor.execute(sql, values)
-    myresult = mycursor.fetchall()
 
-    auth_result: bool = (True if myresult != () else False)
-
-    if auth_result == True:
-        StudentId, Status, EmailId = myresult[0]
-        return jsonify({"Result": f"{auth_result}", "StudentId": f"{StudentId}", "Status": f"{Status}", "EmailId": f"{EmailId}"})
-    else:
-        return jsonify({"Result": f"{auth_result}"})
+    return jsonify({"Result": f"Success"})
 
 
 # realiza tentativas de conexão com o banco
