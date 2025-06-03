@@ -82,44 +82,25 @@ def auth_user():
 
 @app.route('/book/list', methods=['POST'])
 def book_list():
-        data = request.get_json()
+    data = request.get_json()
 
-        logging.info('[%s] (/book/list) User "%s" list all books', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("stdId", "None"))
-        
-        header = {"Content-Type": "application/json"}
+    logging.info('[%s] (/book/list) User "%s" list all books', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("stdId", "None"))
+    
+    header = {"Content-Type": "application/json"}
+    url = "http://10.100.2.10:5002/book/list"
 
-        url = "http://10.100.2.10:5002/book/list"
+    response = requests.get(url, headers=header)
 
-        response = requests.get(url, headers=header)
+    if response.status_code != 200:
+        return jsonify({"Result": "Error", "HTML Code": f"{response.status_code}"})
 
-        if response.status_code != 200:
-            return jsonify({"Result": "Error", "HTML Code": f"{response.status_code}"})
+    try:
+        books = response.json()
+    except Exception as e:
+        logging.info("[%s] (/book/list) Error parsing response: %s", datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), str(e))
+        return jsonify({"Result": "Error", "Error": str(e)})
 
-        try:
-            # parse
-            resp_json = response.json()
-            BookName = resp_json.get("BookName")
-            Description = resp_json.get("Description")
-            AuthorName = resp_json.get("AuthorName")
-            ISBNNumber = resp_json.get("ISBNNumber")
-            QuantityLeft = resp_json.get("QuantityLeft")
-            BookPrice = resp_json.get("BookPrice")
-            QuantityTotal = resp_json.get("QuantityTotal")
-            ISBNNumber = resp_json.get("ISBNNumber")
-        except Exception as e:
-            logging.info("[%s] (/auth/user) Internal error to API Gateway 'main.py': %s", datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), str(e))
-            return jsonify({"Result": "Error", "Error": str(e)})
-
-        return jsonify({
-                "BookName": BookName,
-                "Description": Description,
-                "AuthorName": AuthorName,
-                "ISBNNumber": ISBNNumber,
-                "QuantityLeft": QuantityLeft,
-                "QuantityTotal": QuantityTotal,
-                "BookPrice": BookPrice,
-                "ISBNNumber": ISBNNumber
-                })
+    return jsonify(books)
 
 
 @app.route('/book/register', methods=['POST'])

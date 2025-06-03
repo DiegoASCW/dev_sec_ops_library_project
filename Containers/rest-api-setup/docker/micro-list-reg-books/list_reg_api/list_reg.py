@@ -11,8 +11,6 @@ mydb: pymysql.connections.Connection
 
 @app.route('/book/list', methods=['GET'])
 def book_list():
-    auth_result: bool
-
     mycursor = mydb.cursor()
     sql = """SELECT 
                 tblbooks.BookName,
@@ -24,29 +22,27 @@ def book_list():
                 tblbooks.BookPrice,
                 tblbooks.id as bookid 
             FROM tblbooks 
-            JOIN tblcategory 
-                ON tblcategory.id=tblbooks.CatId 
-            JOIN tblauthors 
-                ON tblauthors.id=tblbooks.AuthorId"""
-    
+            JOIN tblcategory ON tblcategory.id=tblbooks.CatId 
+            JOIN tblauthors ON tblauthors.id=tblbooks.AuthorId"""
+
     mycursor.execute(sql)
     myresult = mycursor.fetchall()
 
-    auth_result: bool = (True if myresult != () else False)
+    books = []
+    for book in myresult:
+        BookName, CategoryName, AuthorName, ISBNNumber, QuantityLeft, QuantityTotal, BookPrice, bookid = book
+        books.append({
+            "BookName": BookName,
+            "Description": CategoryName,
+            "AuthorName": AuthorName,
+            "ISBNNumber": ISBNNumber,
+            "QuantityLeft": QuantityLeft,
+            "QuantityTotal": QuantityTotal,
+            "BookPrice": BookPrice,
+            "BookId": bookid
+        })
 
-    if auth_result == True:
-        BookName, Description, AuthorName, ISBNNumber, QuantityLeft, QuantityTotal, BookPrice, ISBNNumber = myresult[0]
-        return jsonify({
-                "BookName": BookName,
-                "Description": Description,
-                "AuthorName": AuthorName,
-                "ISBNNumber": ISBNNumber,
-                "QuantityLeft": QuantityLeft,
-                "QuantityLeft": QuantityTotal,
-                "BookPrice": BookPrice
-                })
-    else:
-        return jsonify({"Result": f"{auth_result}"})
+    return jsonify(books)
 
 
 @app.route('/book/register', methods=['POST'])

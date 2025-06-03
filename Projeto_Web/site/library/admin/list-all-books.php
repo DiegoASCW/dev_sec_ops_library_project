@@ -65,39 +65,40 @@ else{
                                     </thead>
                                     <tbody>
 <?php 
-$cnt=1;
-
 
 $url = 'http://10.101.0.10:5000/book/list';
 
 $data = ["stdId" => $_SESSION['alogin']];
 
-    $options = [
-        'http' => [
-            'header'  => "Content-Type: application/json\r\n",
-            'method'  => 'POST',
-            'content' => json_encode($data)
-        ],
-    ];
+$options = [
+    'http' => [
+        'header'  => "Content-Type: application/json\r\n",
+        'method'  => 'POST',
+        'content' => json_encode($data)
+    ],
+];
 
-    # request GET pro API Gateway
-    $context = stream_context_create($options);
-    $result = @file_get_contents($url, false, $context);
+# request GET pro API Gateway
+$context = stream_context_create($options);
+$result = @file_get_contents($url, false, $context);
 
-    if ($result === false) {
-        echo "ERROR: $result";
+if ($result === false) {
+    echo "ERROR: $result";
+    
+} else {
+    // converte o objeto JSON do request em array
+    $responseData = json_decode($result, true);
+    $cnt=1;
 
-    } else {
-        // converte o objeto JSON do request em array
-        $responseData = json_decode($result, true);
-        $authResult = $responseData['Result'];
-        $BookName = $responseData['BookName'] ?? null;
-        $Description = $responseData['Description'] ?? null;
-        $AuthorName = $responseData['AuthorName'] ?? null;
-        $QuantityLeft = $responseData['QuantityLeft'] ?? null;
-        $QuantityTotal = $responseData['QuantityTotal'] ?? null;
-        $BookPrice = $responseData['BookPrice'] ?? null;
-        $ISBNNumber = $responseData['ISBNNumber'] ?? null;
+    foreach ($responseData as $book) {
+        $authResult = $book['Result'];
+        $BookName = $book['BookName'] ?? null;
+        $Description = $book['Description'] ?? null;
+        $AuthorName = $book['AuthorName'] ?? null;
+        $QuantityLeft = $book['QuantityLeft'] ?? null;
+        $QuantityTotal = $book['QuantityTotal'] ?? null;
+        $BookPrice = $book['BookPrice'] ?? null;
+        $ISBNNumber = $book['ISBNNumber'] ?? null;
                ?>                                      
                                         <tr class="odd gradeX">
                                             <td class="center"><?php echo htmlentities($cnt);?></td>
@@ -110,7 +111,7 @@ $data = ["stdId" => $_SESSION['alogin']];
                                             <td class="center"><?php echo htmlentities($BookPrice);?></td>
                                             </td>
                                         </tr>
-                                    <?php $cnt=$cnt+1;} ?>                                      
+                                    <?php $cnt=$cnt+1;}} ?>                                      
                                     </tbody>
                                 </table>
                             </div>
