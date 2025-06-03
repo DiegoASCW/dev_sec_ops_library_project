@@ -9,6 +9,19 @@ app = Flask(__name__)
 mydb: pymysql.connections.Connection  
 
 
+@app.after_request
+def add_header(r):
+    """
+    Add headers to both force latest IE rendering engine or Chrome Frame,
+    and also to cache the rendered page for 10 minutes.
+    """
+    r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    r.headers["Pragma"] = "no-cache"
+    r.headers["Expires"] = "0"
+    r.headers['Cache-Control'] = 'public, max-age=0'
+    return r
+
+
 @app.route('/book/list', methods=['GET'])
 def book_list():
     mycursor = mydb.cursor()
@@ -67,6 +80,7 @@ def book_register():
     values = (data["bookname"], data["description"], data["category"], data["author"], data["quantitytotal"], data["quantitytotal"], data["isbn"], data["price"])
     
     mycursor.execute(sql, values)
+    mydb.commit()
 
     return jsonify({"Result": f"Success"})
 
