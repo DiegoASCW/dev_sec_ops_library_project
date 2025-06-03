@@ -23,4 +23,4 @@ COPY ./list_reg_api /app
 RUN pip install pymysql flask authlib requests
 
 EXPOSE 5002
-CMD ["python", "auth.py"]
+CMD ["python", "list_reg.py"]

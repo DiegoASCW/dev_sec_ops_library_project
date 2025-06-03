@@ -44,30 +44,41 @@ if (strlen($_SESSION['alogin']) == 0) {
         if (is_injection($price)) {
             die('ERRO: Entrada inválida detectada no campo...');
         }
-        //echo 'Bookname ', $bookname, '      Description,', $description, '      Category', $category,  '      Author', $author, '      QuantityTotal', $quantitytotal, '      ISBN', $isbn, '      Price', $price;
-
 
         $sql = "INSERT INTO  tblbooks(BookName,Description,CatId,AuthorId,QuantityTotal,QuantityLeft,ISBNNumber,BookPrice) VALUES(:bookname,:description,:category,:author,:quantitytotal,:quantitytotal,:isbn,:price)";
 
-        $query = $dbh->prepare($sql);
-        $query->bindParam(':bookname', $bookname, PDO::PARAM_STR);
-        $query->bindParam(':description', $description, PDO::PARAM_STR);
-        $query->bindParam(':category', $category, PDO::PARAM_STR);
-        $query->bindParam(':author', $author, PDO::PARAM_STR);
-        $query->bindParam(':quantitytotal', $quantitytotal, PDO::PARAM_STR);
-        $query->bindParam(':isbn', $isbn, PDO::PARAM_STR);
-        $query->bindParam(':price', $price, PDO::PARAM_STR);
-        $query->execute();
+        $url = 'http://10.101.0.10:5000/book/register';
+        $data = ["stdId" => $_SESSION['alogin'], 'bookname' => $bookname, 'description' => $description, 'category' => $category, 'author' => $author, 'quantitytotal' => $quantitytotal, 'isbn' => $isbn, 'price' => $price];
 
-        $lastInsertId = $dbh->lastInsertId();
+        $options = [
+            'http' => [
+                'header'  => "Content-Type: application/json\r\n",
+                'method'  => 'POST',
+                'content' => json_encode($data),
+            ],
+        ];
 
-        echo $_SESSION['msg'];
-        if ($lastInsertId) {
-            $_SESSION['msg'] = "Book Listed successfully";
-            header('location:manage-books.php');
+        # request POST pro API Gateway
+        $context = stream_context_create($options);
+        $result = @file_get_contents($url, false, $context);
+
+        if ($result === false) {
+            echo "ERROR: $result";
+
         } else {
-            $_SESSION['error'] = "Something went wrong. Please try again";
-            header('location:manage-books.php');
+            // converte o objeto JSON do request em array
+            $responseData = json_decode($result, true);
+
+            $Result = $responseData['Result'];
+            
+            echo $_SESSION['msg'];
+            if ($Result === "Success") {
+                $_SESSION['msg'] = "Book Listed successfully";
+                header('location:manage-books.php');
+            } else {
+                $_SESSION['error'] = "Something went wrong. Please try again";
+                header('location:manage-books.php');
+            }
         }
     }
 

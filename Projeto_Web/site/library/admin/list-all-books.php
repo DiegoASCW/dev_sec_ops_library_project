@@ -1,6 +1,6 @@
 <?php
 session_start();
-error_reporting(0);
+error_reporting(1);
 
 include '../includes/config.php';
 
@@ -64,24 +64,51 @@ else{
                                         </tr>
                                     </thead>
                                     <tbody>
-<?php $sql = "SELECT tblbooks.BookName,tblcategory.CategoryName,tblauthors.AuthorName,tblbooks.ISBNNumber,tblbooks.QuantityLeft,tblbooks.QuantityTotal,tblbooks.BookPrice,tblbooks.id as bookid from  tblbooks join tblcategory on tblcategory.id=tblbooks.CatId  join tblauthors on tblauthors.id=tblbooks.AuthorId";
-$query = $dbh -> prepare($sql);
-$query->execute();
-$results=$query->fetchAll(PDO::FETCH_OBJ);
-$cnt=1;
-if($query->rowCount() > 0)
-{
-foreach($results as $result)
-{               ?>                                      
+<?php 
+
+$url = 'http://10.101.0.10:5000/book/list';
+
+$data = ["stdId" => $_SESSION['alogin']];
+
+$options = [
+    'http' => [
+        'header'  => "Content-Type: application/json\r\n",
+        'method'  => 'POST',
+        'content' => json_encode($data)
+    ],
+];
+
+# request GET pro API Gateway
+$context = stream_context_create($options);
+$result = @file_get_contents($url, false, $context);
+
+if ($result === false) {
+    echo "ERROR: $result";
+    
+} else {
+    // converte o objeto JSON do request em array
+    $responseData = json_decode($result, true);
+    $cnt=1;
+
+    foreach ($responseData as $book) {
+        $authResult = $book['Result'];
+        $BookName = $book['BookName'] ?? null;
+        $Description = $book['Description'] ?? null;
+        $AuthorName = $book['AuthorName'] ?? null;
+        $QuantityLeft = $book['QuantityLeft'] ?? null;
+        $QuantityTotal = $book['QuantityTotal'] ?? null;
+        $BookPrice = $book['BookPrice'] ?? null;
+        $ISBNNumber = $book['ISBNNumber'] ?? null;
+               ?>
                                         <tr class="odd gradeX">
                                             <td class="center"><?php echo htmlentities($cnt);?></td>
-                                            <td class="center"><?php echo htmlentities($result->BookName);?></td>
-                                            <td class="center"><?php echo htmlentities($result->CategoryName);?></td>
-                                            <td class="center"><?php echo htmlentities($result->AuthorName);?></td>
-                                            <td class="center"><?php echo htmlentities($result->ISBNNumber);?></td>
-                                            <td class="center"><?php echo htmlentities($result->QuantityLeft);?></td>
-                                            <td class="center"><?php echo htmlentities($result->QuantityTotal);?></td>
-                                            <td class="center"><?php echo htmlentities($result->BookPrice);?></td>
+                                            <td class="center"><?php echo htmlentities($BookName);?></td>
+                                            <td class="center"><?php echo htmlentities($Description);?></td>
+                                            <td class="center"><?php echo htmlentities($AuthorName);?></td>
+                                            <td class="center"><?php echo htmlentities($ISBNNumber);?></td>
+                                            <td class="center"><?php echo htmlentities($QuantityLeft);?></td>
+                                            <td class="center"><?php echo htmlentities($QuantityTotal);?></td>
+                                            <td class="center"><?php echo htmlentities($BookPrice);?></td>
                                             </td>
                                         </tr>
                                     <?php $cnt=$cnt+1;}} ?>                                      

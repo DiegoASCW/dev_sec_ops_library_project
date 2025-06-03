@@ -15,6 +15,16 @@ mydb: pymysql.connections.Connection
 logging.basicConfig(filename='/var/log/audit_log/openshelf_audit.log', level=logging.INFO)
 
 
+@app.after_request
+def add_header(r):
+    """ inibe a criação de cache """
+    r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    r.headers["Pragma"] = "no-cache"
+    r.headers["Expires"] = "0"
+    r.headers['Cache-Control'] = 'public, max-age=0'
+    return r
+
+
 @app.route('/auth/admin', methods=['POST'])
 def auth_admin():
         data = request.get_json()
@@ -79,6 +89,55 @@ def auth_user():
 
         return jsonify({"Result": f"{result}", "StudentId": f"{StudentId}", "Status": f"{Status}", "EmailId": f"{EmailId}"})
 
+
+@app.route('/book/list', methods=['POST'])
+def book_list():
+    data = request.get_json()
+
+    logging.info('[%s] (/book/list) User "%s" list all books', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("stdId", "None"))
+    
+    header = {"Content-Type": "application/json"}
+    url = "http://10.100.2.10:5002/book/list"
+
+    response = requests.get(url, headers=header)
+
+    if response.status_code != 200:
+        return jsonify({"Result": "Error", "HTML Code": f"{response.status_code}"})
+
+    try:
+        books = response.json()
+    except Exception as e:
+        logging.info("[%s] (/book/list) Error parsing response: %s", datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), str(e))
+        return jsonify({"Result": "Error", "Error": str(e)})
+
+    return jsonify(books)
+
+
+@app.route('/book/register', methods=['POST'])
+def book_register():
+        data = request.get_json()
+        
+        logging.info('[%s] (/book/register) User "%s" is trying to register a book', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("stdId", "None"))
+        
+        header = {"Content-Type": "application/json"}
+
+        url = "http://10.100.2.10:5002/book/register"
+
+        response = requests.post(url, json=data, headers=header)
+
+        if response.status_code != 200:
+            return jsonify({"Result": "Error", "HTML Code": f"{response.status_code}"})
+
+        resp_json = response.json()
+        result = resp_json.get("Result", "False")
+
+        if result == "False":
+            logging.info('[%s] (/book/register) User "%s" fail to register a book', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("stdId", "None"))
+        else:
+            logging.info('[%s] (/book/register) User "%s" successfuly register a book', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("result", "None"))
+
+        return jsonify({"Result": f"{result}"})
+    
 
 if __name__ == '__main__':
     logging.info('[%s] API Gateway started', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"))
