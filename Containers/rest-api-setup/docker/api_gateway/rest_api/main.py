@@ -80,6 +80,52 @@ def auth_user():
         return jsonify({"Result": f"{result}", "StudentId": f"{StudentId}", "Status": f"{Status}", "EmailId": f"{EmailId}"})
 
 
+@app.route('/book/list', methods=['POST'])
+def book_list():
+        data = request.get_json()
+
+        logging.info('[%s] (/book/list) User "%s" list all books', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("stdId", "None"))
+        
+        header = {"Content-Type": "application/json"}
+
+        url = "http://10.100.2.10:5002/book/list"
+
+        response = requests.get(url, headers=header)
+
+        if response.status_code != 200:
+            return jsonify({"Result": "Error", "HTML Code": f"{response.status_code}"})
+
+        try:
+            # parse
+            resp_json = response.json()
+            BookName = resp_json.get("BookName")
+            Description = resp_json.get("Description")
+            AuthorName = resp_json.get("AuthorName")
+            ISBNNumber = resp_json.get("ISBNNumber")
+            QuantityLeft = resp_json.get("QuantityLeft")
+            BookPrice = resp_json.get("BookPrice")
+            QuantityTotal = resp_json.get("QuantityTotal")
+            ISBNNumber = resp_json.get("ISBNNumber")
+        except Exception as e:
+            logging.info("[%s] (/auth/user) Internal error to API Gateway 'main.py': %s", datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), str(e))
+            return jsonify({"Result": "Error", "Error": str(e)})
+
+        return jsonify({
+                "BookName": BookName,
+                "Description": Description,
+                "AuthorName": AuthorName,
+                "ISBNNumber": ISBNNumber,
+                "QuantityLeft": QuantityLeft,
+                "QuantityTotal": QuantityTotal,
+                "BookPrice": BookPrice,
+                "ISBNNumber": ISBNNumber
+                })
+
+
+@app.route('/book/register', methods=['POST'])
+def book_register():
+    pass
+
 if __name__ == '__main__':
     logging.info('[%s] API Gateway started', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"))
     app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)

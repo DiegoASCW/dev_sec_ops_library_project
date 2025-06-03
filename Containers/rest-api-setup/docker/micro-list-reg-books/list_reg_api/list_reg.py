@@ -9,27 +9,48 @@ app = Flask(__name__)
 mydb: pymysql.connections.Connection  
 
 
-@app.route('/auth/admin', methods=['POST'])
-def auth_admin():
-    data = request.get_json()
-    
+@app.route('/book/list', methods=['GET'])
+def book_list():
     auth_result: bool
 
     mycursor = mydb.cursor()
-    sql = "SELECT UserName FROM admin WHERE UserName = %s and Password = %s"
-
-    values = (data["Username"], data["Passwd"])
+    sql = """SELECT 
+                tblbooks.BookName,
+                tblcategory.CategoryName,
+                tblauthors.AuthorName,
+                tblbooks.ISBNNumber,
+                tblbooks.QuantityLeft,
+                tblbooks.QuantityTotal,
+                tblbooks.BookPrice,
+                tblbooks.id as bookid 
+            FROM tblbooks 
+            JOIN tblcategory 
+                ON tblcategory.id=tblbooks.CatId 
+            JOIN tblauthors 
+                ON tblauthors.id=tblbooks.AuthorId"""
     
-    mycursor.execute(sql, values)
+    mycursor.execute(sql)
     myresult = mycursor.fetchall()
 
     auth_result: bool = (True if myresult != () else False)
 
-    return jsonify({"Result": f"{auth_result}"})
+    if auth_result == True:
+        BookName, Description, AuthorName, ISBNNumber, QuantityLeft, QuantityTotal, BookPrice, ISBNNumber = myresult[0]
+        return jsonify({
+                "BookName": BookName,
+                "Description": Description,
+                "AuthorName": AuthorName,
+                "ISBNNumber": ISBNNumber,
+                "QuantityLeft": QuantityLeft,
+                "QuantityLeft": QuantityTotal,
+                "BookPrice": BookPrice
+                })
+    else:
+        return jsonify({"Result": f"{auth_result}"})
 
 
-@app.route('/auth/user', methods=['POST'])
-def auth_user():
+@app.route('/book/register', methods=['POST'])
+def book_register():
     data = request.get_json()
     
     auth_result: bool
@@ -62,7 +83,7 @@ def main() -> None:
     while True:
         try:
             mydb = pymysql.connect(
-            host="10.100.4.10",
+            host="10.100.24.10",
             database="openshelf",
             user="root",
             password="passwd"
