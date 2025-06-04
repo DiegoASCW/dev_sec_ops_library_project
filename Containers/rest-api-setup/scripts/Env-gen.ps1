@@ -121,9 +121,8 @@ Write-Host ": deploying Apache/PHP container..."
 
 $file_path=(Get-Location).Path -replace '\\', '/'
 
-
-docker build -t apache_openshelf_image -f ../docker/apache/apache.dockerfile ../docker/apache
-docker create --name ubuntu_apache -p 80:80 -v "${file_path}/../../../Projeto_Web/site:/var/www/html" apache_openshelf_image
+docker build -t apache_openshelf_image -f ../docker/apache/apache.dockerfile ../../..
+docker create --name ubuntu_apache -p 80:80 apache_openshelf_image
 
 docker network connect --ip 10.0.5.10 apache_network-R5 ubuntu_apache
 docker network connect --ip 10.0.45.20 apache_mysql_network-R4-5 ubuntu_apache
