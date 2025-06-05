@@ -151,11 +151,11 @@ echo -e "\n${BLUE}INFO${NC}: creating 'openshelf' database, schema and sample da
 echo -e "\n\n\n${BLUE}INFO${NC}: starting the creation of Debian 12 'debian_api_gateway' container..."
 
 echo -e "\n${BLUE}INFO${NC}: creating Docker volume 'audit_logs'..."
-docker volume create audit_logs | out-null
+docker volume create audit_logs &> /dev/null
 
 echo -e "\n${BLUE}INFO${NC}: preparing enviroment and installing dependencies"
-docker build -t debian_api_gateway_openshelf_image -f ../docker/api_gateway/api_gateway.dockerfile ../docker/api_gateway
-docker create --name debian_api_gateway -p 5000:5000 debian_api_gateway_openshelf_image
+docker build --platform=linux/amd64 -t debian_api_gateway_openshelf_image -f ../docker/api_gateway/api_gateway.dockerfile ../docker/api_gateway
+docker create --name debian_api_gateway -p 5000:5000 -v audit_logs:/var/log/audit_log debian_api_gateway_openshelf_image
 
 docker network connect --ip 10.101.0.10 api_gateway_apache_network-R1015 debian_api_gateway
 docker network connect --ip 10.100.1.11 micro_auth_network_R1001 debian_api_gateway
