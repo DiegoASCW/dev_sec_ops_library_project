@@ -34,10 +34,11 @@ if [[ "$escolha" == "y" ]]; then
   docker rm ubuntu_apache mysql_stable mysql-stable debian_api_gateway micro_auth_api &> /dev/null || true
   docker rmi debian_api_gateway_openshelf_image mysql_stable_image apache_openshelf_image micro_auth_openshelf_image -f &> /dev/null || true
   docker network rm apache_network-R5 mysql_network-R4 \
-      apache_mysql_network-R4-5 openshelf_mysql_network-R4 \
-      backup_mysql_network-R94 backup_mysql_network-R75 \
-      micro_auth_network_R1001 \
-      micro_auth_mysql_network-R10014 api_gateway_apache_network-R1015 &> /dev/null || true
+    apache_mysql_network-R4-5 openshelf_mysql_network-R4 \
+    backup_mysql_network-R94 backup_mysql_network-R75 \
+    backup_mysql_network-R74 micro_auth_network_R1001 \
+    api_gateway_apache_network-R1015 micro_auth_mysql_network-R10014 \
+    micro_list_reg_books_network_R1002 micro_list_reg_books_mysql_network-R10024 &> /dev/null || true
 
   docker volume rm mysql-data audit_logs -f &> /dev/null || true
   echo -e "${BLUE}INFO${NC}: environment cleaning finished!"
@@ -82,13 +83,23 @@ docker network create --driver bridge --subnet=10.0.94.0/24 --ip-range=10.0.94.0
 echo -e "\n${BLUE}INFO${NC}: creating api_gateway_apache_network-R1015 (10.101.0.0/24)..."
 docker network create --driver bridge --subnet=10.101.0.0/24 --ip-range=10.101.0.0/24 --gateway=10.101.0.254 api_gateway_apache_network-R1015
 
+### [Micro-Auth]
 ## API_GATEWAY <> Micro-Auth
 echo -e "\n${BLUE}INFO${NC}: creating micro_auth_network_R1001 (10.100.1.0/24)..."
 docker network create --driver bridge --subnet=10.100.1.0/24 --ip-range=10.100.1.0/24 --gateway=10.100.1.254 micro_auth_network_R1001
 
 ## Micro-Auth <> MySQL
-echo -e "\n${BLUE}INFO${NC}: creating micro_auth_mysql_network-R10014 (10.100.4.0/24)..."
-docker network create --driver bridge --subnet=10.100.4.0/24 --ip-range=10.100.4.0/24 --gateway=10.100.4.254 micro_auth_mysql_network-R10014
+echo -e "\n${BLUE}INFO${NC}: creating micro_auth_mysql_network-R10014 (10.100.14.0/24)..."
+docker network create --driver bridge --subnet=10.100.14.0/24 --ip-range=10.100.14.0/24 --gateway=10.100.14.254 micro_auth_mysql_network-R10014
+
+### [Micro-List-Reg-Books]
+## API_GATEWAY <> Micro-List-Reg-Books
+echo -e "\n${BLUE}INFO${NC}: creating micro_list_reg_books_network_R1002 (10.100.2.0/24)..."
+docker network create --driver bridge --subnet=10.100.2.0/24 --ip-range=10.100.2.0/24 --gateway=10.100.2.254 micro_list_reg_books_network_R1002
+
+## Micro-List-Reg-Books <> MySQL
+echo -e "\n${BLUE}INFO${NC}: creating micro_list_reg_books_mysql_network-R10024 (10.100.24.0/24/24)..."
+docker network create --driver bridge --subnet=10.100.24.0/24 --ip-range=10.100.24.0/24 --gateway=10.100.24.254 micro_list_reg_books_mysql_network-R10024
 
 
 # -----------------------------
@@ -99,8 +110,8 @@ echo -e "\n\n\n${BLUE}INFO${NC}: starting the creation of Apache 8.2 'ubuntu_apa
 echo -e "\n${BLUE}INFO${NC}: deploying Apache/PHP container..."
 PWD_UNIX="${PWD//\\//}"
 
-docker build -t apache_openshelf_image -f ../docker/apache/apache.dockerfile ../docker/apache
-docker create --name ubuntu_apache -p 80:80 -v "${PWD_UNIX}/../../../Projeto_Web/site:/var/www/html" apache_openshelf_image
+docker build -t apache_openshelf_image -f ../docker/apache/apache.dockerfile ../../..
+docker create --name ubuntu_apache -p 80:80 apache_openshelf_image
 
 docker network connect --ip 10.0.5.10 apache_network-R5 ubuntu_apache
 docker network connect --ip 10.0.45.20 apache_mysql_network-R4-5 ubuntu_apache
@@ -126,7 +137,8 @@ docker create --name mysql_stable -p 3306:3306 -e MYSQL_ROOT_PASSWORD=passwd -v 
 docker network connect --ip 10.0.4.10 mysql_network-R4 mysql_stable
 docker network connect --ip 10.0.45.10 apache_mysql_network-R4-5 mysql_stable
 docker network connect --ip 10.0.94.11 backup_mysql_network-R94 mysql_stable
-docker network connect --ip 10.100.4.10 micro_auth_mysql_network-R10014 mysql_stable
+docker network connect --ip 10.100.14.10 micro_auth_mysql_network-R10014 mysql_stable
+docker network connect --ip 10.100.24.10 micro_list_reg_books_mysql_network-R10024 mysql_stable
 
 docker start mysql_stable
 
@@ -147,6 +159,7 @@ docker create --name debian_api_gateway -p 5000:5000 debian_api_gateway_openshel
 
 docker network connect --ip 10.101.0.10 api_gateway_apache_network-R1015 debian_api_gateway
 docker network connect --ip 10.100.1.11 micro_auth_network_R1001 debian_api_gateway
+docker network connect --ip 10.100.2.11 micro_list_reg_books_network_R1002 debian_api_gateway
 
 echo -e "\n${BLUE}INFO${NC}: starting 'debian_api_gateway' container and API Gateway service"
 docker start debian_api_gateway
@@ -164,13 +177,26 @@ echo -e "\n${BLUE}INFO${NC}: preparing enviroment and installing dependencies"
 docker build --platform=linux/amd64 -t micro_auth_openshelf_image -f ../docker/micro-auth/auth.dockerfile ../docker/micro-auth
 docker create --name micro_auth_api -p 5001:5001 micro_auth_openshelf_image
 
-docker network connect --ip 10.100.4.11 micro_auth_mysql_network-R10014 micro_auth_api
+docker network connect --ip 10.100.14.11 micro_auth_mysql_network-R10014 micro_auth_api
 docker network connect --ip 10.100.1.10 micro_auth_network_R1001 micro_auth_api
 
 echo -e "\n${BLUE}INFO${NC}: starting 'micro_auth_api' container and API Gateway service"
 docker start micro_auth_api
 
 echo -e "\n${BLUE}Setup complete!${NC}"
+
+
+# -----------------------------
+# 10. Micro List Reg Books
+# -----------------------------
+
+docker build --platform=linux/amd64 -t micro-list_reg_books_openshelf_image -f ../docker/micro-list-reg-books/list_reg.dockerfile ../docker/micro-list-reg-books
+docker create --name micro_list_reg_books_api -p 5002:5002 micro-list_reg_books_openshelf_image
+
+docker network connect --ip 10.100.24.11 micro_list_reg_books_mysql_network-R10024 micro_list_reg_books_api
+docker network connect --ip 10.100.2.10 micro_list_reg_books_network_R1002 micro_list_reg_books_api
+
+docker start micro_list_reg_books_api
 
 
 echo -e "\n\n\n==============[APACHE]=============="
