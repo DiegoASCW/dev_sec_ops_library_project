@@ -100,7 +100,7 @@ echo -e "\n${BLUE}INFO${NC}: deploying Apache/PHP container..."
 PWD_UNIX="${PWD//\\//}"
 
 docker build -t apache_openshelf_image -f ../docker/apache/apache.dockerfile ../docker/apache
-docker create --name ubuntu_apache -p 80:80 -v "${PWD_UNIX}/../../../Projeto_Web/site:/var/www/html" apache_openshelf_image
+docker create --name ubuntu_apache -p 80:80 apache_openshelf_image
 
 docker network connect --ip 10.0.5.10 apache_network-R5 ubuntu_apache
 docker network connect --ip 10.0.45.20 apache_mysql_network-R4-5 ubuntu_apache
