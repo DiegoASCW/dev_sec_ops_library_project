@@ -38,6 +38,20 @@ if (isset($_POST['submitComment'])) {
     }
 }
 
+// Remove comentário
+if (isset($_POST['removeComment'])) {
+    $commentid = intval($_POST['commentid']);
+
+    $sql = "DELETE FROM tblcomment WHERE id = :commentid";
+    $q = $dbh->prepare($sql);
+    $q->bindParam(':commentid', $commentid,   PDO::PARAM_STR);
+    $q->execute();
+
+    $_SESSION['msg'] = "Comentário removido!";
+    header("Location: book-comments.php?isbn={$isbn}");
+    exit;
+}
+
 // Busca dados do livro por ISBN
 $sql = "SELECT b.BookName, a.AuthorName 
         FROM tblbooks b
@@ -52,7 +66,7 @@ if (!$book) {
 }
 
 // Busca comentários do livro por ISBN
-$sql = "SELECT c.Comment, c.CreationDate, COALESCE(s.FullName, a.UserName) AS AuthorName
+$sql = "SELECT c.id, c.Comment, c.CreationDate, COALESCE(s.FullName, a.UserName) AS AuthorName
         FROM tblcomment c
         LEFT JOIN tblstudents s ON s.StudentId = c.Userid
         LEFT JOIN admin a ON a.UserName = c.Userid
@@ -76,7 +90,7 @@ $comments = $q->fetchAll(PDO::FETCH_OBJ);
     <?php include 'includes/header.php'; ?>
 
     <div class="container content-wrapper">
-        <h2>Comentários para: <?php echo htmlentities($book->BookName); ?></h2>
+        <h2>Livro: <?php echo htmlentities($book->BookName); ?></h2>
         <p><em>Autor: <?php echo htmlentities($book->AuthorName); ?></em></p>
 
         <?php if (!empty($error)): ?>
@@ -107,9 +121,11 @@ $comments = $q->fetchAll(PDO::FETCH_OBJ);
             <div class="panel-heading">
                 Comentários (<?php echo count($comments); ?>)
             </div>
+
             <div class="panel-body">
                 <?php if (empty($comments)): ?>
                     <p>Nenhum comentário ainda. Seja o primeiro!</p>
+
                 <?php else: ?>
                     <?php foreach ($comments as $c): ?>
                         <div class="well">
@@ -119,12 +135,17 @@ $comments = $q->fetchAll(PDO::FETCH_OBJ);
                                 em <?php echo date('d/m/Y H:i', 
                                         strtotime($c->CreationDate)); ?>
                             </small>
+
+                            <form method="post">
+                                <input type="hidden" name="commentid" value="<?php echo htmlentities($c->id); ?>">
+                                <button type="submit" name="removeComment" class="btn btn-info">❌</button>
+                            </form>
                         </div>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </div>
         </div>
-        
+
     </div>
 
     <?php include 'includes/footer.php'; ?>

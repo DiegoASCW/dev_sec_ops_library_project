@@ -72,7 +72,7 @@ $comments = $q->fetchAll(PDO::FETCH_OBJ);
     <?php include 'includes/header.php'; ?>
 
     <div class="container content-wrapper">
-        <h2>Comentários para: <?php echo htmlentities($book->BookName); ?></h2>
+        <h2>Livro: <?php echo htmlentities($book->BookName); ?></h2>
         <p><em>Autor: <?php echo htmlentities($book->AuthorName); ?></em></p>
 
         <?php if (!empty($error)): ?>
