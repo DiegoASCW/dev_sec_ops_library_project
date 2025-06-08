@@ -11,9 +11,17 @@ pipeline {
         stage('Limpar Workspace') {
             steps {
                 echo "Limpando arquivos antigos no workspace..."
-                deleteDir() // Apaga todo o conteúdo do workspace
+                deleteDir()
             }
         }
+
+        stage('Clonar Repositório') {
+            steps {
+                echo "Clonando o repositório..."
+                checkout scm
+            }
+        }
+
         stage('Preparar Ambiente') {
             steps {
                 dir("${PROJECT_DIR}") {
@@ -33,6 +41,7 @@ pipeline {
                 }
             }
         }
+
         stage('Executar Testes Unitários') {
             steps {
                 dir("${PROJECT_DIR}") {
