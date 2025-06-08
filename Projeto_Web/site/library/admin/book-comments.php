@@ -1,6 +1,9 @@
 <?php
 session_start();
 error_reporting(1);
+ini_set('default_charset', 'UTF-8');
+mb_internal_encoding('UTF-8');
+header('Content-Type: text/html; charset=UTF-8');
 
 include '../includes/config.php';
 
@@ -121,6 +124,7 @@ $comments = $q->fetchAll(PDO::FETCH_OBJ);
                 <?php endif; ?>
             </div>
         </div>
+        
     </div>
 
     <?php include 'includes/footer.php'; ?>
