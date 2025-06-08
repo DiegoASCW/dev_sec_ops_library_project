@@ -11,15 +11,18 @@ pipeline {
         stage('Preparar Ambiente') {
             steps {
                 dir("${PROJECT_DIR}") {
-                    sh '''
+                  sh '''
                         echo "Criando ambiente virtual..."
-                        python3 -m venv ${VENV_PATH}
-                        . ${VENV_PATH}/bin/activate
-                        echo "Instalando dependências..."
+                        python3 -m venv venv
+                        . venv/bin/activate
+                        echo "Atualizando pip e instalando dependências..."
                         pip install --upgrade pip
                         if [ -f requirements.txt ]; then
                             pip install -r requirements.txt
                         fi
+                        echo "Instalando pytest..."
+                        pip install pytest
+                        echo "Ambiente virtual pronto!"
                     '''
                 }
             }
@@ -30,8 +33,8 @@ pipeline {
                 dir("${PROJECT_DIR}") {
                     sh '''
                         echo "Executando pytest..."
-                        . ${VENV_PATH}/bin/activate
-                        ${VENV_PATH}/bin/pytest -v --tb=short ${TEST_DIR}
+                        . venv/bin/activate
+                        pytest -v --tb=short tests-auth-logic
                     '''
                 }
             }
