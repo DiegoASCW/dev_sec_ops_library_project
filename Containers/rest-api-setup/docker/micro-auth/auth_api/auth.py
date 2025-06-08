@@ -16,7 +16,7 @@ def auth_admin():
     auth_result: bool
 
     mycursor = mydb.cursor()
-    sql = "SELECT UserName FROM admin WHERE UserName = %s and Password = %s"
+    sql = "SELECT CAST(AES_DECRYPT(UNHEX(UserName), 'devsecops') AS CHAR) AS UserName  FROM admin WHERE UserName = HEX(AES_ENCRYPT(%s, 'devsecops')) and Password = %s;"
 
     values = (data["Username"], data["Passwd"])
     
