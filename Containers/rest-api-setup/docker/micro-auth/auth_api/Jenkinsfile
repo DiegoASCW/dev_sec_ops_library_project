@@ -4,7 +4,7 @@ pipeline {
     environment {
         VENV_PATH = "venv"
         PROJECT_DIR = "dev_sec_ops_library_project/Containers/rest-api-setup/docker/micro-auth/auth_api"
-        TEST_DIR = "tests-auth-logic"
+        TEST_FILE = "tests_login.py"
     }
 
     stages {
