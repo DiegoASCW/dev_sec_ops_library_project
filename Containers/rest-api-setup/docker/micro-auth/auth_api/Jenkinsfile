@@ -4,10 +4,18 @@ pipeline {
     environment {
         VENV_PATH = "venv"
         PROJECT_DIR = "dev_sec_ops_library_project/Containers/rest-api-setup/docker/micro-auth/auth_api"
-        TEST_FILE = "tests_login.py"
+        TEST_FILE = "test_login.py"
+        REPO_DIR = "dev_sec_ops_library_project"
     }
 
     stages {
+        stages {
+        stage('Preparar Diretório') {
+            steps {
+                echo "Limpando repositório clonado anterior, se existir..."
+                sh "rm -rf ${REPO_DIR}"
+            }
+        }
         stage('Preparar Ambiente') {
             steps {
                 dir("${PROJECT_DIR}") {
