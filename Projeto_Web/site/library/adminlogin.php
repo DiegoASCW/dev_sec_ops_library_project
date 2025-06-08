@@ -15,16 +15,6 @@ if (isset($_POST['login'])) {
         $username = $_POST['username'];
         $password = hash('sha256', $_POST['password']);
         
-        #$sql = "SELECT UserName,Password FROM admin WHERE UserName=:username and Password=:password";
-        #$query = $dbh->prepare($sql);
-        #$query->bindParam(':username', $username, PDO::PARAM_STR);
-        #$query->bindParam(':password', $password, PDO::PARAM_STR);
-        #$query->execute();
-        #$results = $query->fetchAll(PDO::FETCH_OBJ);
-
-
-
-
         $url = 'http://10.101.0.10:5000/auth/admin';
         $data = ['Username' => $username, 'Passwd' => $password];
 
@@ -60,8 +50,6 @@ if (isset($_POST['login'])) {
     }
 } 
 ?>
-
-
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
