@@ -70,7 +70,7 @@ echo '<script>alert("Your profile has been updated")</script>';
                             <form name="signup" method="post">
 <?php 
 $sid=$_SESSION['stdid'];
-$sql="SELECT StudentId,FullName,EmailId,MobileNumber,RegDate,UpdationDate,Status from  tblstudents  where StudentId=:sid ";
+$sql="SELECT StudentId, CAST(AES_DECRYPT(UNHEX(FullName), 'devsecops') AS CHAR) AS FullName, CAST(AES_DECRYPT(UNHEX(EmailId), 'devsecops') AS CHAR) AS EmailId, CAST(AES_DECRYPT(UNHEX(MobileNumber), 'devsecops') AS CHAR) AS MobileNumber,RegDate,UpdationDate,Status from  tblstudents  where StudentId=:sid ";
 $query = $dbh -> prepare($sql);
 $query-> bindParam(':sid', $sid, PDO::PARAM_STR);
 $query->execute();

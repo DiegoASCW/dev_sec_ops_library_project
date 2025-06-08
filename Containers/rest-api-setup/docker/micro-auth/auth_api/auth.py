@@ -36,10 +36,10 @@ def auth_user():
 
     mycursor = mydb.cursor()
     
-    sql = "SELECT StudentId, Status, EmailId FROM tblstudents WHERE EmailId = %s and Password = %s"
+    sql = "SELECT StudentId, Status, CAST(AES_DECRYPT(UNHEX(EmailId), 'devsecops') AS CHAR) AS EmailId FROM tblstudents WHERE EmailId = HEX(AES_ENCRYPT(%s, 'devsecops')) and Password = %s"
 
     values = (data["Email"], data["Passwd"])
-    
+
     mycursor.execute(sql, values)
     myresult = mycursor.fetchall()
 

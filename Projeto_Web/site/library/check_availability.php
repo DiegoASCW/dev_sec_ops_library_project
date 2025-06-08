@@ -8,7 +8,7 @@ if(!empty($_POST["emailid"])) {
 		echo "error : You did not enter a valid email.";
 	}
 	else {
-		$sql ="SELECT EmailId FROM tblstudents WHERE EmailId=:email";
+		$sql ="SELECT CAST(AES_DECRYPT(UNHEX(EmailId), 'devsecops') AS CHAR) AS EmailId FROM tblstudents WHERE EmailId=HEX(AES_ENCRYPT(:email, 'devsecops'))";
 $query= $dbh -> prepare($sql);
 $query-> bindParam(':email', $email, PDO::PARAM_STR);
 $query-> execute();
