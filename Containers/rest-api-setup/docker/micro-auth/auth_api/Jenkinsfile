@@ -18,7 +18,7 @@ pipeline {
         stage('Preparar Ambiente') {
             steps {
                 dir("${PROJECT_DIR}") {
-                  sh '''
+                    sh '''
                         echo "Criando ambiente virtual..."
                         python3 -m venv venv
                         . venv/bin/activate
@@ -34,7 +34,6 @@ pipeline {
                 }
             }
         }
-
         stage('Executar Testes Unitários') {
             steps {
                 dir("${PROJECT_DIR}") {
@@ -50,10 +49,8 @@ pipeline {
 
     post {
         always {
-            dir("${PROJECT_DIR}") {
-                echo "Limpando ambiente virtual..."
-                sh "rm -rf ${VENV_PATH}"
-            }
+            echo 'Limpando o workspace ao final da execução...'
+            deleteDir()
         }
     }
 }
