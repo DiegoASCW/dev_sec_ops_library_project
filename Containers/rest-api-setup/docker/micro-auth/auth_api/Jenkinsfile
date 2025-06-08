@@ -3,16 +3,16 @@ pipeline {
 
     environment {
         VENV_PATH = "venv"
-        PROJECT_DIR = "dev_sec_ops_library_project/Containers/rest-api-setup/docker/micro-auth/auth_api"
+        PROJECT_DIR = "Containers/rest-api-setup/docker/micro-auth/auth_api"
         TEST_FILE = "test_login.py"
-        REPO_DIR = "dev_sec_ops_library_project"
+        PYTHON_VERSION = "3.8" // Versão do Python a ser utilizada
     }
 
     stages {
-        stage('Preparar Diretório') {
+        stage('Limpar Workspace') {
             steps {
-                echo "Limpando repositório clonado anterior, se existir..."
-                sh "rm -rf ${REPO_DIR}"
+                echo "Limpando arquivos antigos no workspace..."
+                deleteDir() // Apaga todo o conteúdo do workspace
             }
         }
         stage('Preparar Ambiente') {
