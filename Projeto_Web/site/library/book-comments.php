@@ -1,16 +1,14 @@
 <?php
 session_start();
-error_reporting(1);
+error_reporting(0);
 
 include 'includes/config.php';
 
-// 1) Verifica login
 if (strlen($_SESSION['login']) == 0) {
     header('location:index.php');
     exit;
 }
 
-// 2) Pega o ISBN da query string
 if (!isset($_GET['isbn']) || !is_numeric($_GET['isbn'])) {
     die('ISBN inválido.');
 }
@@ -18,9 +16,7 @@ if (!isset($_GET['isbn']) || !is_numeric($_GET['isbn'])) {
 $isbn = intval($_GET['isbn']);
 $studentId = $_SESSION['stdid'];
 
-echo $studentId;
-
-// 3) Inserção de comentário via POST
+// POST de novo comentário
 if (isset($_POST['submitComment'])) {
     $texto = trim($_POST['comment']);
     if ($texto === '') {
@@ -39,7 +35,7 @@ if (isset($_POST['submitComment'])) {
     }
 }
 
-// 4) Busca os dados do livro por ISBN
+// Busca dados do livro por ISBN
 $sql = "SELECT b.BookName, a.AuthorName 
         FROM tblbooks b
         JOIN tblauthors a ON a.id = b.AuthorId
@@ -52,7 +48,7 @@ if (!$book) {
     die('Livro não encontrado.');
 }
 
-// 5) Busca comentários associados a este ISBN
+// Busca comentários do livro por ISBN
 $sql = "SELECT c.Comment, c.CreationDate, s.FullName 
         FROM tblcomment c
         JOIN tblstudents s ON s.StudentId = c.Userid
@@ -79,7 +75,6 @@ $comments = $q->fetchAll(PDO::FETCH_OBJ);
         <h2>Comentários para: <?php echo htmlentities($book->BookName); ?></h2>
         <p><em>Autor: <?php echo htmlentities($book->AuthorName); ?></em></p>
 
-        <!-- Mensagem -->
         <?php if (!empty($error)): ?>
             <div class="alert alert-danger"><?php echo $error; ?></div>
         <?php elseif (!empty($_SESSION['msg'])): ?>
@@ -88,7 +83,6 @@ $comments = $q->fetchAll(PDO::FETCH_OBJ);
             </div>
         <?php endif; ?>
 
-        <!-- Formulário -->
         <div class="panel panel-default">
             <div class="panel-heading">Deixe seu comentário</div>
             <div class="panel-body">
