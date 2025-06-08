@@ -34,7 +34,7 @@ pipeline {
                     sh '''
                         echo "Executando pytest..."
                         . venv/bin/activate
-                        pytest -v --tb=short tests-auth-logic
+                        pytest -v --tb=short tests_login.py
                     '''
                 }
             }
