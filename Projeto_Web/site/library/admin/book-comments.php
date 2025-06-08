@@ -1,11 +1,11 @@
 <?php
 session_start();
-error_reporting(0);
+error_reporting(1);
 
-include 'includes/config.php';
+include '../includes/config.php';
 
-if (strlen($_SESSION['login']) == 0) {
-    header('location:index.php');
+if (strlen($_SESSION['alogin']) == 0) {
+  header('location:index.php');
     exit;
 }
 
@@ -14,7 +14,7 @@ if (!isset($_GET['isbn']) || !is_numeric($_GET['isbn'])) {
 }
 
 $isbn = intval($_GET['isbn']);
-$studentId = $_SESSION['stdid'];
+$admin_name = $_SESSION['alogin'];
 
 // POST de novo comentário
 if (isset($_POST['submitComment'])) {
@@ -25,7 +25,7 @@ if (isset($_POST['submitComment'])) {
         $sql = "INSERT INTO tblcomment (Userid, ISBNNumber, Comment) 
                 VALUES (:uid, :isbn, :comment)";
         $q = $dbh->prepare($sql);
-        $q->bindParam(':uid', $studentId,   PDO::PARAM_STR);
+        $q->bindParam(':uid', $admin_name,   PDO::PARAM_STR);
         $q->bindParam(':isbn', $isbn,        PDO::PARAM_INT);
         $q->bindParam(':comment', $texto,    PDO::PARAM_STR);
         $q->execute();
