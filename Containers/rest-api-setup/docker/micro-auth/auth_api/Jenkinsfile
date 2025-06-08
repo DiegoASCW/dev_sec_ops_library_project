@@ -9,7 +9,6 @@ pipeline {
     }
 
     stages {
-        stage {
         stage('Preparar Diretório') {
             steps {
                 echo "Limpando repositório clonado anterior, se existir..."
@@ -57,5 +56,4 @@ pipeline {
             }
         }
     }
-}
 }
