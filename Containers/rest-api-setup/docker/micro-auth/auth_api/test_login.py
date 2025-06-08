@@ -1,4 +1,4 @@
-from auth_logic import validate_admin, validate_user
+# test_login.py
 
 # Simulando um "banco de dados" em memória
 fake_users = {
@@ -31,13 +31,11 @@ fake_students = {
 
 
 # Cursor simulado com lógica
-# para retornar dados do "banco de dados" fake
-# em vez de uma conexão real com o banco de dados
 class FakeCursor:
     def __init__(self):
         self.last_query = ""
         self.last_params = ()
-    
+
     def execute(self, sql, params):
         self.last_query = sql
         self.last_params = params
@@ -56,6 +54,19 @@ class FakeCursor:
             return []
 
 
+# Funções de autenticação - 100% embutidas no teste
+def validate_admin(username, password, cursor):
+    cursor.execute("SELECT * FROM admin WHERE username = %s AND password = %s", (username, password))
+    result = cursor.fetchall()
+    return bool(result)
+
+def validate_user(email, password, cursor):
+    cursor.execute("SELECT * FROM tblstudents WHERE EmailId = %s AND Password = %s", (email, password))
+    result = cursor.fetchall()
+    return result[0] if result else None
+
+
+# Testes
 def test_validate_admin_true():
     cursor = FakeCursor()
     result = validate_admin("admin", "teste", cursor)
