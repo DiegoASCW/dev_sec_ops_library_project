@@ -45,8 +45,9 @@ CREATE TABLE tblcategory (
 );
 CREATE TABLE tblcomment (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  Userid INT,
+  Userid VARCHAR(100),
   Comment VARCHAR(255) NOT NULL,
+  ISBNNumber BIGINT,
   CreationDate TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE tblhelpdesk (
@@ -137,5 +138,77 @@ INSERT INTO tblissuedbookdetails (id,BookId,StudentID,IssuesDate,ReturnDate,Retr
   (4,3,'SID002','2017-07-15 06:23:23','2017-07-15 11:22:29',1,2),
   (5,1,'SID009','2017-07-15 10:59:26',NULL,0,NULL),
   (6,3,'SID011','2017-07-15 18:02:55',NULL,0,NULL);
+
+-- Comentários para "Dom Casmurro" (ISBN 9788563560452)
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID002', 'Adorei a profundidade psicológica de Dom Casmurro.', 9788563560452);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID005', 'Leitura envolvente do início ao fim.', 9788563560452);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID009', 'Personagem inesquecível e narrativa magistral.', 9788563560452);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID010', 'Machado de Assis em sua melhor forma.', 9788563560452);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID011', 'Recomendo a todos que gostam de clássicos.', 9788563560452);
+
+-- Comentários para "A Hora da Estrela" (ISBN 9788535914849)
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID002', 'Clarice Lispector transcende o convencional.', 9788535914849);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID005', 'História comovente e poética.', 9788535914849);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID009', 'Narrativa única e tocante.', 9788535914849);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID010', 'Personagem simples, mas inesquecível.', 9788535914849);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID011', 'Um dos melhores da literatura brasileira.', 9788535914849);
+
+-- Comentários para "Capitães da Areia" (ISBN 9788520932072)
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID002', 'Jorge Amado retrata a infância com sensibilidade.', 9788520932072);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID005', 'Uma obra que emociona e faz refletir.', 9788520932072);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID009', 'Personagens fortes e realistas.', 9788520932072);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID010', 'Ambientação incrível de Salvador.', 9788520932072);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID011', 'Um clássico regionalista indispensável.', 9788520932072);
+
+-- Comentários para "Romanceiro da Inconfidência" (ISBN 9788535907926)
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID002', 'Poesia histórica de Cecília Meireles impressiona.', 9788535907926);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID005', 'Versos belíssimos e bem construídos.', 9788535907926);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID009', 'Uma viagem ao passado do Brasil.', 9788535907926);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID010', 'Ritmo poético que encanta.', 9788535907926);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID011', 'Poesia no mais alto nível.', 9788535907926);
+
+-- Comentários para "Alguma Poesia" (ISBN 9788572326972)
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID002', 'Coleção de poemas tocantes e profundos.', 9788572326972);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID005', 'Carlos Drummond de Andrade surpreende sempre.', 9788572326972);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID009', 'Leitura que acalma e faz pensar.', 9788572326972);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID010', 'Linguagem poética ímpar.', 9788572326972);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID011', 'Obra essencial para amantes de poesia.', 9788572326972);
+
+-- Comentários para "Agosto" (ISBN 9788535932287)
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID002', 'Rubem Fonseca em dose dupla de suspense.', 9788535932287);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID005', 'Trama envolvente e cheia de reviravoltas.', 9788535932287);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID009', 'Personagens complexos e bem desenvolvidos.', 9788535932287);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID010', 'História que prende a atenção.', 9788535932287);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID011', 'Ótimo para quem gosta de policial.', 9788535932287);
+
+-- Comentários para "Memórias Póstumas de Brás Cubas" (ISBN 9788535910667)
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID002', 'Humor ácido e originalidade única.', 9788535910667);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID005', 'Machado de Assis faz crítica social brilhante.', 9788535910667);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID009', 'Narrador inusitado e fascinante.', 9788535910667);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID010', 'Obra-prima do realismo brasileiro.', 9788535910667);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID011', 'Indispensável na estante de qualquer leitor.', 9788535910667);
+
+-- Comentários para "Laços de Família" (ISBN 9788535914849)
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID002', 'Contos que exploram relações familiares com sensibilidade.', 9788535914849);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID005', 'Clarice Lispector impressiona a cada página.', 9788535914849);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID009', 'Leitura curta, mas impactante.', 9788535914849);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID010', 'Personagens muito bem construídos.', 9788535914849);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID011', 'Textos profundos e belíssimos.', 9788535914849);
+
+-- Comentários para "Gabriela, Cravo e Canela" (ISBN 9788520932096)
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID002', 'Atmosfera calorosa e envolvente de Jorge Amado.', 9788520932096);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID005', 'Personagem Gabriela inesquecível.', 9788520932096);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID009', 'Cenário baiano retratado com riqueza de detalhes.', 9788520932096);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID010', 'Narrativa deliciosa de se ler.', 9788520932096);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID011', 'Clássico que encanta gerações.', 9788520932096);
+
+-- Comentários para "Poemas Escritos na Índia" (ISBN 9788571106896)
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID002', 'Viagem poética pelas paisagens indianas.', 9788571106896);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID005', 'Cecília Meireles em estilo exótico e delicado.', 9788571106896);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID009', 'Versos que evocam cores e aromas.', 9788571106896);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID010', 'Poesia rica em imagens sensoriais.', 9788571106896);
+INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID011', 'Obra poética fascinante.', 9788571106896);
+
+
 INSERT INTO tblstudents (StudentId,FullName,EmailId,MobileNumber,Password,Status) VALUES('SID007','teste','teste@gmail.com','123','46070d4bf934fb0d4b06d9e2c46e346944e322444900a435d7d9a95e6d7435f5',1);
 INSERT INTO admin (FullName,AdminEmail,UserName,Password) VALUES('teste','teste@gmail.com','teste','46070d4bf934fb0d4b06d9e2c46e346944e322444900a435d7d9a95e6d7435f5');
