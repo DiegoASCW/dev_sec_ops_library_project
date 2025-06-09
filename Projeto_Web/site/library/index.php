@@ -39,6 +39,7 @@ if (isset($_POST['login'])) {
         $authResult = $responseData['Result'];
         $studentId = $responseData['StudentId'] ?? null;
         $status = $responseData['Status'] ?? null;
+        echo $status;
         $EmailId = $responseData['EmailId'] ?? null;
 
         # verificação da requisição e validação do login
@@ -46,9 +47,9 @@ if (isset($_POST['login'])) {
             $_SESSION['stdid'] = $studentId;
             if ($status == "1") {
               $_SESSION['login'] = $_POST['emailid'];
-              echo "<script type='text/javascript'> document.location ='dashboard.php'; </script>";
+              #echo "<script type='text/javascript'> document.location ='dashboard.php'; </script>";
             } else {
-              echo "<script>alert('Your Account Has been blocked .Please contact admin');</script>";
+              #echo "<script>alert('Your Account Has been blocked .Please contact admin');</script>";
             }
           
         } else {

@@ -129,11 +129,11 @@ INSERT INTO tblcategory (id,CategoryName,Status,CreationDate,UpdationDate) VALUE
   (6,'Ensaios Literários',1,'2012-10-05 15:45:00','2019-10-01 09:40:00');
 
 INSERT INTO tblstudents (id,StudentId,FullName,EmailId,MobileNumber,Password,Status,RegDate,UpdationDate) VALUES
-  (1,'SID002',HEX(AES_ENCRYPT('Lucas Oliveira', 'devsecops')),HEX(AES_ENCRYPT('lucas.oliveira@gmail.com', 'devsecops')),HEX(AES_ENCRYPT('9865472555', 'devsecops')),'698dc19d489c4e4db73e28a713eab07b',1,'2017-07-11 15:37:05','2017-07-15 18:26:21'),
-  (4, 'SID005', HEX(AES_ENCRYPT('Beatriz Silva', 'devsecops')), HEX(AES_ENCRYPT('beatriz.silva@gmail.com', 'devsecops')), HEX(AES_ENCRYPT('8569710025', 'devsecops')), '698dc19d489c4e4db73e28a713eab07b', 0, '2017-07-11 15:41:27', '2017-07-15 17:43:03'),
-  (8, 'SID009', HEX(AES_ENCRYPT('Carlos Eduardo', 'devsecops')), HEX(AES_ENCRYPT('carlos.edu@gmail.com', 'devsecops')), HEX(AES_ENCRYPT('2359874527', 'devsecops')), '698dc19d489c4e4db73e28a713eab07b', 1, '2017-07-11 15:58:28', '2017-07-15 13:42:44'),
-  (9, 'SID010', HEX(AES_ENCRYPT('Fernanda Rocha', 'devsecops')), HEX(AES_ENCRYPT('fernanda.rocha@gmail.com', 'devsecops')), HEX(AES_ENCRYPT('8585856224', 'devsecops')), '698dc19d489c4e4db73e28a713eab07b', 1, '2017-07-15 13:40:30', '2017-07-15 13:42:44'),
-  (10, 'SID011', HEX(AES_ENCRYPT('Rafael Souza', 'devsecops')), HEX(AES_ENCRYPT('rafael.souza@gmail.com', 'devsecops')), HEX(AES_ENCRYPT('4672423754', 'devsecops')), '698dc19d489c4e4db73e28a713eab07b', 1, '2017-07-15 18:00:59', '2017-07-15 13:42:44'),
+  (1,'SID002',HEX(AES_ENCRYPT('Lucas Oliveira', 'devsecops')),HEX(AES_ENCRYPT('lucas.oliveira@gmail.com', 'devsecops')),HEX(AES_ENCRYPT('9865472555', 'devsecops')),'46070d4bf934fb0d4b06d9e2c46e346944e322444900a435d7d9a95e6d7435f5',1,'2017-07-11 15:37:05','2017-07-15 18:26:21'),
+  (4, 'SID005', HEX(AES_ENCRYPT('Beatriz Silva', 'devsecops')), HEX(AES_ENCRYPT('beatriz.silva@gmail.com', 'devsecops')), HEX(AES_ENCRYPT('8569710025', 'devsecops')), '46070d4bf934fb0d4b06d9e2c46e346944e322444900a435d7d9a95e6d7435f5', 0, '2017-07-11 15:41:27', '2017-07-15 17:43:03'),
+  (8, 'SID009', HEX(AES_ENCRYPT('Carlos Eduardo', 'devsecops')), HEX(AES_ENCRYPT('carlos.edu@gmail.com', 'devsecops')), HEX(AES_ENCRYPT('2359874527', 'devsecops')), '46070d4bf934fb0d4b06d9e2c46e346944e322444900a435d7d9a95e6d7435f5', 1, '2017-07-11 15:58:28', '2017-07-15 13:42:44'),
+  (9, 'SID010', HEX(AES_ENCRYPT('Fernanda Rocha', 'devsecops')), HEX(AES_ENCRYPT('fernanda.rocha@gmail.com', 'devsecops')), HEX(AES_ENCRYPT('8585856224', 'devsecops')), '46070d4bf934fb0d4b06d9e2c46e346944e322444900a435d7d9a95e6d7435f5', 1, '2017-07-15 13:40:30', '2017-07-15 13:42:44'),
+  (10, 'SID011', HEX(AES_ENCRYPT('Rafael Souza', 'devsecops')), HEX(AES_ENCRYPT('rafael.souza@gmail.com', 'devsecops')), HEX(AES_ENCRYPT('4672423754', 'devsecops')), '46070d4bf934fb0d4b06d9e2c46e346944e322444900a435d7d9a95e6d7435f5', 1, '2017-07-15 18:00:59', '2017-07-15 13:42:44'),
   (11, 'SID007', HEX(AES_ENCRYPT('teste', 'devsecops')), HEX(AES_ENCRYPT('teste@gmail.com', 'devsecops')), HEX(AES_ENCRYPT('123', 'devsecops')), '46070d4bf934fb0d4b06d9e2c46e346944e322444900a435d7d9a95e6d7435f5', 1, '2017-07-15 18:00:59', '2017-07-15 13:42:44');
 
 INSERT INTO tblissuedbookdetails (id,BookId,StudentID,IssuesDate,ReturnDate,RetrunStatus,fine) VALUES
