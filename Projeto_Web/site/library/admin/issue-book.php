@@ -69,6 +69,7 @@ if (strlen($_SESSION['alogin']) == 0) {
         <!-- GOOGLE FONT -->
         <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
         <script>
+            
             // função para capturar nome do estudante à partir do ID
             function getstudent() {
                 $("#loaderIcon").show();
