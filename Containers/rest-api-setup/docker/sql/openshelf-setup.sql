@@ -116,7 +116,7 @@ INSERT INTO tblbooks (id,CatId,CommentId,PublisherId,BookName,Description,Quanti
   (5,4,0,5,'Alguma Poesia','A collection of poems by Carlos Drummond de Andrade',50,50,5,9788572326972,24.00,'2014-06-30 11:10:50','2017-07-15 05:54:41'),
   (6,5,0,6,'Agosto','A captivating story by Rubem Fonseca',120,110,6,9788535932287,30.00,'2016-09-14 10:00:00','2018-12-01 13:45:10'),
   (7,1,0,1,'Memórias Póstumas de Brás Cubas','A satirical classic by Machado de Assis',100,90,1,9788535910667,26.00,'2010-02-20 15:00:00','2012-11-04 09:25:35'),
-  (8,2,0,2,'Laços de Família','A family saga by Clarice Lispector',85,80,2,9788535914849,21.00,'2011-10-01 13:20:00','2014-03-12 08:18:00'),
+  (8,2,0,2,'Laços de Família','A family saga by Clarice Lispector',85,80,2,9788535454849,21.00,'2011-10-01 13:20:00','2014-03-12 08:18:00'),
   (9,3,0,3,'Gabriela, Cravo e Canela','A warm tale by Jorge Amado',95,90,3,9788520932096,27.00,'2009-07-22 17:10:00','2013-07-08 16:09:40'),
   (10,4,0,4,'Poemas Escritos na Índia','Poems by Cecília Meireles',60,55,4,9788571106896,18.00,'2012-12-12 18:30:30','2017-07-15 05:54:41');
 

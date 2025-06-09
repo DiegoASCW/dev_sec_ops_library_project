@@ -66,12 +66,22 @@ if (!$book) {
 }
 
 // Busca comentários do livro por ISBN
-$sql = "SELECT c.id, c.Comment, c.CreationDate, COALESCE(s.FullName, a.UserName) AS AuthorName
+$sql = "SELECT 
+            c.id, 
+            c.Comment, 
+            c.CreationDate, 
+            COALESCE(
+                CAST(AES_DECRYPT(UNHEX(s.FullName), 'devsecops') AS CHAR), 
+                CAST(AES_DECRYPT(UNHEX(a.UserName), 'devsecops') AS CHAR)
+            ) AS AuthorName
         FROM tblcomment c
         LEFT JOIN tblstudents s ON s.StudentId = c.Userid
-        LEFT JOIN admin a ON a.UserName = c.Userid
+        LEFT JOIN admin a ON 
+            CAST(AES_DECRYPT(UNHEX(a.UserName), 'devsecops') AS CHAR CHARACTER SET utf8mb4) 
+            COLLATE utf8mb4_general_ci = c.Userid
         WHERE c.ISBNNumber = :isbn
         ORDER BY c.CreationDate DESC";
+
 $q = $dbh->prepare($sql);
 $q->bindParam(':isbn', $isbn, PDO::PARAM_INT);
 $q->execute();
