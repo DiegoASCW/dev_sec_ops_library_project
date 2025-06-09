@@ -16,12 +16,15 @@ def auth_admin():
     auth_result: bool
 
     mycursor = mydb.cursor()
-    sql = "SELECT UserName FROM admin WHERE UserName = %s and Password = %s"
+    sql = "SELECT CAST(AES_DECRYPT(UNHEX(UserName), 'devsecops') AS CHAR) AS UserName  FROM admin WHERE UserName = HEX(AES_ENCRYPT(%s, 'devsecops')) and Password = %s;"
 
     values = (data["Username"], data["Passwd"])
     
     mycursor.execute(sql, values)
     myresult = mycursor.fetchall()
+
+    # commit para forçar o fim da transação, mesmo que SELECT
+    mydb.commit()  
 
     auth_result: bool = (True if myresult != () else False)
 
@@ -36,12 +39,15 @@ def auth_user():
 
     mycursor = mydb.cursor()
     
-    sql = "SELECT StudentId, Status, EmailId FROM tblstudents WHERE EmailId = %s and Password = %s"
+    sql = "SELECT StudentId, Status, CAST(AES_DECRYPT(UNHEX(EmailId), 'devsecops') AS CHAR) AS EmailId FROM tblstudents WHERE EmailId = HEX(AES_ENCRYPT(%s, 'devsecops')) and Password = %s"
 
     values = (data["Email"], data["Passwd"])
-    
+
     mycursor.execute(sql, values)
     myresult = mycursor.fetchall()
+
+    # commit para forçar o fim da transação, mesmo que SELECT
+    mydb.commit()  
 
     auth_result: bool = (True if myresult != () else False)
 

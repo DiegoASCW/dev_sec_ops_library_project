@@ -26,7 +26,7 @@ else{
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta name="description" content="" />
     <meta name="author" content="" />
@@ -41,7 +41,6 @@ else{
     <link href="assets/css/style.css" rel="stylesheet" />
     <!-- GOOGLE FONT -->
     <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
-
 </head>
 <body>
       <!------MENU SECTION START-->
@@ -75,6 +74,7 @@ else{
                                             <th>Quantity Total</th>
                                             <th>Price</th>
                                             <th>Like</th>
+                                            <th>Comments</th>
 
                                         </tr>
                                     </thead>
@@ -104,9 +104,12 @@ foreach($results as $result)
                                                     <button type="submit" name="favorite" class="btn btn-info">⭐</button>
                                                 </td>
                                             </form>
-                                            
-                                        </td>
+
+                                            <td class="center">
+                                                <a href="book-comments.php?isbn=<?php echo htmlentities($result->ISBNNumber); ?>">📖</a>
+                                            </td>
                                         </tr>
+
                                     <?php $cnt=$cnt+1;}} ?>                                      
                                     </tbody>
                                 </table>

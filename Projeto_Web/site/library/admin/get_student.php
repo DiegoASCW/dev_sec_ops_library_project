@@ -3,7 +3,7 @@ require_once("../includes/config.php");
 if (!empty($_POST["studentid"])) {
   $studentid = strtoupper($_POST["studentid"]);
 
-  $sql = "SELECT FullName,Status FROM tblstudents WHERE StudentId=:studentid";
+  $sql = "SELECT CAST(AES_DECRYPT(UNHEX(FullName), 'devsecops') AS CHAR) AS FullName,Status FROM tblstudents WHERE StudentId=:studentid";
   $query = $dbh->prepare($sql);
   $query->bindParam(':studentid', $studentid, PDO::PARAM_STR);
   $query->execute();
