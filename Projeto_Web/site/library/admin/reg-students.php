@@ -89,7 +89,7 @@ if (strlen($_SESSION['alogin']) == 0) {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php $sql = "SELECT * from tblstudents";
+                                            <?php $sql = "SELECT id, StudentId, CAST(AES_DECRYPT(UNHEX(FullName), 'devsecops') AS CHAR) AS FullName, CAST(AES_DECRYPT(UNHEX(EmailId), 'devsecops') AS CHAR) AS EmailId, CAST(AES_DECRYPT(UNHEX(MobileNumber), 'devsecops') AS CHAR) AS MobileNumber, RegDate, Status from tblstudents";
                                             $query = $dbh->prepare($sql);
                                             $query->execute();
                                             $results = $query->fetchAll(PDO::FETCH_OBJ);
@@ -106,21 +106,17 @@ if (strlen($_SESSION['alogin']) == 0) {
                                                         <td class="center"><?php if ($result->Status == 1) {
                                                             echo htmlentities("Active");
                                                         } else {
-
-
                                                             echo htmlentities("Blocked");
                                                         }
                                                         ?></td>
                                                         <td class="center">
                                                             <?php if ($result->Status == 1) { ?>
-                                                                <a href="reg-students.php?inid=<?php echo htmlentities($result->id); ?>"
-                                                                    onclick="return confirm('Are you sure you want to block this student?');"" >  <button class="
-                                                                    btn btn-danger"> Inactive</button>
+                                                                <a href="reg-students.php?inid=<?php echo htmlentities($result->id); ?> "onclick="return confirm('Are you sure you want to block this student?');" >
+                                                                    <button class="btn btn-danger"> Inactive</button>
                                                                 <?php } else { ?>
 
-                                                                    <a href="reg-students.php?id=<?php echo htmlentities($result->id); ?>"
-                                                                        onclick="return confirm('Are you sure you want to active this student?');""><button class="
-                                                                        btn btn-primary"> Active</button>
+                                                                    <a href="reg-students.php?id=<?php echo htmlentities($result->id); ?> "onclick="return confirm('Are you sure you want to active this student?');">
+                                                                    <button class="btn btn-primary"> Active</button>
                                                                     <?php } ?>
 
                                                         </td>
@@ -131,15 +127,11 @@ if (strlen($_SESSION['alogin']) == 0) {
                                         </tbody>
                                     </table>
                                 </div>
-
                             </div>
                         </div>
                         <!-- Fim da tabela -->
                     </div>
                 </div>
-
-
-
             </div>
         </div>
 
