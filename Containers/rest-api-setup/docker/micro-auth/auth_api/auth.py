@@ -23,6 +23,9 @@ def auth_admin():
     mycursor.execute(sql, values)
     myresult = mycursor.fetchall()
 
+    # commit para forçar o fim da transação, mesmo que SELECT
+    mydb.commit()  
+
     auth_result: bool = (True if myresult != () else False)
 
     return jsonify({"Result": f"{auth_result}"})
@@ -42,6 +45,9 @@ def auth_user():
 
     mycursor.execute(sql, values)
     myresult = mycursor.fetchall()
+
+    # commit para forçar o fim da transação, mesmo que SELECT
+    mydb.commit()  
 
     auth_result: bool = (True if myresult != () else False)
 
