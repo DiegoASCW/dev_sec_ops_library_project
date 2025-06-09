@@ -20,7 +20,7 @@ ENV PATH="$VENV_PATH/bin:$PATH"
 WORKDIR /app
 
 # Copia o código-fonte
-COPY ./register_list_auth_api /app
+COPY ./register_list_auth /app
 
 # Instala dependências Python
 RUN pip install pymysql flask authlib requests

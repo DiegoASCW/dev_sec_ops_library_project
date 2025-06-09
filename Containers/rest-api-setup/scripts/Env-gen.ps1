@@ -250,7 +250,7 @@ Write-Host ": starting the creation of Debian 12 'register_list_auth_api' contai
 
 Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": preparing enviroment and installing dependencies"
-docker build --platform=linux/amd64 -t register-list-auth_openshelf_image -f ../docker/micro-register-list-auth/register_list_auth.dockerfile ../docker/micro-register-list-auth
+docker build --platform=linux/amd64 -t register-list-auth_openshelf_image -f ../docker/micro_register_list_auth/register_list_auth.dockerfile ../docker/micro_register_list_auth
 docker create --name register_list_auth_api -p 5003:5003 register-list-auth_openshelf_image
 
 docker network connect --ip 10.100.3.10 micro_register_list_auth_network_R1003 register_list_auth_api
