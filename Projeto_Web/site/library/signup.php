@@ -22,14 +22,14 @@ if (isset($_POST['signup'])) {
         $numericPart = substr($StudentId, 3);
         $incremented = (int)$numericPart + 1;
         $newId = "SID" . sprintf("%03d", $incremented);
-
+        
         $fname = $_POST['fullanme'];
         $mobileno = $_POST['mobileno'];
         $email = $_POST['email'];
-        $password = md5($_POST['password']);
+        $password = hash('sha256', $_POST['password']);
         $status = 1;
 
-        $sql = "INSERT INTO  tblstudents(StudentId,FullName,MobileNumber,EmailId,Password,Status) VALUES(:StudentId,:fname,:mobileno,:email,:password,:status)";
+        $sql = "INSERT INTO  tblstudents(StudentId,FullName,MobileNumber,EmailId,Password,Status) VALUES(:StudentId,HEX(AES_ENCRYPT(:fname, 'devsecops')),HEX(AES_ENCRYPT(:mobileno, 'devsecops')),HEX(AES_ENCRYPT(:email, 'devsecops')),:password,:status)";
         $query = $dbh->prepare($sql);
         $query->bindParam(':StudentId', $newId, PDO::PARAM_STR);
         $query->bindParam(':fname', $fname, PDO::PARAM_STR);

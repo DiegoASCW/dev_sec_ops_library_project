@@ -49,7 +49,7 @@ if (!$book) {
 }
 
 // Busca comentários do livro por ISBN
-$sql = "SELECT c.Comment, c.CreationDate, s.FullName 
+$sql = "SELECT c.Comment, c.CreationDate, CAST(AES_DECRYPT(UNHEX(s.FullName), 'devsecops') AS CHAR) AS AuthorName 
         FROM tblcomment c
         JOIN tblstudents s ON s.StudentId = c.Userid
         WHERE c.ISBNNumber = :isbn
@@ -111,7 +111,7 @@ $comments = $q->fetchAll(PDO::FETCH_OBJ);
                         <div class="well">
                             <p><?php echo nl2br(htmlentities($c->Comment)); ?></p>
                             <small>
-                                Por <strong><?php echo htmlentities($c->FullName); ?></strong>
+                                Por <strong><?php echo htmlentities($c->AuthorName); ?></strong>
                                 em <?php echo date('d/m/Y H:i', 
                                         strtotime($c->CreationDate)); ?>
                             </small>

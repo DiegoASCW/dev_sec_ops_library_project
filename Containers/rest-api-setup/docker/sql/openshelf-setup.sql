@@ -9,9 +9,9 @@ USE openshelf;
 -- Schema definitions
 CREATE TABLE admin (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  FullName VARCHAR(100),
-  AdminEmail VARCHAR(120),
-  UserName VARCHAR(100) NOT NULL,
+  FullName TEXT,
+  AdminEmail TEXT,
+  UserName TEXT NOT NULL,
   Password VARCHAR(100) NOT NULL,
   updationDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -76,10 +76,10 @@ CREATE TABLE tblpublisher (
 CREATE TABLE tblstudents (
   id INT AUTO_INCREMENT PRIMARY KEY,
   StudentId VARCHAR(100) UNIQUE,
-  FullName VARCHAR(120),
-  EmailId VARCHAR(120),
-  MobileNumber CHAR(11),
-  Password VARCHAR(120),
+  FullName TEXT,
+  EmailId TEXT,
+  MobileNumber TEXT,
+  Password TEXT,
   Status INT,
   RegDate TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   UpdationDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -107,6 +107,7 @@ INSERT INTO tblauthors (id, AuthorName, creationDate, UpdationDate) VALUES
   (4,'Cecília Meireles','2012-01-05 17:10:45','2015-11-03 16:40:50'),
   (5,'Carlos Drummond de Andrade','2013-08-21 11:12:00','2015-11-03 16:40:50'),
   (6,'Rubem Fonseca','2016-02-14 14:48:30','2019-10-09 12:37:10');
+
 INSERT INTO tblbooks (id,CatId,CommentId,PublisherId,BookName,Description,QuantityTotal,QuantityLeft,AuthorId,ISBNNumber,BookPrice,RegDate,UpdationDate) VALUES
   (1,1,0,1,'Dom Casmurro','A classic novel by Machado de Assis',100,95,1,9788563560452,25.00,'2011-05-10 14:32:21','2013-03-15 10:20:30'),
   (2,2,0,2,'A Hora da Estrela','A timeless novel by Clarice Lispector',80,75,2,9788535914849,22.00,'2012-08-17 09:14:55','2014-06-11 16:45:00'),
@@ -115,9 +116,10 @@ INSERT INTO tblbooks (id,CatId,CommentId,PublisherId,BookName,Description,Quanti
   (5,4,0,5,'Alguma Poesia','A collection of poems by Carlos Drummond de Andrade',50,50,5,9788572326972,24.00,'2014-06-30 11:10:50','2017-07-15 05:54:41'),
   (6,5,0,6,'Agosto','A captivating story by Rubem Fonseca',120,110,6,9788535932287,30.00,'2016-09-14 10:00:00','2018-12-01 13:45:10'),
   (7,1,0,1,'Memórias Póstumas de Brás Cubas','A satirical classic by Machado de Assis',100,90,1,9788535910667,26.00,'2010-02-20 15:00:00','2012-11-04 09:25:35'),
-  (8,2,0,2,'Laços de Família','A family saga by Clarice Lispector',85,80,2,9788535914849,21.00,'2011-10-01 13:20:00','2014-03-12 08:18:00'),
+  (8,2,0,2,'Laços de Família','A family saga by Clarice Lispector',85,80,2,9788535454849,21.00,'2011-10-01 13:20:00','2014-03-12 08:18:00'),
   (9,3,0,3,'Gabriela, Cravo e Canela','A warm tale by Jorge Amado',95,90,3,9788520932096,27.00,'2009-07-22 17:10:00','2013-07-08 16:09:40'),
   (10,4,0,4,'Poemas Escritos na Índia','Poems by Cecília Meireles',60,55,4,9788571106896,18.00,'2012-12-12 18:30:30','2017-07-15 05:54:41');
+
 INSERT INTO tblcategory (id,CategoryName,Status,CreationDate,UpdationDate) VALUES
   (1,'Romance Clássico',1,'2010-01-15 10:20:00','2012-06-10 14:45:00'),
   (2,'Literatura Contemporânea',1,'2011-03-22 11:30:00','2014-09-18 16:00:00'),
@@ -125,12 +127,15 @@ INSERT INTO tblcategory (id,CategoryName,Status,CreationDate,UpdationDate) VALUE
   (4,'Poesia Brasileira',1,'2012-04-28 08:15:00','2015-05-25 17:00:00'),
   (5,'Romance Policial',1,'2016-01-20 13:30:00','2019-10-01 09:40:00'),
   (6,'Ensaios Literários',1,'2012-10-05 15:45:00','2019-10-01 09:40:00');
+
 INSERT INTO tblstudents (id,StudentId,FullName,EmailId,MobileNumber,Password,Status,RegDate,UpdationDate) VALUES
-  (1,'SID002','Lucas Oliveira','lucas.oliveira@gmail.com','9865472555','698dc19d489c4e4db73e28a713eab07b',1,'2017-07-11 15:37:05','2017-07-15 18:26:21'),
-  (4,'SID005','Beatriz Silva','beatriz.silva@gmail.com','8569710025','698dc19d489c4e4db73e28a713eab07b',0,'2017-07-11 15:41:27','2017-07-15 17:43:03'),
-  (8,'SID009','Carlos Eduardo','carlos.edu@gmail.com','2359874527','698dc19d489c4e4db73e28a713eab07b',1,'2017-07-11 15:58:28','2017-07-15 13:42:44'),
-  (9,'SID010','Fernanda Rocha','fernanda.rocha@gmail.com','8585856224','698dc19d489c4e4db73e28a713eab07b',1,'2017-07-15 13:40:30','2017-07-15 13:42:44'),
-  (10,'SID011','Rafael Souza','rafael.souza@gmail.com','4672423754','698dc19d489c4e4db73e28a713eab07b',1,'2017-07-15 18:00:59','2017-07-15 13:42:44');
+  (1,'SID002',HEX(AES_ENCRYPT('Lucas Oliveira', 'devsecops')),HEX(AES_ENCRYPT('lucas.oliveira@gmail.com', 'devsecops')),HEX(AES_ENCRYPT('9865472555', 'devsecops')),'46070d4bf934fb0d4b06d9e2c46e346944e322444900a435d7d9a95e6d7435f5',1,'2017-07-11 15:37:05','2017-07-15 18:26:21'),
+  (4, 'SID005', HEX(AES_ENCRYPT('Beatriz Silva', 'devsecops')), HEX(AES_ENCRYPT('beatriz.silva@gmail.com', 'devsecops')), HEX(AES_ENCRYPT('8569710025', 'devsecops')), '46070d4bf934fb0d4b06d9e2c46e346944e322444900a435d7d9a95e6d7435f5', 0, '2017-07-11 15:41:27', '2017-07-15 17:43:03'),
+  (8, 'SID009', HEX(AES_ENCRYPT('Carlos Eduardo', 'devsecops')), HEX(AES_ENCRYPT('carlos.edu@gmail.com', 'devsecops')), HEX(AES_ENCRYPT('2359874527', 'devsecops')), '46070d4bf934fb0d4b06d9e2c46e346944e322444900a435d7d9a95e6d7435f5', 1, '2017-07-11 15:58:28', '2017-07-15 13:42:44'),
+  (9, 'SID010', HEX(AES_ENCRYPT('Fernanda Rocha', 'devsecops')), HEX(AES_ENCRYPT('fernanda.rocha@gmail.com', 'devsecops')), HEX(AES_ENCRYPT('8585856224', 'devsecops')), '46070d4bf934fb0d4b06d9e2c46e346944e322444900a435d7d9a95e6d7435f5', 1, '2017-07-15 13:40:30', '2017-07-15 13:42:44'),
+  (10, 'SID011', HEX(AES_ENCRYPT('Rafael Souza', 'devsecops')), HEX(AES_ENCRYPT('rafael.souza@gmail.com', 'devsecops')), HEX(AES_ENCRYPT('4672423754', 'devsecops')), '46070d4bf934fb0d4b06d9e2c46e346944e322444900a435d7d9a95e6d7435f5', 1, '2017-07-15 18:00:59', '2017-07-15 13:42:44'),
+  (11, 'SID007', HEX(AES_ENCRYPT('teste', 'devsecops')), HEX(AES_ENCRYPT('teste@gmail.com', 'devsecops')), HEX(AES_ENCRYPT('123', 'devsecops')), '46070d4bf934fb0d4b06d9e2c46e346944e322444900a435d7d9a95e6d7435f5', 1, '2017-07-15 18:00:59', '2017-07-15 13:42:44');
+
 INSERT INTO tblissuedbookdetails (id,BookId,StudentID,IssuesDate,ReturnDate,RetrunStatus,fine) VALUES
   (1,1,'SID002','2017-07-15 06:09:47','2017-07-15 11:15:20',1,0),
   (2,1,'SID002','2017-07-15 06:12:27','2017-07-15 11:15:23',1,5),
@@ -139,70 +144,60 @@ INSERT INTO tblissuedbookdetails (id,BookId,StudentID,IssuesDate,ReturnDate,Retr
   (5,1,'SID009','2017-07-15 10:59:26',NULL,0,NULL),
   (6,3,'SID011','2017-07-15 18:02:55',NULL,0,NULL);
 
--- Comentários para "Dom Casmurro" (ISBN 9788563560452)
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID002', 'Adorei a profundidade psicológica de Dom Casmurro.', 9788563560452);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID005', 'Leitura envolvente do início ao fim.', 9788563560452);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID009', 'Personagem inesquecível e narrativa magistral.', 9788563560452);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID010', 'Machado de Assis em sua melhor forma.', 9788563560452);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID011', 'Recomendo a todos que gostam de clássicos.', 9788563560452);
 
--- Comentários para "A Hora da Estrela" (ISBN 9788535914849)
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID002', 'Clarice Lispector transcende o convencional.', 9788535914849);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID005', 'História comovente e poética.', 9788535914849);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID009', 'Narrativa única e tocante.', 9788535914849);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID010', 'Personagem simples, mas inesquecível.', 9788535914849);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID011', 'Um dos melhores da literatura brasileira.', 9788535914849);
 
--- Comentários para "Capitães da Areia" (ISBN 9788520932072)
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID002', 'Jorge Amado retrata a infância com sensibilidade.', 9788520932072);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID005', 'Uma obra que emociona e faz refletir.', 9788520932072);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID009', 'Personagens fortes e realistas.', 9788520932072);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID010', 'Ambientação incrível de Salvador.', 9788520932072);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID011', 'Um clássico regionalista indispensável.', 9788520932072);
 
--- Comentários para "Romanceiro da Inconfidência" (ISBN 9788535907926)
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID002', 'Poesia histórica de Cecília Meireles impressiona.', 9788535907926);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID005', 'Versos belíssimos e bem construídos.', 9788535907926);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID009', 'Uma viagem ao passado do Brasil.', 9788535907926);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID010', 'Ritmo poético que encanta.', 9788535907926);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID011', 'Poesia no mais alto nível.', 9788535907926);
 
--- Comentários para "Alguma Poesia" (ISBN 9788572326972)
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID002', 'Coleção de poemas tocantes e profundos.', 9788572326972);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID005', 'Carlos Drummond de Andrade surpreende sempre.', 9788572326972);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID009', 'Leitura que acalma e faz pensar.', 9788572326972);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID010', 'Linguagem poética ímpar.', 9788572326972);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID011', 'Obra essencial para amantes de poesia.', 9788572326972);
 
--- Comentários para "Agosto" (ISBN 9788535932287)
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID002', 'Rubem Fonseca em dose dupla de suspense.', 9788535932287);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID005', 'Trama envolvente e cheia de reviravoltas.', 9788535932287);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID009', 'Personagens complexos e bem desenvolvidos.', 9788535932287);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID010', 'História que prende a atenção.', 9788535932287);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID011', 'Ótimo para quem gosta de policial.', 9788535932287);
 
--- Comentários para "Memórias Póstumas de Brás Cubas" (ISBN 9788535910667)
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID002', 'Humor ácido e originalidade única.', 9788535910667);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID005', 'Machado de Assis faz crítica social brilhante.', 9788535910667);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID009', 'Narrador inusitado e fascinante.', 9788535910667);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID010', 'Obra-prima do realismo brasileiro.', 9788535910667);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID011', 'Indispensável na estante de qualquer leitor.', 9788535910667);
 
--- Comentários para "Laços de Família" (ISBN 9788535914849)
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID002', 'Contos que exploram relações familiares com sensibilidade.', 9788535914849);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID005', 'Clarice Lispector impressiona a cada página.', 9788535914849);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID009', 'Leitura curta, mas impactante.', 9788535914849);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID010', 'Personagens muito bem construídos.', 9788535914849);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID011', 'Textos profundos e belíssimos.', 9788535914849);
 
--- Comentários para "Gabriela, Cravo e Canela" (ISBN 9788520932096)
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID002', 'Atmosfera calorosa e envolvente de Jorge Amado.', 9788520932096);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID005', 'Personagem Gabriela inesquecível.', 9788520932096);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID009', 'Cenário baiano retratado com riqueza de detalhes.', 9788520932096);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID010', 'Narrativa deliciosa de se ler.', 9788520932096);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID011', 'Clássico que encanta gerações.', 9788520932096);
 
--- Comentários para "Poemas Escritos na Índia" (ISBN 9788571106896)
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID002', 'Viagem poética pelas paisagens indianas.', 9788571106896);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID005', 'Cecília Meireles em estilo exótico e delicado.', 9788571106896);
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID009', 'Versos que evocam cores e aromas.', 9788571106896);
@@ -210,5 +205,11 @@ INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID010', 'Poesia r
 INSERT INTO tblcomment (Userid, Comment, ISBNNumber) VALUES ('SID011', 'Obra poética fascinante.', 9788571106896);
 
 
-INSERT INTO tblstudents (StudentId,FullName,EmailId,MobileNumber,Password,Status) VALUES('SID007','teste','teste@gmail.com','123','46070d4bf934fb0d4b06d9e2c46e346944e322444900a435d7d9a95e6d7435f5',1);
-INSERT INTO admin (FullName,AdminEmail,UserName,Password) VALUES('teste','teste@gmail.com','teste','46070d4bf934fb0d4b06d9e2c46e346944e322444900a435d7d9a95e6d7435f5');
+INSERT INTO admin (FullName,AdminEmail,UserName,Password) 
+VALUES
+  (
+    HEX(AES_ENCRYPT('teste', 'devsecops')),
+    HEX(AES_ENCRYPT('teste@gmail.com', 'devsecops')),
+    HEX(AES_ENCRYPT('teste', 'devsecops')),
+    '46070d4bf934fb0d4b06d9e2c46e346944e322444900a435d7d9a95e6d7435f5'
+  );
