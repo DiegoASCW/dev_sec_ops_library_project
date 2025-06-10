@@ -139,6 +139,53 @@ def book_register():
         return jsonify({"Result": f"{result}"})
     
 
+@app.route('/author/list', methods=['GET'])
+def author_list():
+    data = request.get_json()
+
+    logging.info('[%s] (/author/list) User "%s" list all authors', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("stdId", "None"))
+    
+    header = {"Content-Type": "application/json"}
+    url = "http://10.100.3.10:5003/author/list"
+
+    response = requests.get(url, headers=header)
+
+    if response.status_code != 200:
+        return jsonify({"Result": "Error", "HTML Code": f"{response.status_code}"})
+
+    try:
+        author_list = response.json()
+    except Exception as e:
+        logging.info("[%s] (/author/list) Error parsing response: %s", datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), str(e))
+        return jsonify({"Result": "Error", "Error": str(e)})
+
+    return jsonify(author_list)
+
+
+@app.route('/author/register', methods=['POST'])
+def author_register():
+        data = request.get_json()
+        
+        logging.info('[%s] (/author/register) User "%s" is trying to register a author "%s"', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("stdId", "None"), data.get("AuthorName", "None"))
+        
+        header = {"Content-Type": "application/json"}
+
+        url = "http://10.100.3.10:5003/author/register"
+
+        response = requests.post(url, json=data, headers=header)
+
+        if response.status_code != 200:
+            return jsonify({"Result": "Error", "HTML Code": f"{response.status_code}"})
+
+        resp_json = response.json()
+        result = resp_json.get("Result", "False")
+
+        if result == "False":
+            logging.info('[%s] (/author/register) User "%s" fail to register author ', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("stdId", "None"))
+        else:
+            logging.info('[%s] (/author/register) User "%s" successfuly register a book', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("result", "None"))
+
+
 if __name__ == '__main__':
     logging.info('[%s] API Gateway started', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"))
     app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)
