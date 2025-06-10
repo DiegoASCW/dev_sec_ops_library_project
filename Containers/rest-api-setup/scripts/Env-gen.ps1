@@ -96,6 +96,7 @@ docker network create --driver bridge --subnet=10.0.94.0/24 --ip-range=10.0.94.0
 Write-Host "`nNetwork 'api_gateway_apache_network-R1015' (10.101.0.0/24): " -ForegroundColor Blue -NoNewline
 docker network create --driver bridge --subnet=10.101.0.0/24 --ip-range=10.101.0.0/24 --gateway=10.101.0.254 api_gateway_apache_network-R1015
 
+
 # [Micro-Register-List-Auth]
 # API_GATEWAY <> Register-List-Auth
 Write-Host "`nNetwork 'micro_register_list_auth_network_R1003' (10.100.3.0/24): " -ForegroundColor Blue -NoNewline

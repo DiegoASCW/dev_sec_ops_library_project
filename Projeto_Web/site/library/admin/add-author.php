@@ -10,6 +10,7 @@ if (strlen($_SESSION['alogin']) == 0) {
 
     if (isset($_POST['create'])) {
         $author = $_POST['author'];
+        
         $url = 'http://10.101.0.10:5000/author/register';
         $data = ["stdId" => $_SESSION['alogin'], "AuthorName" => $author];
 

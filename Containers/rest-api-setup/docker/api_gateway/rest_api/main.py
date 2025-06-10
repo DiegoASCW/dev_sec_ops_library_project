@@ -138,11 +138,12 @@ def book_register():
 
         return jsonify({"Result": f"{result}"})
     
+
 @app.route('/author/list', methods=['GET'])
 def author_list():
     data = request.get_json()
 
-    logging.info('[%s] (/book/list) User "%s" list all books', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("stdId", "None"))
+    logging.info('[%s] (/author/list) User "%s" list all books', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("stdId", "None"))
     
     header = {"Content-Type": "application/json"}
     url = "http://10.100.3.10:5003/author/list"
@@ -155,16 +156,17 @@ def author_list():
     try:
         books = response.json()
     except Exception as e:
-        logging.info("[%s] (/book/list) Error parsing response: %s", datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), str(e))
+        logging.info("[%s] (/author/list) Error parsing response: %s", datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), str(e))
         return jsonify({"Result": "Error", "Error": str(e)})
 
     return jsonify(books)
+
 
 @app.route('/author/register', methods=['POST'])
 def author_register():
         data = request.get_json()
         
-        logging.info('[%s] (/author/register) User "%s" is trying to register a author', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("stdId", "None"))
+        logging.info('[%s] (/author/register) User "%s" is trying to register a author "%s"', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("stdId", "None"), data.get("AuthorName", "None"))
         
         header = {"Content-Type": "application/json"}
 
@@ -179,9 +181,10 @@ def author_register():
         result = resp_json.get("Result", "False")
 
         if result == "False":
-            logging.info('[%s] (/author/register) Pedro "%s" fail to register author ', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("stdId", "None"))
+            logging.info('[%s] (/author/register) User "%s" fail to register author ', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("stdId", "None"))
         else:
-            logging.info('[%s] (/book/register) User "%s" successfuly register a book', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("result", "None"))
+            logging.info('[%s] (/author/register) User "%s" successfuly register a book', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("result", "None"))
+
 
 if __name__ == '__main__':
     logging.info('[%s] API Gateway started', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"))
