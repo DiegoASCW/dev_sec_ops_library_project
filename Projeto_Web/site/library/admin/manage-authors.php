@@ -154,8 +154,8 @@ if ($result === false) {
                     <td class='center'><?php echo htmlentities($creationDate);?></td>
                     <td class='center'><?php echo htmlentities($UpdationDate);?></td>
                     <td class='center'>
-                    <a href='edit-author.php?athrid={$id}'><button class='btn btn-primary'><i class='fa fa-edit'></i> Edit</button></a>
-                    <a href='manage-authors.php?del={$id}' onclick='return confirm("Are you sure you want to delete?");'><button class='btn btn-danger'><i class='fa fa-pencil'></i> Delete</button></a>
+                    <a href='edit-author.php?athrid=<?php echo htmlentities($id); ?>'><button class='btn btn-primary'><i class='fa fa-edit'></i> Edit</button></a>
+                    <a href='manage-authors.php?del=<?php echo htmlentities($id); ?>' onclick='return confirm("Are you sure you want to delete?");'><button class='btn btn-danger'><i class='fa fa-pencil'></i> Delete</button></a>
                     </td>
                 </tr>
             <?php $cnt++;
