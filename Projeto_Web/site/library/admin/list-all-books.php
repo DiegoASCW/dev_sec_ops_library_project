@@ -61,6 +61,7 @@ else{
                                             <th>Quantity Left</th>
                                             <th>Quantity Total</th>
                                             <th>Price</th>
+                                            <th>Comments</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -109,6 +110,10 @@ if ($result === false) {
                                             <td class="center"><?php echo htmlentities($QuantityLeft);?></td>
                                             <td class="center"><?php echo htmlentities($QuantityTotal);?></td>
                                             <td class="center"><?php echo htmlentities($BookPrice);?></td>
+
+                                            <td class="center">
+                                                <a href="book-comments.php?isbn=<?php echo htmlentities($ISBNNumber); ?>">📖</a>
+                                            </td>
                                             </td>
                                         </tr>
                                     <?php $cnt=$cnt+1;}} ?>                                      

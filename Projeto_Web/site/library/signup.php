@@ -1,28 +1,37 @@
 <?php
 session_start();
+
 include('includes/config.php');
-error_reporting(0);
+
+error_reporting(1);
+
 if (isset($_POST['signup'])) {
     //code for captach verification
     if ($_POST["vercode"] != $_SESSION["vercode"] or $_SESSION["vercode"] == '') {
         echo "<script>alert('Incorrect verification code');</script>";
     } else {
-        //Code for student ID
-        $count_my_page = ("studentid.txt");
-        $hits = file($count_my_page);
-        $hits[0]++;
-        $fp = fopen($count_my_page, "w");
-        fputs($fp, "$hits[0]");
-        fclose($fp);
-        $StudentId = $hits[0];
+
+        # retorna o maior SID 
+        $sql = "SELECT StudentId FROM tblstudents ORDER BY StudentId DESC LIMIT 1";
+        $query = $dbh->prepare($sql);
+        $query->execute();
+        $results = $query->fetch(PDO::FETCH_OBJ);
+        $StudentId = $results->StudentId;
+        
+        # recorta a string e aumenta em +1
+        $numericPart = substr($StudentId, 3);
+        $incremented = (int)$numericPart + 1;
+        $newId = "SID" . sprintf("%03d", $incremented);
+        
         $fname = $_POST['fullanme'];
         $mobileno = $_POST['mobileno'];
         $email = $_POST['email'];
-        $password = md5($_POST['password']);
+        $password = hash('sha256', $_POST['password']);
         $status = 1;
-        $sql = "INSERT INTO  tblstudents(StudentId,FullName,MobileNumber,EmailId,Password,Status) VALUES(:StudentId,:fname,:mobileno,:email,:password,:status)";
+
+        $sql = "INSERT INTO  tblstudents(StudentId,FullName,MobileNumber,EmailId,Password,Status) VALUES(:StudentId,HEX(AES_ENCRYPT(:fname, 'devsecops')),HEX(AES_ENCRYPT(:mobileno, 'devsecops')),HEX(AES_ENCRYPT(:email, 'devsecops')),:password,:status)";
         $query = $dbh->prepare($sql);
-        $query->bindParam(':StudentId', $StudentId, PDO::PARAM_STR);
+        $query->bindParam(':StudentId', $newId, PDO::PARAM_STR);
         $query->bindParam(':fname', $fname, PDO::PARAM_STR);
         $query->bindParam(':mobileno', $mobileno, PDO::PARAM_STR);
         $query->bindParam(':email', $email, PDO::PARAM_STR);
@@ -31,7 +40,7 @@ if (isset($_POST['signup'])) {
         $query->execute();
         $lastInsertId = $dbh->lastInsertId();
         if ($lastInsertId) {
-            echo '<script>alert("Your Registration successfull and your student id is  "+"' . $StudentId . '")</script>';
+            echo '<script>alert("Your Registration successfull and your student id is  "+"' . $newId . '")</script>';
         } else {
             echo "<script>alert('Something went wrong. Please try again');</script>";
         }
