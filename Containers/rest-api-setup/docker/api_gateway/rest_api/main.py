@@ -143,7 +143,7 @@ def book_register():
 def author_list():
     data = request.get_json()
 
-    logging.info('[%s] (/author/list) User "%s" list all books', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("stdId", "None"))
+    logging.info('[%s] (/author/list) User "%s" list all authors', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("stdId", "None"))
     
     header = {"Content-Type": "application/json"}
     url = "http://10.100.3.10:5003/author/list"
@@ -154,12 +154,12 @@ def author_list():
         return jsonify({"Result": "Error", "HTML Code": f"{response.status_code}"})
 
     try:
-        books = response.json()
+        author_list = response.json()
     except Exception as e:
         logging.info("[%s] (/author/list) Error parsing response: %s", datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), str(e))
         return jsonify({"Result": "Error", "Error": str(e)})
 
-    return jsonify(books)
+    return jsonify(author_list)
 
 
 @app.route('/author/register', methods=['POST'])

@@ -127,7 +127,7 @@ $data = ["stdId" => $_SESSION['alogin']];
 $options = [
     'http' => [
         'header'  => "Content-Type: application/json\r\n",
-        'method'  => 'POST',
+        'method'  => 'GET',
         'content' => json_encode($data)
     ],
 ];
@@ -143,21 +143,22 @@ if ($result === false) {
 
     if (!empty($responseData) && is_array($responseData)) {
         foreach ($responseData as $author) {
-            $id = htmlspecialchars($author['id']);
-            $AuthorName = htmlspecialchars($author['AuthorName']);
-            $creationDate = htmlspecialchars($author['creationDate']);
-            $UpdationDate = htmlspecialchars($author['UpdationDate']);
-            echo "<tr class='odd gradeX'>
-                    <td class='center'>{$cnt}</td>
-                    <td class='center'>{$AuthorName}</td>
-                    <td class='center'>{$creationDate}</td>
-                    <td class='center'>{$UpdationDate}</td>
+            $id = $author['id'] ?? null;
+            $AuthorName = $author['AuthorName'] ?? null;
+            $creationDate = $author['creationDate'] ?? null;
+            $UpdationDate = $author['UpdationDate'] ?? null;
+            ?>
+            <tr class='odd gradeX'>
+                    <td class='center'><?php echo htmlentities($cnt);?></td>
+                    <td class='center'><?php echo htmlentities($AuthorName);?></td>
+                    <td class='center'><?php echo htmlentities($creationDate);?></td>
+                    <td class='center'><?php echo htmlentities($UpdationDate);?></td>
                     <td class='center'>
                     <a href='edit-author.php?athrid={$id}'><button class='btn btn-primary'><i class='fa fa-edit'></i> Edit</button></a>
-                    <a href='manage-authors.php?del={$id}' onclick='return confirm(\"Are you sure you want to delete?\");'><button class='btn btn-danger'><i class='fa fa-pencil'></i> Delete</button></a>
+                    <a href='manage-authors.php?del={$id}' onclick='return confirm("Are you sure you want to delete?");'><button class='btn btn-danger'><i class='fa fa-pencil'></i> Delete</button></a>
                     </td>
-                </tr>";
-            $cnt++;
+                </tr>
+            <?php $cnt++;
         }
     } else {
         echo "<tr><td colspan='5'>Nenhum autor encontrado.</td></tr>";

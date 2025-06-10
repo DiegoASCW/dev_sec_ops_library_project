@@ -45,6 +45,9 @@ def author_list():
                 "UpdationDate": UpdationDate
             })
 
+    if auth_result:
+        return authors
+    
     return jsonify({"Result": f"{auth_result}"})
 
 
