@@ -36,7 +36,7 @@ RUN cat <<EOF > /etc/apache2/sites-available/000-default.conf
 
 <VirtualHost *:80>
     ServerName localhost
-    Redirect / https://localhost/library
+    Redirect / https://localhost
 </VirtualHost> 
 EOF
 

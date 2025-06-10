@@ -237,7 +237,7 @@ Write-Host "docker exec -it ubuntu_apache bash"
 Write-Host "`n`nTo check Apache Error Logs:"
 Write-Host "docker exec -it ubuntu_apache bash -c 'tail -f /var/log/apache2/error.log'"
 Write-Host "`n`nTo test PHP:"
-Write-Host "Open in your browser: http://localhost/library"
+Write-Host "Open in your browser: https://localhost/library"
 
 Write-Host "`n`n`n===============[MySQL]==============="
 Write-Host "`n`nCREDENCIAIS DO DOCKER:`nuser: root`nPassword: passwd"
