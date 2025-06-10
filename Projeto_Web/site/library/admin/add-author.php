@@ -2,15 +2,21 @@
 session_start();
 error_reporting(1);
 
-include('../includes/config.php');
+include '../includes/config.php';
+include '../includes/sanitize_validation.php';
+
 
 if (strlen($_SESSION['alogin']) == 0) {
     header('location:index.php');
 } else {
 
     if (isset($_POST['create'])) {
-        $author = $_POST['author'];
-        
+
+        $author = sanitize_string_ascii($_POST['author']);
+        if (is_injection($author)) {
+            die('ERRO: Entrada inválida detectada no campo...');
+        }
+
         $url = 'http://10.101.0.10:5000/author/register';
         $data = ["stdId" => $_SESSION['alogin'], "AuthorName" => $author];
 
