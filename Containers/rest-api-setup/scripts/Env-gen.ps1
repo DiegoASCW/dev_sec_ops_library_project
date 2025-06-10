@@ -169,6 +169,8 @@ docker network connect --ip 10.0.45.10 apache_mysql_network-R4-5 mysql_stable
 docker network connect --ip 10.0.94.11 backup_mysql_network-R94 mysql_stable
 docker network connect --ip 10.100.14.10 micro_auth_mysql_network-R10014 mysql_stable
 docker network connect --ip 10.100.24.10 micro_list_reg_books_mysql_network-R10024 mysql_stable
+docker network connect --ip 10.100.34.11 micro_register_list_auth_mysql_network-R10034 mysql_stable
+
 
 Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": starting 'mysql_stable' container and MySQL service"
@@ -194,6 +196,7 @@ docker create --name debian_api_gateway -p 5000:5000 -v audit_logs:/var/log/audi
 docker network connect --ip 10.101.0.10 api_gateway_apache_network-R1015 debian_api_gateway
 docker network connect --ip 10.100.1.11 micro_auth_network_R1001 debian_api_gateway
 docker network connect --ip 10.100.2.11 micro_list_reg_books_network_R1002 debian_api_gateway
+docker network connect --ip 10.100.3.11 micro_register_list_auth_network_R1003 debian_api_gateway
 
 Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": starting 'debian_api_gateway' container and API Gateway service"

@@ -1,6 +1,6 @@
 <?php
 session_start();
-error_reporting(0);
+error_reporting(1);
 
 include('../includes/config.php');
 
@@ -10,18 +10,25 @@ if (strlen($_SESSION['alogin']) == 0) {
 
     if (isset($_POST['create'])) {
         $author = $_POST['author'];
-        $sql = "INSERT INTO  tblauthors(AuthorName) VALUES(:author)";
-        $query = $dbh->prepare($sql);
-        $query->bindParam(':author', $author, PDO::PARAM_STR);
-        $query->execute();
-        $lastInsertId = $dbh->lastInsertId();
-        if ($lastInsertId) {
+        $url = 'http://10.101.0.10:5000/author/register';
+        $data = ["stdId" => $_SESSION['alogin'], "AuthorName" => $author];
+
+        $options = [
+            'http' => [
+                'header'  => "Content-Type: application/json\r\n",
+                'method'  => 'POST',
+                'content' => json_encode($data),
+            ],
+        ];
+
+        # request POST pro API Gateway
+        $context = stream_context_create($options);
+        $result = @file_get_contents($url, false, $context);
+
+        
             $_SESSION['msg'] = "Author Listed successfully";
             header('location:manage-authors.php');
-        } else {
-            $_SESSION['error'] = "Something went wrong. Please try again";
-            header('location:manage-authors.php');
-        }
+        
 
     }
     ?>
