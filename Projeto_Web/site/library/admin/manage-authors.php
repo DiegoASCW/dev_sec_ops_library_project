@@ -120,27 +120,55 @@ header('location:manage-authors.php');
                                         </tr>
                                     </thead>
                                     <tbody>
-<?php $sql = "SELECT * from  tblauthors";
-$query = $dbh -> prepare($sql);
-$query->execute();
-$results=$query->fetchAll(PDO::FETCH_OBJ);
-$cnt=1;
-if($query->rowCount() > 0)
-{
-foreach($results as $result)
-{               ?>                                      
-                                        <tr class="odd gradeX">
-                                            <td class="center"><?php echo htmlentities($cnt);?></td>
-                                            <td class="center"><?php echo htmlentities($result->AuthorName);?></td>
-                                            <td class="center"><?php echo htmlentities($result->creationDate);?></td>
-                                            <td class="center"><?php echo htmlentities($result->UpdationDate);?></td>
-                                            <td class="center">
+<?php 
+$url = 'http://10.101.0.10:5000/author/list';
 
-                                            <a href="edit-author.php?athrid=<?php echo htmlentities($result->id);?>"><button class="btn btn-primary"><i class="fa fa-edit "></i> Edit</button> 
-                                          <a href="manage-authors.php?del=<?php echo htmlentities($result->id);?>" onclick="return confirm('Are you sure you want to delete?');"" >  <button class="btn btn-danger"><i class="fa fa-pencil"></i> Delete</button>
-                                            </td>
-                                        </tr>
- <?php $cnt=$cnt+1;}} ?>                                      
+$data = ["stdId" => $_SESSION['alogin']];
+$options = [
+    'http' => [
+        'header'  => "Content-Type: application/json\r\n",
+        'method'  => 'POST',
+        'content' => json_encode($data)
+    ],
+];
+
+$context = stream_context_create($options);
+$result = @file_get_contents($url, false, $context);
+
+$cnt = 1;
+if ($result === false) {
+    echo "<tr><td colspan='5'>Erro ao consultar autores.</td></tr>";
+} else {
+    $responseData = json_decode($result, true);
+
+    if (!empty($responseData) && is_array($responseData)) {
+        foreach ($responseData as $author) {
+            $id = htmlspecialchars($author['id']);
+            $AuthorName = htmlspecialchars($author['AuthorName']);
+            $creationDate = htmlspecialchars($author['creationDate']);
+            $UpdationDate = htmlspecialchars($author['UpdationDate']);
+            echo "<tr class='odd gradeX'>
+                    <td class='center'>{$cnt}</td>
+                    <td class='center'>{$AuthorName}</td>
+                    <td class='center'>{$creationDate}</td>
+                    <td class='center'>{$UpdationDate}</td>
+                    <td class='center'>
+                    <a href='edit-author.php?athrid={$id}'><button class='btn btn-primary'><i class='fa fa-edit'></i> Edit</button></a>
+                    <a href='manage-authors.php?del={$id}' onclick='return confirm(\"Are you sure you want to delete?\");'><button class='btn btn-danger'><i class='fa fa-pencil'></i> Delete</button></a>
+                    </td>
+                </tr>";
+            $cnt++;
+        }
+    } else {
+        echo "<tr><td colspan='5'>Nenhum autor encontrado.</td></tr>";
+    }
+}
+
+    ?>                                      
+                        
+ <?php $cnt=$cnt+1;}
+ 
+ ?>                                      
                                     </tbody>
                                 </table>
                             </div>
@@ -171,4 +199,4 @@ foreach($results as $result)
     <script src="assets/js/custom.js"></script>
 </body>
 </html>
-<?php } ?>
+<?php  ?>
