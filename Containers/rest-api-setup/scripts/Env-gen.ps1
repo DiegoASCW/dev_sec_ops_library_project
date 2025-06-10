@@ -138,7 +138,7 @@ Write-Host ": deploying Apache/PHP container..."
 $file_path=(Get-Location).Path -replace '\\', '/'
 
 docker build -t apache_openshelf_image -f ../docker/apache/apache.dockerfile ../../..
-docker create --name ubuntu_apache -p 80:80 apache_openshelf_image
+docker create --name ubuntu_apache -p 80:80 -p 443:443 apache_openshelf_image
 
 docker network connect --ip 10.0.5.10 apache_network-R5 ubuntu_apache
 docker network connect --ip 10.0.45.20 apache_mysql_network-R4-5 ubuntu_apache
@@ -275,7 +275,7 @@ Write-Host "docker exec -it ubuntu_apache bash"
 Write-Host "`n`nTo check Apache Error Logs:"
 Write-Host "docker exec -it ubuntu_apache bash -c 'tail -f /var/log/apache2/error.log'"
 Write-Host "`n`nTo test PHP:"
-Write-Host "Open in your browser: http://localhost/library"
+Write-Host "Open in your browser: https://localhost/library"
 
 Write-Host "`n`n`n===============[MySQL]==============="
 Write-Host "`n`nCREDENCIAIS DO DOCKER:`nuser: root`nPassword: passwd"

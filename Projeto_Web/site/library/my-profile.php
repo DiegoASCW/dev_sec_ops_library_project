@@ -13,7 +13,7 @@ $sid=$_SESSION['stdid'];
 $fname=$_POST['fullanme'];
 $mobileno=$_POST['mobileno'];
 
-$sql="update tblstudents set FullName=:fname,MobileNumber=:mobileno where StudentId=:sid";
+$sql="update tblstudents set FullName=HEX(AES_ENCRYPT(:fname, 'devsecops')), MobileNumber=HEX(AES_ENCRYPT(:mobileno, 'devsecops')) where StudentId=:sid";
 $query = $dbh->prepare($sql);
 $query->bindParam(':sid',$sid,PDO::PARAM_STR);
 $query->bindParam(':fname',$fname,PDO::PARAM_STR);
