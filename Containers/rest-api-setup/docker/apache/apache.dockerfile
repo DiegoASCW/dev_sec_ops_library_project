@@ -42,5 +42,3 @@ EOF
 
 # Expondo as portas HTTP e HTTPS
 EXPOSE 80 443
-
-EXPOSE 80 443

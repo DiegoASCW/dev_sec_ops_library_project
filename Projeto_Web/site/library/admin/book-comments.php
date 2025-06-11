@@ -24,8 +24,7 @@ $admin_name = $_SESSION['alogin'];
 if (isset($_POST['submitComment'])) {
 
 
-    echo $_POST['texto'];
-    $texto = sanitize_string_ascii($_POST['texto']);
+    $texto = sanitize_string_ascii($_POST['comment']);
     if (is_injection($texto)) {
         die('ERRO: Entrada inválida detectada no campo...');
     }

@@ -148,6 +148,7 @@ Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": starting 'ubuntu_apache' container and Apache2 service"
 docker start ubuntu_apache
 
+docker restart ubuntu_apache
 
 # -----------------------------
 # 7. MySQL container setup
