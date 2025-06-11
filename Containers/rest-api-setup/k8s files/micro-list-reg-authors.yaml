@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: micro-list-reg-authors
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: micro-list-reg-authors
+  template:
+    metadata:
+      labels:
+        app: micro-list-reg-authors
+    spec:
+      containers:
+        - name: micro-list-reg-authors
+          image: micro_auth_openshelf_image:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5003
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: micro-list-reg-authors-service
+spec:
+  selector:
+    app: micro-list-reg-authors
+  type: NodePort
+  ports:
+    - port: 5003
+      targetPort: 5003
+      nodePort: 30503
