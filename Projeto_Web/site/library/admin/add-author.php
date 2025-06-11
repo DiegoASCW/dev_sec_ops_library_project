@@ -17,7 +17,7 @@ if (strlen($_SESSION['alogin']) == 0) {
             die('ERRO: Entrada inválida detectada no campo...');
         }
 
-        $url = 'http://api-gateway-service:30500/author/register';
+        $url = 'http://api-gateway-service:5000/author/register';
         $data = ["stdId" => $_SESSION['alogin'], "AuthorName" => $author];
 
         $options = [

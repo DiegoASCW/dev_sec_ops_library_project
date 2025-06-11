@@ -121,7 +121,7 @@ header('location:manage-authors.php');
                                     </thead>
                                     <tbody>
 <?php 
-$url = 'http://api-gateway-service:30500/author/list';
+$url = 'http://api-gateway-service:5000/author/list';
 
 $data = ["stdId" => $_SESSION['alogin']];
 $options = [
