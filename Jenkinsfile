@@ -25,6 +25,7 @@ pipeline {
             steps {
                 dir("${PROJECT_DIR}") {
                     sh '''
+                        set -euxo pipefail
                         chmod +x ${GEN_FILE}
                         echo "Executando fase de Delivery via ${GEN_FILE}..."
                         ./Env-gen.sh
