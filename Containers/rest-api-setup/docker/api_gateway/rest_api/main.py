@@ -146,7 +146,7 @@ def author_list():
     logging.info('[%s] (/author/list) User "%s" list all authors', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("stdId", "None"))
     
     header = {"Content-Type": "application/json"}
-    url = "http://10.100.3.10:5003/author/list"
+    url = "http://micro-list-reg-authors-service:5003/author/list"
 
     response = requests.get(url, headers=header)
 
@@ -170,7 +170,7 @@ def author_register():
         
         header = {"Content-Type": "application/json"}
 
-        url = "http://10.100.3.10:5003/author/register"
+        url = "http://micro-list-reg-authors-service:5003/author/register"
 
         response = requests.post(url, json=data, headers=header)
 
