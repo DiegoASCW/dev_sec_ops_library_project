@@ -95,7 +95,7 @@ def main() -> None:
     while True:
         try:
             mydb = pymysql.connect(
-            host="10.100.24.10",
+            host="mysql-service",
             database="openshelf",
             user="root",
             password="passwd"

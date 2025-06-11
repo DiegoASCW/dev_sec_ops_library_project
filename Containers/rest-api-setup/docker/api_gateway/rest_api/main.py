@@ -29,11 +29,11 @@ def add_header(r):
 def auth_admin():
         data = request.get_json()
         
-        logging.info('[%s] (/auth/user) User Admin %s is trying to authenticate', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("Username", "None"))
+        logging.info('[%s] (/auth/admin) User Admin %s is trying to authenticate', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("Username", "None"))
         
         header = {"Content-Type": "application/json"}
 
-        url = "http://micro-auth-service/auth/admin"
+        url = "http://micro-auth-service:5001/auth/admin"
 
         response = requests.post(url, json=data, headers=header)
 
@@ -49,9 +49,9 @@ def auth_admin():
             return jsonify({"Result": "Error", "Error": str(e)})
 
         if result == "False":
-            logging.info('[%s] (/auth/user) User Admin "%s" fail to authenticate', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("Username", "None"))
+            logging.info('[%s] (/auth/admin) User Admin "%s" fail to authenticate', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("Username", "None"))
         else:
-            logging.info('[%s] (/auth/user) User Admin "%s" successfuly authenticate', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("Username", "None"))
+            logging.info('[%s] (/auth/admin) User Admin "%s" successfuly authenticate', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("Username", "None"))
 
         return jsonify({"Result": f"{result}"})
 
@@ -64,7 +64,7 @@ def auth_user():
         
         header = {"Content-Type": "application/json"}
 
-        url = "http://micro-auth-service/auth/user"
+        url = "http://micro-auth-service:5001/auth/user"
 
         response = requests.post(url, json=data, headers=header)
 
@@ -97,7 +97,7 @@ def book_list():
     logging.info('[%s] (/book/list) User "%s" list all books', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("stdId", "None"))
     
     header = {"Content-Type": "application/json"}
-    url = "http://micro-list-reg-books-service/book/list"
+    url = "http://micro-list-reg-books-service:5002/book/list"
 
     response = requests.get(url, headers=header)
 
@@ -121,7 +121,7 @@ def book_register():
         
         header = {"Content-Type": "application/json"}
 
-        url = "http://micro-list-reg-books-service/book/register"
+        url = "http://micro-list-reg-books-service:5002/book/register"
 
         response = requests.post(url, json=data, headers=header)
 
