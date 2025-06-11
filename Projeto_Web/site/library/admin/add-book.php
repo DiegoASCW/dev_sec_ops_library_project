@@ -47,7 +47,7 @@ if (strlen($_SESSION['alogin']) == 0) {
 
         $sql = "INSERT INTO  tblbooks(BookName,Description,CatId,AuthorId,QuantityTotal,QuantityLeft,ISBNNumber,BookPrice) VALUES(:bookname,:description,:category,:author,:quantitytotal,:quantitytotal,:isbn,:price)";
 
-        $url = 'http://10.101.0.10:5000/book/register';
+        $url = 'http://api-gateway-service/book/register';
         $data = ["stdId" => $_SESSION['alogin'], 'bookname' => $bookname, 'description' => $description, 'category' => $category, 'author' => $author, 'quantitytotal' => $quantitytotal, 'isbn' => $isbn, 'price' => $price];
 
         $options = [

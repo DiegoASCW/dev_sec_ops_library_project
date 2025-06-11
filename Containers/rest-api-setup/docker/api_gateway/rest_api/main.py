@@ -33,7 +33,7 @@ def auth_admin():
         
         header = {"Content-Type": "application/json"}
 
-        url = "http://10.100.1.10:5001/auth/admin"
+        url = "http://micro-auth-service/auth/admin"
 
         response = requests.post(url, json=data, headers=header)
 
@@ -64,7 +64,7 @@ def auth_user():
         
         header = {"Content-Type": "application/json"}
 
-        url = "http://10.100.1.10:5001/auth/user"
+        url = "http://micro-auth-service/auth/user"
 
         response = requests.post(url, json=data, headers=header)
 
@@ -97,7 +97,7 @@ def book_list():
     logging.info('[%s] (/book/list) User "%s" list all books', datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"), data.get("stdId", "None"))
     
     header = {"Content-Type": "application/json"}
-    url = "http://10.100.2.10:5002/book/list"
+    url = "http://micro-list-reg-books-service/book/list"
 
     response = requests.get(url, headers=header)
 
@@ -121,7 +121,7 @@ def book_register():
         
         header = {"Content-Type": "application/json"}
 
-        url = "http://10.100.2.10:5002/book/register"
+        url = "http://micro-list-reg-books-service/book/register"
 
         response = requests.post(url, json=data, headers=header)
 
