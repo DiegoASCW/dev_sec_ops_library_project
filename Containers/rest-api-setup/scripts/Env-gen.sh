@@ -29,22 +29,20 @@ fi
 # -----------------------------
 read -rp $'\nDo you want to clean the environment (recommended before redeploying)? [y/N] ' escolha
 if [[ "$escolha" == "y" ]]; then
-  echo -e "${BLUE}INFO${NC}: removing containers, networks, volumes for 'Openshelf' project..."
+  echo -e "${BLUE}INFO${NC}: Stopping and removing containers blocking ports (mysql_stable, ubuntu_apache)..."
 
-  docker stop ubuntu_apache mysql_stable debian_api_gateway micro_auth_api micro_list_reg_books_api register_list_auth_api -t 0 &> /dev/null || true
-  docker rm ubuntu_apache mysql_stable mysql-stable debian_api_gateway micro_auth_api micro_list_reg_books_api register_list_auth_api &> /dev/null || true
-  docker rmi debian_api_gateway_openshelf_image mysql_stable_image apache_openshelf_image micro_auth_openshelf_image micro-list_reg_books_openshelf_image register-list-auth_openshelf_image -f &> /dev/null || true
+  for cname in mysql_stable ubuntu_apache; do
+    if docker ps -a --format '{{.Names}}' | grep -q "^$cname$"; then
+      echo -e "${BLUE}INFO${NC}: Stopping container $cname..."
+      docker stop "$cname" -t 5 || echo -e "${YELLOW}WARN${NC}: Could not stop $cname"
+      echo -e "${BLUE}INFO${NC}: Removing container $cname..."
+      docker rm "$cname" || echo -e "${RED}ERROR${NC}: Failed to remove $cname"
+    else
+      echo -e "${YELLOW}WARN${NC}: Container $cname does not exist, skipping..."
+    fi
+  done
 
-  docker network rm apache_network-R5 mysql_network-R4 \
-    apache_mysql_network-R4-5 openshelf_mysql_network-R4 \
-    backup_mysql_network-R94 backup_mysql_network-R75 \
-    backup_mysql_network-R74 micro_auth_network_R1001 \
-    api_gateway_apache_network-R1015 micro_auth_mysql_network-R10014 \
-    micro_list_reg_books_network_R1002 micro_list_reg_books_mysql_network-R10024 \
-    micro_register_list_auth_network_R1003 micro_register_list_auth_mysql_network-R10034 &> /dev/null || true
-
-  docker volume rm mysql-data audit_logs -f &> /dev/null || true
-  echo -e "${BLUE}INFO${NC}: environment cleaning finished!"
+  echo -e "${BLUE}INFO${NC}: Containers cleaned successfully."
 fi
 
 # -----------------------------
