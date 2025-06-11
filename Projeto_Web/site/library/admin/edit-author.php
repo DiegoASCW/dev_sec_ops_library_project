@@ -3,20 +3,33 @@ session_start();
 error_reporting(0);
 
 include '../includes/config.php';
+include '../includes/sanitize_validation.php';
 
 if (strlen($_SESSION['alogin']) == 0) {
     header('location:index.php');
 } else {
 
     if (isset($_POST['update'])) {
-        $athrid = intval($_GET['athrid']);
-        $author = $_POST['author'];
+
+        $athrid = sanitize_string_ascii($_POST['athrid']);
+        if (is_injection($athrid)) {
+            die('ERRO: Entrada inválida detectada no campo...');
+        }
+
+        $author = sanitize_string_ascii($_POST['author']);
+        if (is_injection($author)) {
+            die('ERRO: Entrada inválida detectada no campo...');
+        }
+
         $sql = "update  tblauthors set AuthorName=:author where id=:athrid";
+
         $query = $dbh->prepare($sql);
         $query->bindParam(':author', $author, PDO::PARAM_STR);
         $query->bindParam(':athrid', $athrid, PDO::PARAM_STR);
         $query->execute();
+
         $_SESSION['updatemsg'] = "Author info updated successfully";
+
         header('location:manage-authors.php');
     }
     ?>

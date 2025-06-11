@@ -2,21 +2,35 @@
 session_start();
 error_reporting(0);
 
-include('../includes/config.php');
+include '../includes/config.php';
+include '../includes/sanitize_validation.php';
+
 
 if (strlen($_SESSION['alogin']) == 0) {
     header('location:index.php');
 } else {
 
     if (isset($_POST['create'])) {
-        $category = $_POST['category'];
-        $status = $_POST['status'];
+
+        $category = sanitize_string_ascii($_POST['category']);
+        if (is_injection($category)) {
+            die('ERRO: Entrada inválida detectada no campo...');
+        }
+
+        $status = sanitize_string_ascii($_POST['status']);
+        if (is_injection($status)) {
+            die('ERRO: Entrada inválida detectada no campo...');
+        }
+
         $sql = "INSERT INTO  tblcategory(CategoryName,Status) VALUES(:category,:status)";
+        
         $query = $dbh->prepare($sql);
         $query->bindParam(':category', $category, PDO::PARAM_STR);
         $query->bindParam(':status', $status, PDO::PARAM_STR);
         $query->execute();
+        
         $lastInsertId = $dbh->lastInsertId();
+        
         if ($lastInsertId) {
             $_SESSION['msg'] = "Brand Listed successfully";
             header('location:manage-categories.php');

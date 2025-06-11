@@ -6,6 +6,7 @@ mb_internal_encoding('UTF-8');
 header('Content-Type: text/html; charset=UTF-8');
 
 include '../includes/config.php';
+include '../includes/sanitize_validation.php';
 
 if (strlen($_SESSION['alogin']) == 0) {
   header('location:index.php');
@@ -21,7 +22,13 @@ $admin_name = $_SESSION['alogin'];
 
 // POST de novo comentário
 if (isset($_POST['submitComment'])) {
-    $texto = trim($_POST['comment']);
+
+
+    $texto = sanitize_string_ascii($_POST['comment']);
+    if (is_injection($texto)) {
+        die('ERRO: Entrada inválida detectada no campo...');
+    }
+
     if ($texto === '') {
         $error = "Comentário não pode ficar vazio.";
     } else {

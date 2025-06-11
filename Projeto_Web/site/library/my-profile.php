@@ -1,7 +1,10 @@
 <?php 
 session_start();
-include('includes/config.php');
-error_reporting(0);
+error_reporting(1);
+
+include 'includes/config.php';
+include 'includes/sanitize_validation.php';
+
 if(strlen($_SESSION['login'])==0)
     {   
 header('location:index.php');
@@ -10,8 +13,16 @@ else{
 if(isset($_POST['update']))
 {    
 $sid=$_SESSION['stdid'];  
-$fname=$_POST['fullanme'];
-$mobileno=$_POST['mobileno'];
+
+    $fname = sanitize_string_ascii($_POST['fullanme']);
+    if (is_injection($fname)) {
+        die('ERRO: Entrada inválida detectada no campo...');
+    }
+
+    $mobileno = sanitize_string_ascii($_POST['mobileno']);
+    if (is_injection($mobileno)) {
+        die('ERRO: Entrada inválida detectada no campo...');
+    }
 
 $sql="update tblstudents set FullName=HEX(AES_ENCRYPT(:fname, 'devsecops')), MobileNumber=HEX(AES_ENCRYPT(:mobileno, 'devsecops')) where StudentId=:sid";
 $query = $dbh->prepare($sql);
