@@ -25,7 +25,7 @@ def author_list():
     auth_result: bool
 
     mycursor = mydb.cursor()
-    sql = "SELECT * from  tblauthors"
+    sql = "SELECT * from tblauthors"
 
     mycursor.execute(sql)
     myresult = mycursor.fetchall()
