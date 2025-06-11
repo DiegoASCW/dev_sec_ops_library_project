@@ -25,16 +25,6 @@ if ! docker info &> /dev/null; then
 fi
 
 # -----------------------------
-# 2.1 Ensure Jenkins has Docker permissions
-# -----------------------------
-echo -e "${BLUE}INFO${NC}: Adding user 'jenkins' to group 'docker', you need to reboot the system for this configuration to take effect..."
-sudo usermod -aG docker jenkins
-if [[ $? -ne 0 ]]; then
-  echo -e "${RED}ERROR${NC}: Failed to add 'jenkins' user to 'docker' group."
-  exit 1
-fi  
-echo -e "${BLUE}INFO${NC}: User 'jenkins' added to 'docker' group successfully."
-# -----------------------------
 # 3. Environment cleaning
 # -----------------------------
 read -rp $'\nDo you want to clean the environment (recommended before redeploying)? [y/N] ' escolha
@@ -175,3 +165,6 @@ echo "Access: http://localhost:5003/ping"
 echo "Container: docker exec -it register_list_auth_api bash"
 
 echo -e "\n${BLUE}Setup complete!${NC}"
+
+echo -e "\n${YELLOW}NOTE${NC}: If the Jenkins pipeline fails to execute Docker commands, make sure the 'jenkins' user is part of the 'docker' group."
+echo -e "${YELLOW}TIP${NC}: Run this manually if needed:\n  sudo usermod -aG docker jenkins && sudo systemctl restart jenkins\n"
