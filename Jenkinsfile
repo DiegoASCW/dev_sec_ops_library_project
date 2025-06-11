@@ -27,7 +27,7 @@ pipeline {
                     sh '''
                         chmod +x ${GEN_FILE}
                         echo "Executando fase de Delivery via ${GEN_FILE}..."
-                        ./Env-gen.sh
+                        yes y | ./Env-gen.sh
                     '''
                 }
             }
