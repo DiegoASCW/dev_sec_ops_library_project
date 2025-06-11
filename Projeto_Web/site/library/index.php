@@ -14,7 +14,7 @@ if (isset($_POST['login'])) {
     $email = $_POST['emailid'];
     $password = hash('sha256', $_POST['password']);
 
-    $url = 'http://api-gateway-service/auth/user';
+    $url = 'http://api-gateway-service:30500/auth/user';
     $data = ['Email' => $email, 'Passwd' => $password];
 
     $options = [

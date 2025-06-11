@@ -65,7 +65,7 @@ echo "- Included extension: pdo_mysql"
 echo "- Enabled Apache module: rewrite"
 echo -e "\nTo access the container: docker exec -it ubuntu_apache bash"
 echo -e "\nTo check Apache logs: docker exec -it ubuntu_apache bash -c 'tail -f /var/log/apache2/error.log'"
-echo -e "\nTest PHP at: http://localhost/library"
+echo -e "\nTest PHP at: https://localhost/library"
 
 echo -e "\n\n\n===============[MySQL]==============="
 echo -e "\nCREDENTIALS:\n  user: root\n  password: passwd"

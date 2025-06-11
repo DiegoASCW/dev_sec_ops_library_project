@@ -67,7 +67,7 @@ else{
                                     <tbody>
 <?php 
 
-$url = 'http://api-gateway-service/book/list';
+$url = 'http://api-gateway-service:30500/book/list';
 
 $data = ["stdId" => $_SESSION['alogin']];
 
