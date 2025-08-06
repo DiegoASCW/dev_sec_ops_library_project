@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 
 set -euo pipefail
 
@@ -16,6 +16,7 @@ if ! command -v docker &> /dev/null; then
   exit 1
 fi
 
+
 # -----------------------------
 # 2. Check if Docker is running
 # -----------------------------
@@ -23,6 +24,7 @@ if ! docker info &> /dev/null; then
   echo -e "${RED}ERROR${NC}: Docker is not running."
   exit 1
 fi
+
 
 # -----------------------------
 # 3. Environment cleaning
@@ -44,6 +46,7 @@ if [[ "$escolha" == "y" ]]; then
   echo -e "${BLUE}INFO${NC}: environment cleaning finished!"
 fi
 
+
 # -----------------------------
 # 4. Check port availability
 # -----------------------------
@@ -60,45 +63,45 @@ function check_port() {
 check_port 3306
 check_port 80
 
+
 # -----------------------------
 # 5. Create Docker networks
 # -----------------------------
 echo -e "\n${BLUE}INFO${NC}: creating Docker networks..."
 
-echo -e "\n${BLUE}INFO${NC}: creating apache_network-R5 (10.0.5.0/24)..."
-docker network create --driver bridge --subnet=10.0.5.0/24 --ip-range=10.0.5.0/24 --gateway=10.0.5.254 apache_network-R5
 
-echo -e "\n${BLUE}INFO${NC}: creating mysql_network-R4 (10.0.4.0/24)..."
+docker network create --driver bridge --subnet=10.0.5.0/24 --ip-range=10.0.5.0/24 --gateway=10.0.5.254 apache_network-R5 
+
 docker network create --driver bridge --subnet=10.0.4.0/24 --ip-range=10.0.4.0/24 --gateway=10.0.4.254 mysql_network-R4
 
-echo -e "\n${BLUE}INFO${NC}: creating apache_mysql_network-R4-5 (10.0.45.0/24)..."
 docker network create --driver bridge --subnet=10.0.45.0/24 --ip-range=10.0.45.0/24 --gateway=10.0.45.254 apache_mysql_network-R4-5
 
 # backup
-echo -e "\n${BLUE}INFO${NC}: creating backup_mysql_network-R94 (10.0.94.0/24)..."
 docker network create --driver bridge --subnet=10.0.94.0/24 --ip-range=10.0.94.0/24 --gateway=10.0.94.254 backup_mysql_network-R94
 
 # REST API
 ## API_GATEWAY <> Apache
-echo -e "\n${BLUE}INFO${NC}: creating api_gateway_apache_network-R1015 (10.101.0.0/24)..."
 docker network create --driver bridge --subnet=10.101.0.0/24 --ip-range=10.101.0.0/24 --gateway=10.101.0.254 api_gateway_apache_network-R1015
+
+# [Micro-Register-List-Auth]
+# API_GATEWAY <> Register-List-Auth
+docker network create --driver bridge --subnet=10.100.3.0/24 --ip-range=10.100.3.0/24 --gateway=10.100.3.254 micro_register_list_auth_network_R1003
+
+# Register-List-Auth <> MySQL
+docker network create --driver bridge --subnet=10.100.34.0/24 --ip-range=10.100.34.0/24 --gateway=10.100.34.254 micro_register_list_auth_mysql_network-R10034
 
 ### [Micro-Auth]
 ## API_GATEWAY <> Micro-Auth
-echo -e "\n${BLUE}INFO${NC}: creating micro_auth_network_R1001 (10.100.1.0/24)..."
 docker network create --driver bridge --subnet=10.100.1.0/24 --ip-range=10.100.1.0/24 --gateway=10.100.1.254 micro_auth_network_R1001
 
 ## Micro-Auth <> MySQL
-echo -e "\n${BLUE}INFO${NC}: creating micro_auth_mysql_network-R10014 (10.100.14.0/24)..."
 docker network create --driver bridge --subnet=10.100.14.0/24 --ip-range=10.100.14.0/24 --gateway=10.100.14.254 micro_auth_mysql_network-R10014
 
 ### [Micro-List-Reg-Books]
 ## API_GATEWAY <> Micro-List-Reg-Books
-echo -e "\n${BLUE}INFO${NC}: creating micro_list_reg_books_network_R1002 (10.100.2.0/24)..."
 docker network create --driver bridge --subnet=10.100.2.0/24 --ip-range=10.100.2.0/24 --gateway=10.100.2.254 micro_list_reg_books_network_R1002
 
 ## Micro-List-Reg-Books <> MySQL
-echo -e "\n${BLUE}INFO${NC}: creating micro_list_reg_books_mysql_network-R10024 (10.100.24.0/24/24)..."
 docker network create --driver bridge --subnet=10.100.24.0/24 --ip-range=10.100.24.0/24 --gateway=10.100.24.254 micro_list_reg_books_mysql_network-R10024
 
 
@@ -151,15 +154,16 @@ echo -e "\n${BLUE}INFO${NC}: creating 'openshelf' database, schema and sample da
 echo -e "\n\n\n${BLUE}INFO${NC}: starting the creation of Debian 12 'debian_api_gateway' container..."
 
 echo -e "\n${BLUE}INFO${NC}: creating Docker volume 'audit_logs'..."
-docker volume create audit_logs | out-null
+docker volume create audit_logs 2>/dev/null
 
 echo -e "\n${BLUE}INFO${NC}: preparing enviroment and installing dependencies"
-docker build -t debian_api_gateway_openshelf_image -f ../docker/api_gateway/api_gateway.dockerfile ../docker/api_gateway
-docker create --name debian_api_gateway -p 5000:5000 debian_api_gateway_openshelf_image
+docker build --platform=linux/amd64 -t debian_api_gateway_openshelf_image -f ../docker/api_gateway/api_gateway.dockerfile ../docker/api_gateway
+docker create --name debian_api_gateway -p 5000:5000 -v audit_logs:/var/log/audit_log debian_api_gateway_openshelf_image
 
 docker network connect --ip 10.101.0.10 api_gateway_apache_network-R1015 debian_api_gateway
 docker network connect --ip 10.100.1.11 micro_auth_network_R1001 debian_api_gateway
 docker network connect --ip 10.100.2.11 micro_list_reg_books_network_R1002 debian_api_gateway
+docker network connect --ip 10.100.3.11 micro_register_list_auth_network_R1003 debian_api_gateway
 
 echo -e "\n${BLUE}INFO${NC}: starting 'debian_api_gateway' container and API Gateway service"
 docker start debian_api_gateway
@@ -189,7 +193,6 @@ echo -e "\n${BLUE}Setup complete!${NC}"
 # -----------------------------
 # 10. Micro List Reg Books
 # -----------------------------
-
 docker build --platform=linux/amd64 -t micro-list_reg_books_openshelf_image -f ../docker/micro-list-reg-books/list_reg.dockerfile ../docker/micro-list-reg-books
 docker create --name micro_list_reg_books_api -p 5002:5002 micro-list_reg_books_openshelf_image
 
