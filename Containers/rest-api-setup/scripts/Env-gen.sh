@@ -176,7 +176,7 @@ docker network connect --ip 10.100.3.11 micro_register_list_auth_network_R1003 d
 
 docker start debian_api_gateway
 
-echo -e "${BLUE}INFO${NC}: creating 'openshelf_audit.log' file "
+echo -e "${BLUE}INFO${NC}: creating 'openshelf_audit.log' file"
 docker exec -i debian_api_gateway bash -c "touch /var/log/audit_log/openshelf_audit.log && chmod go-rwx /var/log/audit_log/openshelf_audit.log"
 echo -e "${BLUE}INFO${NC}: API Gateway environment created successfully!"
 
@@ -193,7 +193,7 @@ docker network connect --ip 10.100.14.11 micro_auth_mysql_network-R10014 micro_a
 docker network connect --ip 10.100.1.10 micro_auth_network_R1001 micro_auth_api
 
 docker start micro_auth_api
-echo -e "${BLUE}INFO${NC}: API Gateway environment created successfully!"
+echo -e "${BLUE}INFO${NC}: Microservice Auth API environment created successfully!"
 
 
 # -----------------------------
@@ -208,6 +208,28 @@ docker network connect --ip 10.100.24.11 micro_list_reg_books_mysql_network-R100
 docker network connect --ip 10.100.2.10 micro_list_reg_books_network_R1002 micro_list_reg_books_api
 
 docker start micro_list_reg_books_api
+echo -e "${BLUE}INFO${NC}: Microservice Register & Read books API environment created successfully!"
+
+
+# -----------------------------
+# 11. Micro Register List Authores
+# -----------------------------
+
+Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
+Write-Host ": starting the creation of Debian 12 'register_list_auth_api' container..."
+
+Write-Host "INFO" -ForegroundColor Blue -NoNewline
+Write-Host ": preparing enviroment and installing dependencies"
+docker build --platform=linux/amd64 -t register-list-auth_openshelf_image -f ../docker/micro_register_list_auth/register_list_auth.dockerfile ../docker/micro_register_list_auth
+docker create --name register_list_auth_api -p 5003:5003 register-list-auth_openshelf_image
+
+docker network connect --ip 10.100.3.10 micro_register_list_auth_network_R1003 register_list_auth_api
+docker network connect --ip 10.100.34.10 micro_register_list_auth_mysql_network-R10034 register_list_auth_api
+
+Write-Host "INFO" -ForegroundColor Blue -NoNewline
+Write-Host ": starting 'register_list_auth_api' container and service"
+docker start register_list_auth_api
+
 
 echo -e "Setup complete!"
 
@@ -223,4 +245,4 @@ echo -e "\nTest PHP at: http://localhost/library"
 
 echo -e "\n\n===============[MySQL]==============="
 echo -e "\nCREDENTIALS:\n  user: root\n  password: passwd"
-echo -e "\nAccess MySQL: docker exec -it mysql_stable mysql -u root -p"
+echo -e "\nAccess MySQL: docker exec -it mysql_stable mysql -u root -ppasswd --database=openshelf"

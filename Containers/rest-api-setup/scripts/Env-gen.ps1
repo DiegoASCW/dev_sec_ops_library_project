@@ -133,9 +133,7 @@ Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": starting the creation of Apache 8.2 'ubuntu_apache' container..."
 
 Write-Host "INFO" -ForegroundColor Blue -NoNewline
-Write-Host ": deploying Apache/PHP container..."
-
-$file_path=(Get-Location).Path -replace '\\', '/'
+Write-Host ": building & deploying Apache/PHP container..."
 
 docker build -t apache_openshelf_image -f ../docker/apache/apache.dockerfile ../../..
 docker create --name ubuntu_apache -p 80:80 -p 443:443 apache_openshelf_image
@@ -144,11 +142,11 @@ docker network connect --ip 10.0.5.10 apache_network-R5 ubuntu_apache
 docker network connect --ip 10.0.45.20 apache_mysql_network-R45 ubuntu_apache
 docker network connect --ip 10.101.0.11 api_gateway_apache_network-R1015 ubuntu_apache
 
-Write-Host "INFO" -ForegroundColor Blue -NoNewline
-Write-Host ": starting 'ubuntu_apache' container and Apache2 service"
 docker start ubuntu_apache
 
-docker restart ubuntu_apache
+Write-Host "INFO" -ForegroundColor Blue -NoNewline
+Write-Host ": Apache/PHP environment created successfully!"
+
 
 # -----------------------------
 # 7. MySQL container setup
@@ -158,11 +156,11 @@ Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": starting the creation of MySQL 8.0 'mysql_stable' container..."
 
 Write-Host "INFO" -ForegroundColor Blue -NoNewline
-Write-Host ": creating Docker volume 'mysql-data'..."
+Write-Host ": creating Docker volume 'mysql-data' w/ 'openshelf' schema..."
 docker volume create mysql-data | out-null
 
 Write-Host "INFO" -ForegroundColor Blue -NoNewline
-Write-Host ": preparing enviroment and installing dependencies"
+Write-Host ": building & deploying MySQL container..."
 docker build -t mysql_openshelf_image -f ../docker/sql/mysql.dockerfile ../docker/sql/
 docker create --name mysql_stable -p 3306:3306 -e MYSQL_ROOT_PASSWORD=passwd -v mysql-data:/var/lib/mysql mysql_openshelf_image
 
@@ -173,10 +171,10 @@ docker network connect --ip 10.100.14.10 micro_auth_mysql_network-R10014 mysql_s
 docker network connect --ip 10.100.24.10 micro_list_reg_books_mysql_network-R10024 mysql_stable
 docker network connect --ip 10.100.34.11 micro_register_list_auth_mysql_network-R10034 mysql_stable
 
+docker start mysql_stable
 
 Write-Host "INFO" -ForegroundColor Blue -NoNewline
-Write-Host ": starting 'mysql_stable' container and MySQL service"
-docker start mysql_stable
+Write-Host ": MySQL environment created successfully!"
 
 
 # -----------------------------
@@ -200,12 +198,13 @@ docker network connect --ip 10.100.1.11 micro_auth_network_R1001 debian_api_gate
 docker network connect --ip 10.100.2.11 micro_list_reg_books_network_R1002 debian_api_gateway
 docker network connect --ip 10.100.3.11 micro_register_list_auth_network_R1003 debian_api_gateway
 
-Write-Host "INFO" -ForegroundColor Blue -NoNewline
-Write-Host ": starting 'debian_api_gateway' container and API Gateway service"
 docker start debian_api_gateway
 
+Write-Host "INFO" -ForegroundColor Blue -NoNewline
+Write-Host ": creating 'openshelf_audit.log' file"
 docker exec -i debian_api_gateway bash -c "touch /var/log/audit_log/openshelf_audit.log && chmod go-rwx /var/log/audit_log/openshelf_audit.log"
-
+Write-Host "INFO" -ForegroundColor Blue -NoNewline
+Write-Host ": API Gateway environment created successfully!"
 
 # -----------------------------
 # 9. Micro Auth
@@ -222,9 +221,10 @@ docker create --name micro_auth_api -p 5001:5001 micro-auth_openshelf_image
 docker network connect --ip 10.100.14.11 micro_auth_mysql_network-R10014 micro_auth_api
 docker network connect --ip 10.100.1.10 micro_auth_network_R1001 micro_auth_api
 
-Write-Host "INFO" -ForegroundColor Blue -NoNewline
-Write-Host ": starting 'micro_auth_api' container and API Gateway service"
 docker start micro_auth_api
+
+Write-Host "INFO" -ForegroundColor Blue -NoNewline
+Write-Host ": Microservice Auth API environment created successfully!"
 
 
 # -----------------------------
@@ -242,9 +242,13 @@ docker create --name micro_list_reg_books_api -p 5002:5002 micro-list_reg_books_
 docker network connect --ip 10.100.24.11 micro_list_reg_books_mysql_network-R10024 micro_list_reg_books_api
 docker network connect --ip 10.100.2.10 micro_list_reg_books_network_R1002 micro_list_reg_books_api
 
-Write-Host "INFO" -ForegroundColor Blue -NoNewline
-Write-Host ": starting 'micro_list_reg_books_api' container and API Gateway service"
 docker start micro_list_reg_books_api
+
+Write-Host "INFO" -ForegroundColor Blue -NoNewline
+Write-Host ": Microservice Register & Read books API environment created successfully!"
+
+Write-Host "INFO" -ForegroundColor Blue -NoNewline
+
 
 # -----------------------------
 # 11. Micro Register List Authores
@@ -265,6 +269,8 @@ Write-Host "INFO" -ForegroundColor Blue -NoNewline
 Write-Host ": starting 'register_list_auth_api' container and service"
 docker start register_list_auth_api
 
+Write-Host ": Setup complete!"
+
 
 Write-Host "`n`n`n==============[APACHE]=============="
 Write-Host "`n`nCONTAINER INFORMATION:"
@@ -279,5 +285,5 @@ Write-Host "`n`nTo test PHP:"
 Write-Host "Open in your browser: https://localhost/library"
 
 Write-Host "`n`n===============[MySQL]==============="
-Write-Host "`n`nCREDENCIAIS DO DOCKER:`nuser: root`nPassword: passwd"
-Write-Host "`n`nPara acessar o docker:`ndocker start mysql_stable`ndocker exec -it mysql_stable mysql -u root -p"
+Write-Host "`n`nCREDENTIALS:`nuser: root`nPassword: passwd"
+Write-Host "`n`nAccess MySQL: docker exec -it mysql_stable mysql -u root -ppasswd --database=openshelf"
