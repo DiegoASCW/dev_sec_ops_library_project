@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 
 set -euo pipefail
 
@@ -121,10 +121,8 @@ docker network create --driver bridge --subnet=10.100.24.0/24 --ip-range=10.100.
 # -----------------------------
 # 6. Apache/PHP container setup
 # -----------------------------
-echo -e "\n\n${BLUE}INFO${NC}: starting the creation of Apache 8.2 'ubuntu_apache' container..."
-
-echo -e "${BLUE}INFO${NC}: deploying Apache/PHP container..."
-
+echo -e "\n\n${BLUE}INFO${NC}: starting the creation of Apache 8.2 '${RED}ubuntu_apache${NC}' container..."
+echo -e "${BLUE}INFO${NC}: building & deploying Apache/PHP container..."
 docker build -t apache_openshelf_image -f ../docker/apache/apache.dockerfile ../../.. &> /dev/null || true
 docker create --name ubuntu_apache -p 80:80 apache_openshelf_image
 
@@ -140,12 +138,12 @@ echo -e "${BLUE}INFO${NC}: Apache/PHP environment created successfully!"
 # -----------------------------
 # 7. MySQL container setup
 # -----------------------------
-echo -e "\n\n${BLUE}INFO${NC}: starting the creation of MySQL 8.0 'mysql_stable' container..."
+echo -e "\n\n${BLUE}INFO${NC}: starting the creation of MySQL 8.0 '${RED}mysql_stable${NC}' container..."
 
-echo -e "${BLUE}INFO${NC}: creating Docker volume 'mysql-data'..."
+echo -e "${BLUE}INFO${NC}: creating Docker volume 'mysql-data' w/ 'openshelf' schema..."
 docker volume create mysql-data &> /dev/null
 
-echo -e "${BLUE}INFO${NC}: preparing enviroment and installing dependencies" 
+echo -e "${BLUE}INFO${NC}: building & deploying MySQL container..."
 docker build -t mysql_openshelf_image -f ../docker/sql/mysql.dockerfile ../docker/sql/ &> /dev/null || true
 docker create --name mysql_stable -p 3306:3306 -e MYSQL_ROOT_PASSWORD=passwd -v mysql-data:/var/lib/mysql mysql_openshelf_image
 
@@ -157,14 +155,13 @@ docker network connect --ip 10.100.24.10 micro_list_reg_books_mysql_network-R100
 
 docker start mysql_stable
 
-echo -e "${BLUE}INFO${NC}: creating 'openshelf' database, schema and sample data..."
+echo -e "${BLUE}INFO${NC}: MySQL environment created successfully!"
 
 
 # -----------------------------
 # 8. API Gateway container setup
 # -----------------------------
-echo -e "\n\n${BLUE}INFO${NC}: starting the creation of Debian 12 'debian_api_gateway' container..."
-
+echo -e "\n\n${BLUE}INFO${NC}: starting the creation of Debian 12 '${RED}debian_api_gateway${NC}' container..."
 echo -e "${BLUE}INFO${NC}: creating Docker volume 'audit_logs'..."
 docker volume create audit_logs 2>/dev/null
 
@@ -177,34 +174,33 @@ docker network connect --ip 10.100.1.11 micro_auth_network_R1001 debian_api_gate
 docker network connect --ip 10.100.2.11 micro_list_reg_books_network_R1002 debian_api_gateway
 docker network connect --ip 10.100.3.11 micro_register_list_auth_network_R1003 debian_api_gateway
 
-echo -e "${BLUE}INFO${NC}: starting 'debian_api_gateway' container and API Gateway service"
 docker start debian_api_gateway
 
+echo -e "${BLUE}INFO${NC}: creating 'openshelf_audit.log' file "
 docker exec -i debian_api_gateway bash -c "touch /var/log/audit_log/openshelf_audit.log && chmod go-rwx /var/log/audit_log/openshelf_audit.log"
+echo -e "${BLUE}INFO${NC}: API Gateway environment created successfully!"
 
 
 # -----------------------------
 # 9. Micro Auth
 # -----------------------------
-echo -e "\n\n${BLUE}INFO${NC}: starting the creation of Debian 12 'micro_auth_api' container..."
-
+echo -e "\n\n${BLUE}INFO${NC}: starting the creation of Debian 12 '${RED}micro_auth_api${NC}' container..."
 echo -e "${BLUE}INFO${NC}: preparing enviroment and installing dependencies"
-
 docker build --platform=linux/amd64 -t micro_auth_openshelf_image -f ../docker/micro-auth/auth.dockerfile ../docker/micro-auth &> /dev/null || true
 docker create --name micro_auth_api -p 5001:5001 micro_auth_openshelf_image
 
 docker network connect --ip 10.100.14.11 micro_auth_mysql_network-R10014 micro_auth_api
 docker network connect --ip 10.100.1.10 micro_auth_network_R1001 micro_auth_api
 
-echo -e "${BLUE}INFO${NC}: starting 'micro_auth_api' container and API Gateway service"
 docker start micro_auth_api
-
-echo -e "${BLUE}Setup complete!${NC}"
+echo -e "${BLUE}INFO${NC}: API Gateway environment created successfully!"
 
 
 # -----------------------------
 # 10. Micro List Reg Books
 # -----------------------------
+echo -e "\n\n${BLUE}INFO${NC}: starting the creation of Debian 12 '${RED}micro_list_reg_books_api${NC}' container..."
+
 docker build --platform=linux/amd64 -t micro-list_reg_books_openshelf_image -f ../docker/micro-list-reg-books/list_reg.dockerfile ../docker/micro-list-reg-books &> /dev/null || true
 docker create --name micro_list_reg_books_api -p 5002:5002 micro-list_reg_books_openshelf_image
 
@@ -212,6 +208,8 @@ docker network connect --ip 10.100.24.11 micro_list_reg_books_mysql_network-R100
 docker network connect --ip 10.100.2.10 micro_list_reg_books_network_R1002 micro_list_reg_books_api
 
 docker start micro_list_reg_books_api
+
+echo -e "Setup complete!"
 
 
 echo -e "\n\n\n==============[APACHE]=============="
