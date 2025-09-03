@@ -1,50 +1,63 @@
 <?php
+// Inicia a sessão
 session_start();
+
+// Inclui as configurações necessárias
 include('../includes/config.php');
+include('../includes/cognito-config.php'); // <-- Adicionado para o Cognito
+
+// Se o admin já estiver logado, redireciona para o dashboard
+if (isset($_SESSION['alogin']) && !empty($_SESSION['alogin'])) {
+    header("Location: dashboard.php");
+    exit();
+}
+
+// --- LÓGICA DE LOGIN ATUALIZADA COM COGNITO ---
 if (isset($_POST['login'])) {
-    $username = $_POST['username'];
-    $password = md5($_POST['password']);
-    #$sql = "SELECT UserName,Password FROM admin WHERE UserName=:username and Password=:password";
-    #$query = $dbh->prepare($sql);
-    #$query->bindParam(':username', $username, PDO::PARAM_STR);
-    #$query->bindParam(':password', $password, PDO::PARAM_STR);
-    #$query->execute();
-    #$results = $query->fetchAll(PDO::FETCH_OBJ);
+    $email = $_POST['emailid']; // <-- Alterado de 'username' para 'emailid'
+    $password = $_POST['password'];
 
+    try {
+        // Tenta autenticar no Cognito
+        $result = $cognitoClient->initiateAuth([
+            'AuthFlow'       => 'USER_PASSWORD_AUTH',
+            'ClientId'       => AWS_COGNITO_CLIENT_ID,
+            'AuthParameters' => [
+                'USERNAME'   => $email,
+                'PASSWORD'   => $password,
+            ],
+        ]);
 
-
-    if ($query->rowCount() > 0) {
-        $_SESSION['alogin'] = $_POST['username'];
+        // Se o login for bem-sucedido, define a sessão do admin
+        $_SESSION['alogin'] = $email;
+        
+        // Redireciona para o dashboard
         echo "<script type='text/javascript'> document.location ='dashboard.php'; </script>";
-    } else {
-        echo "<script>alert('Invalid Details');</script>";
+        exit();
+
+    } catch (Exception $e) {
+        // Se der erro, mostra um alerta com a mensagem específica
+        echo "<script>alert('Detalhes inválidos: " . addslashes($e->getMessage()) . "');</script>";
     }
 }
 ?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w.g.org/1999/xhtml">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <title>Openshelf</title>
-    <!-- BOOTSTRAP CORE STYLE  -->
-    <link href="assets/css/bootstrap.css" rel="stylesheet" />
-    <!-- FONT AWESOME STYLE  -->
+    <title>Openshelf - Admin Login</title> <link href="assets/css/bootstrap.css" rel="stylesheet" />
     <link href="assets/css/font-awesome.css" rel="stylesheet" />
-    <!-- CUSTOM STYLE  -->
     <link href="assets/css/style.css" rel="stylesheet" />
-    <!-- GOOGLE FONT -->
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
 
 </head>
 
 <body>
-    <!------MENU SECTION START-->
     <?php include('includes/header.php'); ?>
-    <!-- MENU SECTION END-->
     <div class="content-wrapper">
         <div class="container">
             <div class="row pad-botm">
@@ -53,7 +66,6 @@ if (isset($_POST['login'])) {
                 </div>
             </div>
 
-            <!--LOGIN PANEL START-->
             <div class="row">
                 <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
                     <div class="panel panel-info">
@@ -64,8 +76,8 @@ if (isset($_POST['login'])) {
                             <form role="form" method="post">
 
                                 <div class="form-group">
-                                    <label>Enter Username</label>
-                                    <input class="form-control" type="text" name="username" required />
+                                    <label>Enter Email</label>
+                                    <input class="form-control" type="email" name="emailid" required />
                                 </div>
                                 <div class="form-group">
                                     <label>Password</label>
@@ -77,18 +89,12 @@ if (isset($_POST['login'])) {
                     </div>
                 </div>
             </div>
-            <!---LOGIN PABNEL END-->
-
-
-        </div>
+            </div>
     </div>
-    <!-- CONTENT-WRAPPER SECTION END-->
     <?php include('includes/footer.php'); ?>
-    <!-- FOOTER SECTION END-->
     <script src="assets/js/jquery-1.10.2.js"></script>
-    <!-- BOOTSTRAP SCRIPTS  -->
     <script src="assets/js/bootstrap.js"></script>
-    <!-- CUSTOM SCRIPTS  -->
+    <script src="assets/js/jquery.dataTables.js"></script>
     <script src="assets/js/custom.js"></script>
 </body>
 

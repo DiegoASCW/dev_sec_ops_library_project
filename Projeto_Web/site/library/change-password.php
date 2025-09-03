@@ -48,7 +48,7 @@ if (strlen($_SESSION['login']) == 0) {
     <!-- CUSTOM STYLE  -->
     <link href="assets/css/style.css" rel="stylesheet" />
     <!-- GOOGLE FONT -->
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
     <style>
       .errorWrap {
         padding: 10px;
@@ -136,6 +136,7 @@ if (strlen($_SESSION['login']) == 0) {
     <script src="assets/js/jquery-1.10.2.js"></script>
     <!-- BOOTSTRAP SCRIPTS  -->
     <script src="assets/js/bootstrap.js"></script>
+    <script src="assets/js/jquery.dataTables.js"></script>
     <!-- CUSTOM SCRIPTS  -->
     <script src="assets/js/custom.js"></script>
   </body>

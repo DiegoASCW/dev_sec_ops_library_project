@@ -168,5 +168,6 @@ $comments = $q->fetchAll(PDO::FETCH_OBJ);
     <?php include 'includes/footer.php'; ?>
     <script src="assets/js/jquery-1.10.2.js"></script>
     <script src="assets/js/bootstrap.js"></script>
+    <script src="assets/js/jquery.dataTables.js"></script>
 </body>
 </html>

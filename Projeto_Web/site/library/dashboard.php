@@ -26,7 +26,7 @@ else{?>
     <!-- CUSTOM STYLE  -->
     <link href="assets/css/style.css" rel="stylesheet" />
     <!-- GOOGLE FONT -->
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
 
 </head>
 <body>
@@ -37,7 +37,7 @@ else{?>
     <div class="container">
       <div class="row pad-botm">
           <div class="col-md-12">
-            <h4 class="header-line">ADMIN DASHBOARD</h4>
+            <h4 class="header-line">DASHBOARD</h4>
           </div>
       </div>     
       <div class="row">
@@ -81,6 +81,7 @@ else{?>
 <?php include('includes/footer.php');?>
     <script src="assets/js/jquery-1.10.2.js"></script>
     <script src="assets/js/bootstrap.js"></script>
+    <script src="assets/js/jquery.dataTables.js"></script>
     <script src="assets/js/custom.js"></script>
 </body>
 </html>

@@ -1,87 +1,65 @@
 <?php
+// Always start the session at the very top.
 session_start();
-error_reporting(0);
+
 include('includes/config.php');
-if ($_SESSION['login'] != '') {
-  $_SESSION['login'] = '';
+include('includes/cognito-config.php');
+
+// If a user is already logged in, redirect to the dashboard.
+if (isset($_SESSION['login']) && !empty($_SESSION['login'])) {
+    header("Location: dashboard.php");
+    exit();
 }
+
+// --- LOGIN LOGIC ---
 if (isset($_POST['login'])) {
-  //code for captach verification
-  if ($_POST["vercode"] != $_SESSION["vercode"] or $_SESSION["vercode"] == '') {
-    echo "<script>alert('Incorrect verification code');</script>";
-  } else {
-
     $email = $_POST['emailid'];
-    $password = hash('sha256', $_POST['password']);
+    $password = $_POST['password'];
 
-    $url = 'http://10.101.0.10:5000/auth/user';
-    $data = ['Email' => $email, 'Passwd' => $password];
+    try {
+      $result = $cognitoClient->initiateAuth([
+          'AuthFlow'       => 'USER_PASSWORD_AUTH',
+          'ClientId'       => AWS_COGNITO_CLIENT_ID,
+          'AuthParameters' => [
+              'USERNAME'   => $email,
+              'PASSWORD'   => $password,
+              'SECRET_HASH'=> generateSecretHash($email),
+          ],
+      ]);
 
-    $options = [
-        'http' => [
-            'header'  => "Content-Type: application/json\r\n",
-            'method'  => 'POST',
-            'content' => json_encode($data),
-        ],
-    ];
 
-    # request POST pro API Gateway
-    $context = stream_context_create($options);
-    $result = @file_get_contents($url, false, $context);
+        // If successful, store session data.
+        $idToken = $result->get('AuthenticationResult')['IdToken'];
+        $_SESSION['login'] = $email;
+        $_SESSION['id_token'] = $idToken;
 
-    if ($result === false) {
-        echo "ERROR: $result";
+        list($header, $payload, $signature) = explode('.', $idToken);
+        $payloadData = json_decode(base64_decode($payload), true);
+        $_SESSION['stdid'] = $payloadData['sub'];
 
-    } else {
-        // converte o objeto JSON do request em array
-        $responseData = json_decode($result, true);
+        // Redirect to the dashboard.
+        echo "<script type='text/javascript'> document.location ='dashboard.php'; </script>";
 
-        $authResult = $responseData['Result'];
-        $studentId = $responseData['StudentId'] ?? null;
-        $status = $responseData['Status'] ?? null;
-        $EmailId = $responseData['EmailId'] ?? null;
-
-        # verificação da requisição e validação do login
-        if ($authResult != "Error" && $authResult != "False") {
-            $_SESSION['stdid'] = $studentId;
-            if ($status == "1") {
-              $_SESSION['login'] = $_POST['emailid'];
-              echo "<script type='text/javascript'> document.location ='dashboard.php'; </script>";
-            } else {
-              echo "<script>alert('Your Account Has been blocked .Please contact admin');</script>";
-            }
-          
-        } else {
-          echo "<script>alert('Invalid Details');</script>";
-        }
-      }
+    } catch (Aws\CognitoIdentityProvider\Exception\CognitoIdentityProviderException $e) {
+        echo "<script>alert('Invalid Details: " . addslashes($e->getAwsErrorMessage()) . "');</script>";
+    } catch (Exception $e) {
+         echo "<script>alert('DEBUG: " . addslashes($e->getMessage()) . "');</script>";
     }
 }
 ?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-
+<html xmlns="http://www.w.org/1999/xhtml">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <meta name="description" content="" />
-  <meta name="author" content="" />
   <title>Openshelf</title>
-  <!-- BOOTSTRAP CORE STYLE  -->
   <link href="assets/css/bootstrap.css" rel="stylesheet" />
-  <!-- FONT AWESOME STYLE  -->
   <link href="assets/css/font-awesome.css" rel="stylesheet" />
-  <!-- CUSTOM STYLE  -->
   <link href="assets/css/style.css" rel="stylesheet" />
-  <!-- GOOGLE FONT -->
-  <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
-
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
 </head>
-
 <body>
-  <!------MENU SECTION START-->
   <?php include('includes/header.php'); ?>
-  <!-- MENU SECTION END-->
   <div class="content-wrapper">
     <div class="container">
       <div class="row pad-botm">
@@ -89,17 +67,12 @@ if (isset($_POST['login'])) {
           <h4 class="header-line">USER LOGIN FORM</h4>
         </div>
       </div>
-
-      <!--LOGIN PANEL START-->
       <div class="row">
         <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
           <div class="panel panel-info">
-            <div class="panel-heading">
-              LOGIN FORM
-            </div>
+            <div class="panel-heading">LOGIN FORM</div>
             <div class="panel-body">
               <form role="form" method="post">
-
                 <div class="form-group">
                   <label>Enter Email id</label>
                   <input class="form-control" type="text" name="emailid" required autocomplete="off" />
@@ -109,34 +82,18 @@ if (isset($_POST['login'])) {
                   <input class="form-control" type="password" name="password" required autocomplete="off" />
                   <p class="help-block"><a href="user-forgot-password.php">Forgot Password</a></p>
                 </div>
-
-                <div class="form-group">
-                  <label>Verification code : </label>
-                  <input type="text" class="form-control1" name="vercode" maxlength="5" autocomplete="off" required
-                    style="height:25px;" />&nbsp;<img src="captcha.php">
-                </div>
-
-                <button type="submit" name="login" class="btn btn-info">LOGIN </button> | <a href="signup.php">Not
-                  Register Yet</a>
+                <button type="submit" name="login" class="btn btn-info">LOGIN </button> | <a href="signup.php">Not Register Yet</a> | <a href="confirm.php">Confirmar sua conta?</a>
               </form>
             </div>
           </div>
         </div>
       </div>
-      <!---LOGIN PANEL END-->
-
-
     </div>
   </div>
-  <!-- CONTENT-WRAPPER SECTION END-->
   <?php include('includes/footer.php'); ?>
-  <!-- FOOTER SECTION END-->
   <script src="assets/js/jquery-1.10.2.js"></script>
-  <!-- BOOTSTRAP SCRIPTS  -->
   <script src="assets/js/bootstrap.js"></script>
-  <!-- CUSTOM SCRIPTS  -->
+  <script src="assets/js/jquery.dataTables.js"></script>
   <script src="assets/js/custom.js"></script>
-
 </body>
-
 </html>
