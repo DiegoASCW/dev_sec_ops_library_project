@@ -135,10 +135,35 @@ Write-Host ": starting the creation of Apache 8.2 'ubuntu_apache' container..."
 Write-Host "`nINFO" -ForegroundColor Blue -NoNewline
 Write-Host ": deploying Apache/PHP container..."
 
-$file_path=(Get-Location).Path -replace '\\', '/'
+# Use relative path (same pattern as your docker build commands)
+$env_file = "../docker/apache/env.env"
+
+# Verify the file exists
+if (-not (Test-Path $env_file)) {
+    # If not found with relative path, try to construct absolute path correctly
+    $script_parent = Split-Path $PSScriptRoot -Parent  # Gets rest-api-setup folder
+    $env_file_absolute = Join-Path $script_parent "docker\apache\env.env"
+    
+    if (Test-Path $env_file_absolute) {
+        $env_file = $env_file_absolute
+        Write-Host "INFO" -ForegroundColor Blue -NoNewline
+        Write-Host ": Found env.env at: $env_file"
+    } else {
+        Write-Host "ERROR" -ForegroundColor Red -NoNewline
+        Write-Host ": env.env file not found at expected locations"
+        Write-Host "Searched at:"
+        Write-Host "  - Relative: ../docker/apache/env.env" 
+        Write-Host "  - Absolute: $env_file_absolute"
+        Write-Host "Please verify the file exists at docker/apache/env.env"
+        exit 1
+    }
+} else {
+    Write-Host "INFO" -ForegroundColor Blue -NoNewline
+    Write-Host ": Using env.env from relative path: $env_file"
+}
 
 docker build -t apache_openshelf_image -f ../docker/apache/apache.dockerfile ../../..
-docker create --name ubuntu_apache -p 80:80 -p 443:443 --env-file "C:\Users\VexFlint\Desktop\dev_sec_ops_library_project-main\Containers\rest-api-setup\docker\apache\env.env" apache_openshelf_image
+docker create --name ubuntu_apache -p 80:80 -p 443:443 --env-file "$env_file" apache_openshelf_image
 
 docker network connect --ip 10.0.5.10 apache_network-R5 ubuntu_apache
 docker network connect --ip 10.0.45.20 apache_mysql_network-R4-5 ubuntu_apache
@@ -149,7 +174,6 @@ Write-Host ": starting 'ubuntu_apache' container and Apache2 service"
 docker start ubuntu_apache
 
 docker restart ubuntu_apache
-
 # -----------------------------
 # 7. MySQL container setup
 # -----------------------------
